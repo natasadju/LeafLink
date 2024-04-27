@@ -1,6 +1,6 @@
-# Maribor Green Spaces
+# LeafLink
 
-Maribor Green Spaces is a web application aimed at promoting community engagement and environmental awareness in Maribor. The app allows users to discover and participate in events focused on green spaces, such as park clean-ups, tree planting initiatives, and other environmental activities.
+LeafLink is a digital twin cross-platform project aimed at promoting community engagement and environmental awareness in Maribor. The app allows users to discover and participate in events focused on green spaces, such as park clean-ups, tree planting initiatives, and other environmental activities.
 
 ## Features
 
@@ -36,9 +36,9 @@ Maribor Green Spaces is a web application aimed at promoting community engagemen
 
 ## Technologies Used
 
-Maribor Green Spaces is built using the following technologies:
+LeafLink is built using the following technologies:
 
-- **Frontend**: React, HTML, CSS
+- **Frontend**: React
 - **Backend**: Node.js, Express.js
 - **Database**: MongoDB
 - **Maps Integration**: Google Maps API
