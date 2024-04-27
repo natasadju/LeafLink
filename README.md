@@ -1,11 +1,45 @@
-# LeafLink
+# Maribor Green Spaces
 
-LeafLink is a digital platform designed to foster sustainability, support local food initiatives, and promote green spaces within the vibrant city of Maribor. Our app aims to connect residents and visitors with eco-friendly resources, empowering them to make informed choices that benefit both the environment and the community.
+Maribor Green Spaces is a web application aimed at promoting community engagement and environmental awareness in Maribor. The app allows users to discover and participate in events focused on green spaces, such as park clean-ups, tree planting initiatives, and other environmental activities.
 
-## Key Features:
+## Features
 
-- **Mapping Local Food Sources**: Discover farmers' markets, community-supported agriculture (CSA) programs, and farm-to-table restaurants offering fresh, locally sourced produce.
-  
-- **Highlighting Green Spaces**: Explore parks, gardens, urban farms, and other green spaces throughout Maribor, along with information about biodiversity, conservation efforts, and recreational activities.
+### 1. Account Creation and Green Area Map Viewing
 
-//TODO
+- **Account Creation**: Users can sign up for an account to access the full features of the application.
+- **Green Area Map**: Users can view a detailed map of Maribor with marked green areas, providing them with insights into the city's natural spaces.
+
+### 2. Event Organization
+
+- **Event Creation**: Users can organize events, such as park clean-ups, through the platform. This feature enables individuals and organizations to mobilize the community for environmental causes.
+
+### 3. Event Notifications
+
+- **Proximity Notifications**: Users receive notifications about events happening in their vicinity, ensuring they stay informed about opportunities to participate in local initiatives.
+
+### 4. Event Attendance
+
+- **Event RSVP**: Users can choose to attend specific events, indicating their interest and commitment to participating in community activities.
+
+### 5. Collaboration and Social Networking
+
+- **Friend Management**: Users can add friends and collaborate with them on event organization tasks, fostering a sense of community and teamwork.
+- **User Profiles**: Users can view profiles and statistics of other users, facilitating networking and community building within the platform.
+
+### 6. Event Media Sharing
+
+- **Image Sharing**: Users can post pictures from events they attended, creating a shared archive of images for each event. Additionally, users can view pictures posted by other attendees, promoting community engagement and documentation of activities.
+
+### 7. Air Quality Data Integration
+
+- **Air Quality Information**: The app integrates with a digital twin to scrape air quality data in Maribor. Users can access real-time air quality information within the app, helping them make informed decisions about outdoor activities.
+
+## Technologies Used
+
+Maribor Green Spaces is built using the following technologies:
+
+- **Frontend**: React, HTML, CSS
+- **Backend**: Node.js, Express.js
+- **Database**: MongoDB
+- **Maps Integration**: Google Maps API
+- **Authentication**: JSON Web Tokens (JWT)
