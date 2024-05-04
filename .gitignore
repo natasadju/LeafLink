@@ -1,3 +1,4 @@
 /backend/.idea
 /.idea
 /backend/node_modules/
+.env
