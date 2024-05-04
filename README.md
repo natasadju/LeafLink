@@ -73,7 +73,7 @@ cd backend
 node app.js
 ```
 
-7. In a new terminal, start the frontend:
+5. In a new terminal, start the frontend:
 ```
 cd client
 npm run dev
