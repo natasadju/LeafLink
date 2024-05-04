@@ -54,12 +54,8 @@ module.exports = {
         var airQuality = new AirqualityModel({
 			location : req.body.location,
 			timestamp : req.body.timestamp,
-			so2 : req.body.so2,
-			co : req.body.co,
 			pm10 : req.body.pm10,
 			pm25 : req.body.pm25,
-			03 : req.body.03,
-			no2 : req.body.no2,
 			benzene : req.body.benzene
         });
 
@@ -97,12 +93,8 @@ module.exports = {
 
             airQuality.location = req.body.location ? req.body.location : airQuality.location;
 			airQuality.timestamp = req.body.timestamp ? req.body.timestamp : airQuality.timestamp;
-			airQuality.so2 = req.body.so2 ? req.body.so2 : airQuality.so2;
-			airQuality.co = req.body.co ? req.body.co : airQuality.co;
 			airQuality.pm10 = req.body.pm10 ? req.body.pm10 : airQuality.pm10;
 			airQuality.pm25 = req.body.pm25 ? req.body.pm25 : airQuality.pm25;
-			airQuality.03 = req.body.03 ? req.body.03 : airQuality.03;
-			airQuality.no2 = req.body.no2 ? req.body.no2 : airQuality.no2;
 			airQuality.benzene = req.body.benzene ? req.body.benzene : airQuality.benzene;
 			
             airQuality.save(function (err, airQuality) {
