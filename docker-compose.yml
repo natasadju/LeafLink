@@ -3,13 +3,13 @@ version: '3.8'
 services:
   server:
     build:
-      context: ./backend
+      context: ./backend   # Path to the backend directory
       dockerfile: Dockerfile
     image: server-side
     container_name: backend-server
     command: npm start
     volumes:
-      - .:/usr/src/app
+      - ./backend:/usr/src/app   # Mount the backend directory to /usr/src/app in the container
       - /usr/src/app/node_modules
     ports:
       - "3000:3000"
@@ -19,7 +19,6 @@ services:
     networks:
       - app-network
 
-
   client:
     build:
       context: ./frontend
@@ -28,12 +27,17 @@ services:
     container_name: frontend-client
     command: npm start
     volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
+      - ./frontend:/usr/src/app
+      - frontend_node_modules:/usr/src/app/node_modules
     ports:
       - "5173:5173"
     networks:
       - app-network
+
+volumes:
+  frontend_node_modules:
+    driver: local
+
 
 networks:
   app-network:
