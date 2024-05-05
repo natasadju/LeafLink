@@ -9,7 +9,7 @@ services:
     container_name: backend-server
     command: npm start
     volumes:
-      - ./backend:/usr/src/app   # Mount the backend directory to /usr/src/app in the container
+      - ./backend:/usr/src/app
       - /usr/src/app/node_modules
     ports:
       - "3000:3000"
@@ -18,26 +18,21 @@ services:
       - MONGODB_URI=mongodb+srv://leafadmin:leaf123@leafy.gnw7mw8.mongodb.net/leafCollection
     networks:
       - app-network
-
-  client:
+  frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     image: frontend
     container_name: frontend-client
-    command: npm start
-    volumes:
-      - ./frontend:/usr/src/app
-      - frontend_node_modules:/usr/src/app/node_modules
     ports:
       - "5173:5173"
+
     networks:
       - app-network
 
 volumes:
-  frontend_node_modules:
+  backend_node_modules:
     driver: local
-
 
 networks:
   app-network:
