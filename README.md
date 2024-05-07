@@ -43,3 +43,38 @@ LeafLink is built using the following technologies:
 - **Database**: MongoDB
 - **Maps Integration**: Google Maps API
 - **Authentication**: JSON Web Tokens (JWT)
+
+# Installation
+
+1. Install backend dependencies:
+```
+npm install
+```
+
+2. Install frontend dependencies:
+
+```
+cd frontend
+npm install
+```
+
+3. Configure MongoDB and JWT:
+Visit MongoDB website, create account, database and take connection string.
+After that generate 256 bits random key and add it to .env file.
+Create the .env file in the root directory with the following contents:
+```
+JWT_SECRET=your_jwt_secret
+```
+
+4. Run the application:
+Start the backend server:
+```
+cd backend
+node app.js
+```
+
+5. In a new terminal, start the frontend:
+```
+cd client
+npm run dev
+```

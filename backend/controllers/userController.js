@@ -1,126 +1,75 @@
-var UserModel = require('../models/userModel.js');
+const jwt = require("jsonwebtoken");
+const User = require("../models/userModel");
 
-/**
- * userController.js
- *
- * @description :: Server-side logic for managing users.
- */
-module.exports = {
+const login = async (req, res) => {
+  const { email, password } = req.body;
 
-    /**
-     * userController.list()
-     */
-    list: function (req, res) {
-        UserModel.find(function (err, users) {
-            if (err) {
-                return res.status(500).json({
-                    message: 'Error when getting user.',
-                    error: err
-                });
-            }
+  if (!email || !password) {
+    return res.status(400).json({
+      msg: "Bad request. Please add email and password in the request body",
+    });
+  }
 
-            return res.json(users);
-        });
-    },
+  let foundUser = await User.findOne({ email: req.body.email });
+  if (foundUser) {
+    const isMatch = await foundUser.comparePassword(password);
 
-    /**
-     * userController.show()
-     */
-    show: function (req, res) {
-        var id = req.params.id;
+    if (isMatch) {
+      const token = jwt.sign(
+        { id: foundUser._id, name: foundUser.name },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: "30d",
+        }
+      );
 
-        UserModel.findOne({_id: id}, function (err, user) {
-            if (err) {
-                return res.status(500).json({
-                    message: 'Error when getting user.',
-                    error: err
-                });
-            }
-
-            if (!user) {
-                return res.status(404).json({
-                    message: 'No such user'
-                });
-            }
-
-            return res.json(user);
-        });
-    },
-
-    /**
-     * userController.create()
-     */
-    create: function (req, res) {
-        var user = new UserModel({
-			username : req.body.username,
-			email : req.body.email,
-			password : req.body.password
-        });
-
-        user.save(function (err, user) {
-            if (err) {
-                return res.status(500).json({
-                    message: 'Error when creating user',
-                    error: err
-                });
-            }
-
-            return res.status(201).json(user);
-        });
-    },
-
-    /**
-     * userController.update()
-     */
-    update: function (req, res) {
-        var id = req.params.id;
-
-        UserModel.findOne({_id: id}, function (err, user) {
-            if (err) {
-                return res.status(500).json({
-                    message: 'Error when getting user',
-                    error: err
-                });
-            }
-
-            if (!user) {
-                return res.status(404).json({
-                    message: 'No such user'
-                });
-            }
-
-            user.username = req.body.username ? req.body.username : user.username;
-			user.email = req.body.email ? req.body.email : user.email;
-			user.password = req.body.password ? req.body.password : user.password;
-			
-            user.save(function (err, user) {
-                if (err) {
-                    return res.status(500).json({
-                        message: 'Error when updating user.',
-                        error: err
-                    });
-                }
-
-                return res.json(user);
-            });
-        });
-    },
-
-    /**
-     * userController.remove()
-     */
-    remove: function (req, res) {
-        var id = req.params.id;
-
-        UserModel.findByIdAndRemove(id, function (err, user) {
-            if (err) {
-                return res.status(500).json({
-                    message: 'Error when deleting the user.',
-                    error: err
-                });
-            }
-
-            return res.status(204).json();
-        });
+      return res.status(200).json({ msg: "user logged in", token });
+    } else {
+      return res.status(400).json({ msg: "Bad password" });
     }
+  } else {
+    return res.status(400).json({ msg: "Bad credentails" });
+  }
+};
+
+const dashboard = async (req, res) => {
+  const luckyNumber = Math.floor(Math.random() * 100);
+
+  res.status(200).json({
+    msg: `Hello, ${req.user.name}`,
+    secret: `Here is your authorized data, your lucky number is ${luckyNumber}`,
+  });
+};
+
+const getAllUsers = async (req, res) => {
+  let users = await User.find({});
+
+  return res.status(200).json({ users });
+};
+
+const register = async (req, res) => {
+  let foundUser = await User.findOne({ email: req.body.email });
+  if (foundUser === null) {
+    let { username, email, password } = req.body;
+    if (username.length && email.length && password.length) {
+      const person = new User({
+        name: username,
+        email: email,
+        password: password,
+      });
+      await person.save();
+      return res.status(201).json({ person });
+    }else{
+        return res.status(400).json({msg: "Please add all values in the request body"});
+    }
+  } else {
+    return res.status(400).json({ msg: "Email already in use" });
+  }
+};
+
+module.exports = {
+  login,
+  register,
+  dashboard,
+  getAllUsers,
 };

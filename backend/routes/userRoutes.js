@@ -1,30 +1,13 @@
 var express = require('express');
 var router = express.Router();
-var userController = require('../controllers/userController.js');
+// var userController = require('../controllers/userController.js');
 
-/*
- * GET
- */
-router.get('/', userController.list);
+const { login, register, dashboard, getAllUsers } = require("../controllers/userController.js");
+const authMiddleware = require('../middleware/authError')
 
-/*
- * GET
- */
-router.get('/:id', userController.show);
-
-/*
- * POST
- */
-router.post('/', userController.create);
-
-/*
- * PUT
- */
-router.put('/:id', userController.update);
-
-/*
- * DELETE
- */
-router.delete('/:id', userController.remove);
+router.route("/login").post(login);
+router.route("/register").post(register);
+router.route("/dashboard").get(authMiddleware, dashboard);
+router.route("/users").get(getAllUsers);
 
 module.exports = router;
