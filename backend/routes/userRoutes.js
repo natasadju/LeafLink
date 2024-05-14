@@ -3,6 +3,7 @@ var router = express.Router();
 // var userController = require('../controllers/userController.js');
 
 const { login, register, dashboard, getAllUsers } = require("../controllers/userController.js");
+const { addParks} = require("../controllers/parkController.js");
 const authMiddleware = require('../middleware/authError')
 
 router.route("/login").post(login);

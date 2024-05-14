@@ -3,19 +3,19 @@ var router = express.Router();
 var parkController = require('../controllers/parkController.js');
 
 /*
+ * POST
+ */
+router.post('/addParks', parkController.addParks);
+
+/*
  * GET
  */
-router.get('/', parkController.list);
+router.get('/', parkController.getPark);
 
 /*
  * GET
  */
 router.get('/:id', parkController.show);
-
-/*
- * POST
- */
-router.post('/', parkController.create);
 
 /*
  * PUT

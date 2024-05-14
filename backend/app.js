@@ -16,6 +16,10 @@ app.use(express.json());
 app.use(cors());
 app.use("/api/v1", mainRouter);
 
+// added a parkRouter
+const parkRouter = require("./routes/parkRoutes");
+app.use("/parks", parkRouter);
+
 const port = process.env.PORT || 3000;
 
 // Created an HTTP server

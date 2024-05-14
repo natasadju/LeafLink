@@ -1,6 +1,6 @@
 
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import { Dashboard, HomeLayout, Landing, Login, Logout, Register, Parks } from "./pages";
+import { Dashboard, HomeLayout, Landing, Login, Logout, Register, Parks, AddPark } from "./pages";
 import { ToastContainer, toast } from 'react-toastify';
 import Test from "./pages/Test.jsx";
 
@@ -36,6 +36,10 @@ const router = createBrowserRouter([
       {
         path: "parks",
         element: <Parks />,
+      },
+      {
+        path: "addpark",
+        element: <AddPark />,
       }
     ],
   },

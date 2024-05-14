@@ -3,7 +3,7 @@ var Schema   = mongoose.Schema;
 
 var parkSchema = new Schema({
 	'name' : String,
-	'id' : Number
+	'parkId' : Number
 });
 
 module.exports = mongoose.model('park', parkSchema);

@@ -1,4 +1,5 @@
 var ParkModel = require('../models/parkModel.js');
+const User = require("../models/userModel");
 
 /**
  * parkController.js
@@ -47,26 +48,42 @@ module.exports = {
         });
     },
 
+    getPark : async (req, res) => {
+        try {
+            const parks = await ParkModel.find({});
+            return res.status(200).json({ parks });
+        } catch (err) {
+            console.error('Error retrieving parks:', err);
+            return res.status(500).json({ message: 'Error retrieving parks', error: err });
+        }
+    },
+
     /**
      * parkController.create()
      */
-    create: function (req, res) {
-        var park = new ParkModel({
-			name : req.body.name,
-			id : req.body.id
-        });
+     addParks: async (req, res) => {
+        // Check if all required fields are provided
+        const { name, parkId } = req.body;
+        if (!name || !parkId) {
+            return res.status(400).json({ msg: "Please add all values in the request body" });
+        }
 
-        park.save(function (err, park) {
-            if (err) {
-                return res.status(500).json({
-                    message: 'Error when creating park',
-                    error: err
-                });
-            }
+        // Check if the park already exists
+        let foundPark = await ParkModel.findOne({ parkId: req.body.parkId });
+        if (foundPark) {
+            return res.status(400).json({ msg: "Park ID already in use" });
+        }
 
+        // Create and save the new park
+        const park = new ParkModel({ name, parkId });
+        try {
+            await park.save();
             return res.status(201).json(park);
-        });
+        } catch (err) {
+            return res.status(500).json({ message: 'Error when creating park', error: err });
+        }
     },
+
 
     /**
      * parkController.update()
@@ -89,7 +106,7 @@ module.exports = {
             }
 
             park.name = req.body.name ? req.body.name : park.name;
-			park.id = req.body.id ? req.body.id : park.id;
+			park.parkId = req.body.parkId ? req.body.parkId : park.parkId;
 			
             park.save(function (err, park) {
                 if (err) {

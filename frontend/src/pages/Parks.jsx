@@ -1,16 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-
-const parks = [
-    { name: 'Mestni park', id: 10473149 },
-    { name: 'Magdalenski park', id: 171810350 }
-];
+import axios from 'axios';
 
 const Parks = () => {
     const [ws, setWs] = useState(null);
-    const [selectedPark, setSelectedPark] = useState(parks[0].id);
+    const [parks, setParks] = useState([]);
+    const [selectedPark, setSelectedPark] = useState(0);
     const [geoJsonData, setGeoJsonData] = useState(null);
+
+    useEffect(() => {
+        // Fetch parks data from the API
+        const fetchParks = async () => {
+            try {
+                const response = await axios.get('http://localhost:3000/parks');
+                setParks(response.data.parks); // Assuming response.data.parks contains the parks array
+                setSelectedPark(response.data.parks[0]?.parkId); // Set the initial selected park
+            } catch (error) {
+                console.error('Error fetching parks data:', error);
+            }
+        };
+
+        fetchParks();
+    }, []);
 
     useEffect(() => {
         const socket = new WebSocket('ws://localhost:3000');
@@ -55,8 +67,8 @@ const Parks = () => {
         <div>
             <h1>OpenStreetMap with Multiple OSM Features</h1>
             <select value={selectedPark} onChange={handleParkChange}>
-                {parks.map((park, index) => (
-                    <option key={index} value={park.id}>
+                {parks.map((park) => (
+                    <option key={park.parkId} value={park.parkId}>
                         {park.name}
                     </option>
                 ))}
