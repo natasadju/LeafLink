@@ -62,15 +62,6 @@ const Parks = () => {
                 ))}
             </select>
             <button onClick={sendMessage}>Send Park ID to WebSocket</button>
-            <div>
-                {/* Display messages if needed */}
-                {/*<h2>Messages:</h2>*/}
-                {/*<ul>*/}
-                {/*    {messages.map((message, index) => (*/}
-                {/*        <li key={index}>{message}</li>*/}
-                {/*    ))}*/}
-                {/*</ul>*/}
-            </div>
             <MapContainer center={[46.5491, 15.6459]} zoom={13} style={{ height: '500px', width: '100%' }}>
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
