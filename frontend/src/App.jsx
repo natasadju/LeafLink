@@ -1,7 +1,8 @@
 
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import { Dashboard, HomeLayout, Landing, Login, Logout, Register } from "./pages";
+import { Dashboard, HomeLayout, Landing, Login, Logout, Register, Parks } from "./pages";
 import { ToastContainer, toast } from 'react-toastify';
+import Test from "./pages/Test.jsx";
 
 const router = createBrowserRouter([
   {
@@ -27,6 +28,14 @@ const router = createBrowserRouter([
       {
         path: "logout",
         element: <Logout />,
+      },
+      {
+        path: "test",
+        element: <Test />
+      },
+      {
+        path: "parks",
+        element: <Parks />,
       }
     ],
   },

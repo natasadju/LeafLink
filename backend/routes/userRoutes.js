@@ -6,7 +6,26 @@ const { login, register, dashboard, getAllUsers } = require("../controllers/user
 const authMiddleware = require('../middleware/authError')
 
 router.route("/login").post(login);
-router.route("/register").post(register);
+
+router.get('/getusers', async (req, res) => {
+    try {
+        let users = await getAllUsers(req,res); // Call the getAllUsers function
+        return res.status(200).json({ users });
+    } catch (error) {
+        return res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+router.post('/register', async (req, res) => {
+    try {
+        let result = await register(req, res);
+        return res.status(200).json({result});
+    } catch (error) {
+        return res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// router.route('/register').post(register);
 router.route("/dashboard").get(authMiddleware, dashboard);
 router.route("/users").get(getAllUsers);
 
