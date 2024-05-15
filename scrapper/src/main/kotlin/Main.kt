@@ -4,20 +4,8 @@ import it.skrape.fetcher.response
 import it.skrape.fetcher.skrape
 import it.skrape.selects.html5.*
 
-//PM10	PM2,5	SO2	CO	Ozon	NO2	Benzen
-data class AirQualityData(
-    val station: String,
-    val pm10: String,
-    val pm25: String,
-    val so2: String,
-    val co: String,
-    val ozon: String,
-    val no2: String,
-    val benzen: String
-)
-
 fun main() {
-    println("========== Scraping Maribor Air Quality Data ==========")
+    println("========== Scraping Air Quality Data ==========")
 
     skrape(HttpFetcher) {
         request {
@@ -29,55 +17,58 @@ fun main() {
             println("HTTP status message: ${status { message }}")
 
             htmlDocument {
-                // Select the table with class "online"
-                table {
-                    withClass = "online"
-                    findAll("tr").drop(3).forEach { row ->
-                        // if td.onlineimena = "MB Vrbanski" || "MB Titova" then find td.onlinedesno
-                        try {
-                            if (row.findFirst(".onlineimena")?.text?.contains("MB Vrbanski") == true ||
-                                row.findFirst(".onlineimena")?.text?.contains("MB Titova") == true
-                            ) {
+                fun processTable(tableIndex: Int) { // Instead of going through all of the tables with the class name we make a function to process the table by its index
+                    val tables = findAll("table.online")
+                    if (tableIndex < tables.size) {
+                        val table = tables[tableIndex]
+                        table.findAll("tr").drop(3).forEach { row ->
+                            try {
+                                val stationCell = row.maybe { findFirst(".onlineimena") }  //MAYBE!!!!
+                                if (stationCell != null &&
+                                    (stationCell.text.contains("MB Vrbanski") || stationCell.text.contains("MB Titova"))
+                                ) {
+                                    val station = stationCell.text
+                                    val cells = row.findAll(".onlinedesno")
+                                    if (cells.size >= 7) {
+                                        val pm10 = cells[0].text
+                                        val pm25 = cells[1].text
+                                        val so2 = cells[2].text
+                                        val co = cells[3].text
+                                        val ozon = cells[4].text
+                                        val no2 = cells[5].text
+                                        val benzen = cells[6].text
 
-//                                println(row.findFirst(".onlineimena")?.text)
-                                //if there is nothing write -
-                                val station = row.findFirst(".onlineimena")?.text
-                                val pm10 = row.findAll(".onlinedesno")[0].text
-                                val pm25 = row.findAll(".onlinedesno")[1].text
-                                val so2 = row.findAll(".onlinedesno")[2].text
-                                val co = row.findAll(".onlinedesno")[3].text
-                                val ozon = row.findAll(".onlinedesno")[4].text
-                                val no2 = row.findAll(".onlinedesno")[5].text
-                                val benzen = row.findAll(".onlinedesno")[6].text
 
-                                AirQualityData(
-                                    station = station ?: "",
-                                    pm10 = pm10,
-                                    pm25 = pm25,
-                                    so2 = so2,
-                                    co = co,
-                                    ozon = ozon,
-                                    no2 = no2,
-                                    benzen = benzen
-                                ).run {
-                                    println(
-                                        "Station: $station\n" +
-                                                "PM10: $pm10\n" +
-                                                "PM2.5: $pm25\n" +
-                                                "SO2: $so2\n" +
-                                                "CO: $co\n" +
-                                                "Ozon: $ozon\n" +
-                                                "NO2: $no2\n" +
-                                                "Benzen: $benzen\n"
-                                    )
+                                        println(
+                                            "Station: $station\n" +
+                                                    "PM10: $pm10\n" +
+                                                    "PM2.5: $pm25\n" +
+                                                    "SO2: $so2\n" +
+                                                    "CO: $co\n" +
+                                                    "Ozon: $ozon\n" +
+                                                    "NO2: $no2\n" +
+                                                    "Benzen: $benzen\n"
+                                        )
+                                    }
+
                                 }
+                            } catch (e: Exception) {
+                                println("Error: ${e.message}")
                             }
-                        } catch (e: Exception) {
-                            println("Error: ${e.message}")
                         }
+                    } else {
+                        println("Table at index $tableIndex not found")
                     }
                 }
+
+                processTable(0)
             }
         }
     }
+}
+
+inline fun <T> T.maybe(block: T.() -> T?): T? = try {
+    block()
+} catch (e: Exception) {
+    null
 }
