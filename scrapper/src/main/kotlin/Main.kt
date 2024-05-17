@@ -4,6 +4,7 @@ import it.skrape.fetcher.response
 import it.skrape.fetcher.skrape
 import it.skrape.selects.html5.*
 
+
 fun main() {
     println("========== Scraping Air Quality Data ==========")
 
@@ -65,6 +66,35 @@ fun main() {
             }
         }
     }
+
+    println("\n========== Scraping pollen in the air ==========")
+
+    skrape(HttpFetcher) {
+        request {
+            url = "https://air-quality.com/place/slovenia/maribor/95149348?lang=en&standard=aqi_us"
+        }
+
+        response {
+            println("HTTP status code: ${status { code }}")
+            println("HTTP status message: ${status { message }}")
+
+            htmlDocument {
+                val pollenItems = findFirst(".allergens").findAll(".pollutant-item")
+
+                pollenItems.forEach { item ->
+                    try {
+                        val name = item.findFirst(".name").text
+                        val value = item.findFirst(".value").text
+
+                        println("Pollen Type: $name, Value: $value")
+                    } catch (e: Exception) {
+                        println("Error: ${e.message}")
+                    }
+                }
+            }
+        }
+    }
+
 }
 
 inline fun <T> T.maybe(block: T.() -> T?): T? = try {
