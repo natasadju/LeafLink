@@ -1,59 +1,85 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-const cors = require('cors')
 require("dotenv").config();
 require('express-async-errors');
+const connectDB = require("./db/connect");
+const express = require("express");
+const cors = require('cors');
+// Added the websocket
+const http = require('http');
+const WebSocket = require('ws');
+const osmtogeojson = require('osmtogeojson');
+const axios = require('axios'); // Import Axios here
+// .
+const app = express();
+const mainRouter = require("./routes/userRoutes");
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/userRoutes');
-
-var app = express();
-
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'hbs')
-
-
-// vključimo mongoose in ga povežemo z MongoDB
-var mongoose = require('mongoose');
-var mongoDB = "mongodb+srv://leafadmin:leaf123@leafy.gnw7mw8.mongodb.net/leafCollection";
-mongoose.connect(mongoDB);
-mongoose.Promise = global.Promise;
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'MongoDB connection error:'));
-
-
-
-app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(cors());
+app.use("/api/v1", mainRouter);
 
-app.use('/', indexRouter);
-app.use('/api/v1', usersRouter);
-app.use(cors())
+// added a parkRouter
+const parkRouter = require("./routes/parkRoutes");
+app.use("/parks", parkRouter);
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
+const port = process.env.PORT || 3000;
+
+// Created an HTTP server
+const server = http.createServer(app);
+
+// Initialized the WebSocket server instance
+const wss = new WebSocket.Server({ server });
+
+// WebSocket connection handling
+wss.on('connection', (ws) => {
+    console.log('Client connected');
+
+    ws.on('message', async (message) => {
+        console.log('Received:', message);
+
+        try {
+            const selectedParkId = JSON.parse(message);
+
+            // Fetch data from OpenStreetMap using the selectedParkId
+            const osmData = await fetchDataFromOpenStreetMap(selectedParkId);
+
+            // Convert OpenStreetMap data to GeoJSON
+            const geoJsonData = osmtogeojson(osmData);
+
+            // Send the GeoJSON data back to the client
+            ws.send(JSON.stringify(geoJsonData));
+        } catch (error) {
+            console.error('Error processing message:', error);
+            ws.send(JSON.stringify({ error: 'Error processing request' }));
+        }
+    });
+
+    ws.on('close', () => {
+        console.log('Client disconnected');
+    });
 });
 
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+// Function to fetch data from OpenStreetMap
+async function fetchDataFromOpenStreetMap(parkId) {
+    console.log(parkId)
+    try {
+        const response = await axios.get(`https://overpass-api.de/api/interpreter?data=[out:json];way(${parkId});out body;>;out skel qt;`);
+        return response.data; // Assuming the response contains the desired data from OpenStreetMap
+    } catch (error) {
+        console.error('Error fetching data from OpenStreetMap:', error);
+        throw error; // Handle the error appropriately in your application
+    }
+}
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
+// Start the server
+const start = async () => {
+    try {
+        await connectDB(process.env.MONGO_URI);
+        server.listen(port, () => {
+            console.log(`Server is listening on port ${port}`);
+        });
+    } catch (error) {
+        console.log(error);
+    }
+};
 
+start();
 module.exports = app;
-
-
-

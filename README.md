@@ -78,3 +78,7 @@ node app.js
 cd client
 npm run dev
 ```
+
+## 14.05.2024 Adding parks tutorial:
+1. Go to openstreetmap.org and when you find a park click on the cursor with the question mark and then select the park. On the left in Enclosing Features you will find (if truly a park) Park "Mestni park" for example. When clicked you will se WAY: *the name of the park and (parameters - the id of the park)*.
+2. Go to localhost:54207/parks/addPark or whatever the port for the application is and then add the park name with ID.

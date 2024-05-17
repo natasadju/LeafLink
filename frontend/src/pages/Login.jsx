@@ -12,8 +12,6 @@ const Login = () => {
   const [ token, setToken ] = useState(JSON.parse(localStorage.getItem("auth")) || "");
   const navigate = useNavigate();
 
-
-
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     let email = e.target.email.value;
