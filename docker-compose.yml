@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     image: server-side
     container_name: backend-server
-    command: npm start
+    command: node app.js
     volumes:
       - ./backend:/usr/src/app
       - /usr/src/app/node_modules
