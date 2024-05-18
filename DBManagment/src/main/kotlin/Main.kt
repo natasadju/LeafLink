@@ -1,8 +1,9 @@
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -15,34 +16,230 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import com.google.gson.Gson
+import com.google.gson.JsonObject
+import com.google.gson.reflect.TypeToken
+import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.logging.HttpLoggingInterceptor
+import okio.IOException
+import java.util.*
+
+
+data class Park(
+    val _id: String,
+    val name: String,
+    val parkId: String,
+    val __v: Int
+)
+
+
+val client: OkHttpClient by lazy {
+    val logging = HttpLoggingInterceptor().apply { setLevel(HttpLoggingInterceptor.Level.BODY) }
+    OkHttpClient.Builder()
+        .addInterceptor(logging)
+        .build()
+}
+
+val gson = Gson()
+
+fun fetchParks(onResult: (List<Park>?) -> Unit) {
+    val request = Request.Builder()
+        .url("http://localhost:3000/parks")
+        .build()
+
+    client.newCall(request).enqueue(object : Callback {
+        override fun onFailure(call: Call, e: IOException) {
+            e.printStackTrace()
+            onResult(null)
+        }
+
+        override fun onResponse(call: Call, response: Response) {
+            response.body?.string()?.let { body ->
+                val jsonObject = gson.fromJson(body, JsonObject::class.java)
+                val parksArray = jsonObject.getAsJsonArray("parks")
+                val parks: List<Park> = gson.fromJson(parksArray, object : TypeToken<List<Park>>() {}.type)
+                onResult(parks)
+            }
+        }
+    })
+}
+
+
+fun addPark(park: Park, onResult: (Boolean) -> Unit) {
+    val requestBody = gson.toJson(mapOf("name" to park.name, "parkId" to park.parkId))
+        .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+
+    val request = Request.Builder()
+        .url("http://localhost:3000/parks/addparks")
+        .post(requestBody)
+        .build()
+
+    client.newCall(request).enqueue(object : Callback {
+        override fun onFailure(call: Call, e: IOException) {
+            e.printStackTrace()
+            onResult(false)
+        }
+
+        override fun onResponse(call: Call, response: Response) {
+            onResult(response.isSuccessful)
+        }
+    })
+}
+
 
 @Composable
 @Preview
 fun App() {
-    Row(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        var selectedButton by remember { mutableStateOf("Add user") }
+    var selectedButton by remember { mutableStateOf("Add park") }
+    var selectedScreen by remember { mutableStateOf("Add park") }
 
+    Row(modifier = Modifier.fillMaxSize()) {
         Sidebar(selectedButton) { button ->
             selectedButton = button
+            selectedScreen = button
         }
-        Content()
+        when (selectedScreen) {
+            "Add park" -> AddParkScreen {
+            }
+
+            "Parks" -> ParkGrid()
+            else -> {}
+        }
     }
 }
 
-fun DataGrid() {
+@Composable
+fun ParkGrid() {
+    var parks by remember { mutableStateOf<List<Park>?>(null) }
+    val lazyGridState = rememberLazyGridState()
+
+    LaunchedEffect(Unit) {
+        fetchParks { fetchedParks ->
+            parks = fetchedParks
+        }
+    }
+
+    parks?.let { parkList ->
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(200.dp),
+            state = lazyGridState,
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(parkList.size) { index ->
+                ParkCard(park = parkList[index])
+            }
+        }
+    } ?: Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator()
+    }
+}
+
+@Composable
+fun ParkCard(park: Park) {
+    Card(
+        modifier = Modifier
+            .padding(8.dp) // Adjust padding to control spacing between cards
+            .aspectRatio(1f), // Makes the card square
+        elevation = 2.dp, // Adjust elevation for shadow effect
+        shape = RoundedCornerShape(8.dp) // Round corners for aesthetic
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                imageVector = Icons.Default.Forest,
+                contentDescription = "Forest Icon",
+                modifier = Modifier.size(50.dp) // Adjust icon size as needed
+            )
+            Spacer(Modifier.height(8.dp)) // Space between icon and text
+            Text(
+                text = park.name,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+            Text(
+                text = "ID: ${park.parkId}",
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+
+@Composable
+fun AddParkScreen(onParkAdded: () -> Unit) {
+    var name by remember { mutableStateOf("") }
+    var parkId by remember { mutableStateOf("") }
+    var isAdding by remember { mutableStateOf(false) }
+    var showMessage by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
-            .padding(16.dp)
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
+        TextField(
+            value = name,
+            onValueChange = { name = it },
+            label = { Text("Park Name") }
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        TextField(
+            value = parkId,
+            onValueChange = { parkId = it },
+            label = { Text("parkId") }
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = {
+                isAdding = true
+                val park = Park(
+                    _id = UUID.randomUUID().toString(),
+                    name = name,
+                    parkId = parkId,
+                    __v = 0
+                )
+                addPark(park) { success ->
+                    isAdding = false
+                    showMessage = true
+                    if (success) {
+                        onParkAdded()
+                    }
+                }
+            },
+            enabled = !isAdding
+        ) {
+            if (isAdding) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = Color.White
+                )
+            } else {
+                Text("Add Park")
+            }
+        }
+        if (showMessage) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = if (isAdding) "Adding..." else "Park added!",
+                color = if (isAdding) Color.Gray else Color.Green
+            )
+        }
     }
 }
 
@@ -63,15 +260,15 @@ fun Sidebar(selectedButton: String, onButtonSelected: (String) -> Unit) {
     ) {
         Divider()
         SidebarButton(
-            text = "Add user",
-            isSelected = selectedButton == "Add user",
-            onClick = { onButtonSelected("Add user") },
+            text = "Add park",
+            isSelected = selectedButton == "Add park",
+            onClick = { onButtonSelected("Add park") },
             icon = Icons.Default.Add
         )
         SidebarButton(
-            text = "Users",
-            isSelected = selectedButton == "Users",
-            onClick = { onButtonSelected("Users") },
+            text = "Parks",
+            isSelected = selectedButton == "Parks",
+            onClick = { onButtonSelected("Parks") },
             icon = Icons.Default.Menu
         )
         Divider()
@@ -134,26 +331,11 @@ fun SidebarButton(
     }
 }
 
-@Composable
-fun Content() {
-    var text by remember { mutableStateOf("Hello, World!") }
-    Text(
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxSize(),
-        text = text
-    )
-}
 
 fun main() = application {
     Window(onCloseRequest = ::exitApplication, title = "Database manager") {
         MaterialTheme {
-            Scaffold(
-                drawerContent = {
-                    Sidebar("Add user") {}
-                },
-                drawerShape = RoundedCornerShape(0.dp)
-            ) {
+            Box {
                 App()
             }
         }
