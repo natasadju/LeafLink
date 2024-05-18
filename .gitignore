@@ -5,3 +5,6 @@
 scrapper/.idea
 scrapper/.gradle
 scrapper/.run
+/DBManagment/.idea/
+/DBManagment/.run/
+/DBManagment/.gradle/
