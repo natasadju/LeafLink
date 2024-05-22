@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.google.gson.Gson
@@ -119,6 +120,28 @@ fun addPark(park: Park, onResult: (Boolean) -> Unit) {
     })
 }
 
+fun updatePark(park: Park, onResult: (Boolean) -> Unit) {
+    val requestBody = gson.toJson(mapOf("name" to park.name, "parkId" to park.parkId))
+        .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+
+    val request = Request.Builder()
+        .url("http://localhost:3000/parks/${park._id}")
+        .put(requestBody)
+        .build()
+
+    client.newCall(request).enqueue(object : Callback {
+        override fun onFailure(call: Call, e: IOException) {
+            e.printStackTrace()
+            onResult(false)
+        }
+
+        override fun onResponse(call: Call, response: Response) {
+            onResult(response.isSuccessful)
+        }
+    })
+}
+
+
 
 @Composable
 @Preview
@@ -172,11 +195,12 @@ fun UserGrid() {
         CircularProgressIndicator()
     }
 }
-
 @Composable
 fun ParkGrid() {
     var parks by remember { mutableStateOf<List<Park>?>(null) }
     val lazyGridState = rememberLazyGridState()
+    var parkBeingEdited by remember { mutableStateOf<Park?>(null) }
+    var showEditDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         fetchParks { fetchedParks ->
@@ -193,7 +217,10 @@ fun ParkGrid() {
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(parkList.size) { index ->
-                ParkCard(park = parkList[index])
+                ParkCard(park = parkList[index]) {
+                    parkBeingEdited = it
+                    showEditDialog = true
+                }
             }
         }
     } ?: Box(
@@ -202,7 +229,86 @@ fun ParkGrid() {
     ) {
         CircularProgressIndicator()
     }
+
+    if (showEditDialog && parkBeingEdited != null) {
+        EditParkDialog(
+            park = parkBeingEdited!!,
+            onDismiss = { showEditDialog = false },
+            onUpdate = { updatedPark ->
+                parks = parks?.map { if (it._id == updatedPark._id) updatedPark else it }
+                showEditDialog = false
+            }
+        )
+    }
 }
+
+@Composable
+fun EditParkDialog(park: Park, onDismiss: () -> Unit, onUpdate: (Park) -> Unit) {
+    var name by remember { mutableStateOf(park.name) }
+    var parkId by remember { mutableStateOf(park.parkId) }
+    var isUpdating by remember { mutableStateOf(false) }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(8.dp),
+            color = MaterialTheme.colors.surface
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(text = "Edit Park", style = MaterialTheme.typography.h6)
+                Spacer(modifier = Modifier.height(16.dp))
+                TextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Park Name") }
+                )
+                TextField(
+                    value = parkId,
+                    onValueChange = { parkId = it },
+                    label = { Text("Park ID")}
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Row {
+                    Button(
+                        onClick = onDismiss,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Cancel")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(
+                        onClick = {
+                            isUpdating = true
+                            val updatedPark = park.copy(name = name, parkId = parkId)
+                            updatePark(updatedPark) { success ->
+                                isUpdating = false
+                                if (success) {
+                                    onUpdate(updatedPark)
+                                }
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                        enabled = !isUpdating
+                    ) {
+                        if (isUpdating) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = Color.White
+                            )
+                        } else {
+                            Text("Update")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
 
 @Composable
 fun UserCard(user: User) {
@@ -244,13 +350,14 @@ fun UserCard(user: User) {
 }
 
 @Composable
-fun ParkCard(park: Park) {
+fun ParkCard(park: Park, onClick: (Park) -> Unit) {
     Card(
         modifier = Modifier
-            .padding(8.dp) // Adjust padding to control spacing between cards
-            .aspectRatio(1f), // Makes the card square
-        elevation = 2.dp, // Adjust elevation for shadow effect
-        shape = RoundedCornerShape(8.dp) // Round corners for aesthetic
+            .padding(8.dp)
+            .aspectRatio(1f)
+            .clickable { onClick(park) },
+        elevation = 2.dp,
+        shape = RoundedCornerShape(8.dp)
     ) {
         Column(
             modifier = Modifier
@@ -262,9 +369,9 @@ fun ParkCard(park: Park) {
             Icon(
                 imageVector = Icons.Default.Forest,
                 contentDescription = "Forest Icon",
-                modifier = Modifier.size(50.dp) // Adjust icon size as needed
+                modifier = Modifier.size(50.dp)
             )
-            Spacer(Modifier.height(8.dp)) // Space between icon and text
+            Spacer(Modifier.height(8.dp))
             Text(
                 text = park.name,
                 fontWeight = FontWeight.Bold,
