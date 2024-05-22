@@ -36,6 +36,13 @@ data class Park(
     val __v: Int
 )
 
+data class User(
+    val _id: String,
+    val name: String,
+    val email: String,
+    val password: String,
+    val __v: Int
+)
 
 val client: OkHttpClient by lazy {
     val logging = HttpLoggingInterceptor().apply { setLevel(HttpLoggingInterceptor.Level.BODY) }
@@ -45,6 +52,28 @@ val client: OkHttpClient by lazy {
 }
 
 val gson = Gson()
+
+fun fetchUsers(onResult: (List<User>?) -> Unit) {
+    val request = Request.Builder()
+        .url("http://localhost:3000/api/v1/users")
+        .build()
+
+    client.newCall(request).enqueue(object : Callback {
+        override fun onFailure(call: Call, e: java.io.IOException) {
+            e.printStackTrace()
+            onResult(null)
+        }
+
+        override fun onResponse(call: Call, response: Response) {
+            response.body?.string().let { body ->
+                val jsonObject = gson.fromJson(body, JsonObject::class.java)
+                val usersArray = jsonObject.getAsJsonArray("users")
+                val users: List<User> = gson.fromJson(usersArray, object : TypeToken<List<User>>() {}.type)
+                onResult(users)
+            }
+        }
+    })
+}
 
 fun fetchParks(onResult: (List<Park>?) -> Unit) {
     val request = Request.Builder()
@@ -107,8 +136,40 @@ fun App() {
             }
 
             "Parks" -> ParkGrid()
+            "Users" -> UserGrid()
             else -> {}
         }
+    }
+}
+
+@Composable
+fun UserGrid() {
+    var users by remember { mutableStateOf<List<User>?>(null) }
+    val lazyGridState = rememberLazyGridState()
+
+    LaunchedEffect(Unit) {
+        fetchUsers { fetchedUsers ->
+            users = fetchedUsers
+        }
+    }
+
+    users?.let { userList ->
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(200.dp),
+            state = lazyGridState,
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(userList.size) { index ->
+                UserCard(user = userList[index])
+            }
+        }
+    } ?: Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator()
     }
 }
 
@@ -140,6 +201,45 @@ fun ParkGrid() {
         contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator()
+    }
+}
+
+@Composable
+fun UserCard(user: User) {
+    Card(
+        modifier = Modifier
+            .padding(8.dp) // Adjust padding to control spacing between cards
+            .aspectRatio(1f), // Makes the card square
+        elevation = 2.dp, // Adjust elevation for shadow effect
+        shape = RoundedCornerShape(8.dp) // Round corners for aesthetic
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = "User Icon",
+                modifier = Modifier.size(50.dp) // Adjust icon size as needed
+            )
+            Spacer(Modifier.height(8.dp)) // Space between icon and text
+            Text(
+                text = user.name,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+            Text(
+                text = "E-mail: ${user.email}",
+                textAlign = TextAlign.Center
+            )
+            /*Text(
+                text = user.password,
+                textAlign = TextAlign.Center
+            )*/
+        }
     }
 }
 
@@ -269,6 +369,12 @@ fun Sidebar(selectedButton: String, onButtonSelected: (String) -> Unit) {
             text = "Parks",
             isSelected = selectedButton == "Parks",
             onClick = { onButtonSelected("Parks") },
+            icon = Icons.Default.Menu
+        )
+        SidebarButton(
+            text = "Users",
+            isSelected = selectedButton == "Users",
+            onClick = { onButtonSelected("Users") },
             icon = Icons.Default.Menu
         )
         Divider()
