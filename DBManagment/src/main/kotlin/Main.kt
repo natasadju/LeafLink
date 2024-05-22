@@ -141,6 +141,62 @@ fun updatePark(park: Park, onResult: (Boolean) -> Unit) {
     })
 }
 
+fun addUser(user: User, onResult: (Boolean) -> Unit) {
+    val requestData = mapOf(
+        "email" to user.email,
+        "password" to user.password,
+        "username" to user.name
+    )
+
+    // Convert the map to JSON string
+    val jsonBody = gson.toJson(requestData)
+
+    // Create a RequestBody from the JSON string
+    val requestBody = jsonBody.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+
+    val request = Request.Builder()
+        .url("http://localhost:3000/api/v1/register")
+        .post(requestBody)
+        .build()
+
+    client.newCall(request).enqueue(object : Callback {
+        override fun onFailure(call: Call, e: IOException) {
+            e.printStackTrace()
+            onResult(false)
+        }
+
+        override fun onResponse(call: Call, response: Response) {
+            onResult(response.isSuccessful)
+        }
+    })
+}
+
+
+fun updateUser(user: User, onResult: (Boolean) -> Unit) {
+    val updateFields = mutableMapOf<String, Any>(
+        "name" to user.name,
+        "email" to user.email
+    )
+
+    val requestBody = gson.toJson(updateFields)
+        .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+
+    val request = Request.Builder()
+        .url("http://localhost:3000/api/v1/users/${user._id}")
+        .put(requestBody)
+        .build()
+
+    client.newCall(request).enqueue(object : Callback {
+        override fun onFailure(call: Call, e: IOException) {
+            e.printStackTrace()
+            onResult(false)
+        }
+
+        override fun onResponse(call: Call, response: Response) {
+            onResult(response.isSuccessful)
+        }
+    })
+}
 
 
 @Composable
@@ -158,6 +214,8 @@ fun App() {
             "Add park" -> AddParkScreen {
             }
 
+            "Add user" -> AddUserScreen {}
+
             "Parks" -> ParkGrid()
             "Users" -> UserGrid()
             else -> {}
@@ -169,6 +227,8 @@ fun App() {
 fun UserGrid() {
     var users by remember { mutableStateOf<List<User>?>(null) }
     val lazyGridState = rememberLazyGridState()
+    var userBeingEdited by remember { mutableStateOf<User?>(null) }
+    var showEditDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         fetchUsers { fetchedUsers ->
@@ -185,7 +245,10 @@ fun UserGrid() {
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(userList.size) { index ->
-                UserCard(user = userList[index])
+                UserCard(user = userList[index]) {
+                    userBeingEdited = it
+                    showEditDialog = true
+                }
             }
         }
     } ?: Box(
@@ -194,7 +257,19 @@ fun UserGrid() {
     ) {
         CircularProgressIndicator()
     }
+
+    if (showEditDialog && userBeingEdited != null) {
+        EditUserDialog(
+            user = userBeingEdited!!,
+            onDismiss = { showEditDialog = false },
+            onUpdate = { updatedUser ->
+                users = users?.map { if (it._id == updatedUser._id) updatedUser else it }
+                showEditDialog = false
+            }
+        )
+    }
 }
+
 @Composable
 fun ParkGrid() {
     var parks by remember { mutableStateOf<List<Park>?>(null) }
@@ -268,7 +343,7 @@ fun EditParkDialog(park: Park, onDismiss: () -> Unit, onUpdate: (Park) -> Unit) 
                 TextField(
                     value = parkId,
                     onValueChange = { parkId = it },
-                    label = { Text("Park ID")}
+                    label = { Text("Park ID") }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Row {
@@ -308,16 +383,81 @@ fun EditParkDialog(park: Park, onDismiss: () -> Unit, onUpdate: (Park) -> Unit) 
     }
 }
 
+@Composable
+fun EditUserDialog(user: User, onDismiss: () -> Unit, onUpdate: (User) -> Unit) {
+    var username by remember { mutableStateOf(user.name) }
+    var email by remember { mutableStateOf(user.email) }
+    var isUpdating by remember { mutableStateOf(false) }
 
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(8.dp),
+            color = MaterialTheme.colors.surface
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(text = "Edit User", style = MaterialTheme.typography.h6)
+                Spacer(modifier = Modifier.height(16.dp))
+                TextField(
+                    value = username,
+                    onValueChange = { username = it },
+                    label = { Text("Name") }
+                )
+                TextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Email") }
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Row {
+                    Button(
+                        onClick = onDismiss,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Cancel")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(
+                        onClick = {
+                            isUpdating = true
+                            val updatedUser = user.copy(name = username, email = email)
+                            updateUser(updatedUser) { success ->
+                                isUpdating = false
+                                if (success) {
+                                    onUpdate(updatedUser)
+                                }
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                        enabled = !isUpdating
+                    ) {
+                        if (isUpdating) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = Color.White
+                            )
+                        } else {
+                            Text("Update")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 @Composable
-fun UserCard(user: User) {
+fun UserCard(user: User, onClick: (User) -> Unit) {
     Card(
         modifier = Modifier
-            .padding(8.dp) // Adjust padding to control spacing between cards
-            .aspectRatio(1f), // Makes the card square
-        elevation = 2.dp, // Adjust elevation for shadow effect
-        shape = RoundedCornerShape(8.dp) // Round corners for aesthetic
+            .padding(8.dp)
+            .aspectRatio(1f)
+            .clickable { onClick(user) },
+        elevation = 2.dp,
+        shape = RoundedCornerShape(8.dp)
     ) {
         Column(
             modifier = Modifier
@@ -329,9 +469,9 @@ fun UserCard(user: User) {
             Icon(
                 imageVector = Icons.Default.Person,
                 contentDescription = "User Icon",
-                modifier = Modifier.size(50.dp) // Adjust icon size as needed
+                modifier = Modifier.size(50.dp)
             )
-            Spacer(Modifier.height(8.dp)) // Space between icon and text
+            Spacer(Modifier.height(8.dp))
             Text(
                 text = user.name,
                 fontWeight = FontWeight.Bold,
@@ -341,13 +481,10 @@ fun UserCard(user: User) {
                 text = "E-mail: ${user.email}",
                 textAlign = TextAlign.Center
             )
-            /*Text(
-                text = user.password,
-                textAlign = TextAlign.Center
-            )*/
         }
     }
 }
+
 
 @Composable
 fun ParkCard(park: Park, onClick: (Park) -> Unit) {
@@ -450,6 +587,77 @@ fun AddParkScreen(onParkAdded: () -> Unit) {
     }
 }
 
+@Composable
+fun AddUserScreen(onUserAdded: () -> Unit) {
+    var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var isAdding by remember { mutableStateOf(false) }
+    var showMessage by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        TextField(
+            value = username,
+            onValueChange = { username = it },
+            label = { Text("User Name") }
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        TextField(
+            value = email,
+            onValueChange = { email = it },
+            label = { Text("E-mail") }
+        )
+        TextField(
+            value = password,
+            onValueChange = { password = it },
+            label = { Text("Password") }
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = {
+                isAdding = true
+                val user = User(
+                    _id = UUID.randomUUID().toString(),
+                    name = username,
+                    email = email,
+                    password = password,
+                    __v = 0
+                )
+                addUser(user) { success ->
+                    isAdding = false
+                    showMessage = true
+                    if (success) {
+                        onUserAdded()
+                    }
+                }
+            },
+            enabled = !isAdding
+        ) {
+            if (isAdding) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = Color.White
+                )
+            } else {
+                Text("Add User")
+            }
+        }
+        if (showMessage) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = if (isAdding) "Adding..." else "User added!",
+                color = if (isAdding) Color.Gray else Color.Green
+            )
+        }
+    }
+}
+
 
 @Composable
 fun Sidebar(selectedButton: String, onButtonSelected: (String) -> Unit) {
@@ -477,6 +685,13 @@ fun Sidebar(selectedButton: String, onButtonSelected: (String) -> Unit) {
             isSelected = selectedButton == "Parks",
             onClick = { onButtonSelected("Parks") },
             icon = Icons.Default.Menu
+        )
+        Divider()
+        SidebarButton(
+            text = "Add user",
+            isSelected = selectedButton == "Add user",
+            onClick = { onButtonSelected("Add user") },
+            icon = Icons.Default.Add
         )
         SidebarButton(
             text = "Users",
