@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 
 
 
-const Login = () => {
+const Register = () => {
   const [ showPassword, setShowPassword ] = useState(false);
   const navigate = useNavigate();
   const [ token, setToken ] = useState(JSON.parse(localStorage.getItem("auth")) || "");
@@ -97,4 +97,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;
