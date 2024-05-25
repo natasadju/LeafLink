@@ -1,4 +1,4 @@
-for this in here:import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import Navbar from './NavBar.jsx';
