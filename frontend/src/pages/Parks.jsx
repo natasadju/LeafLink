@@ -87,7 +87,7 @@ const Parks = () => {
         e.preventDefault();
         if (name && selectedPark && date) {
             try {
-                await axios.post('http://localhost:3000/events', {
+                await axios.post('http://172.211.85.100:3000/events', {
                     name,
                     location: parks.find(park => park.parkId === selectedPark)?._id, // Use the _id of the selected park
                     description,
