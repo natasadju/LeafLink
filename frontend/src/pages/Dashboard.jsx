@@ -19,8 +19,8 @@ const Dashboard = () => {
     };
 
     try {
-      const response = await axios.get("http://localhost:5173/api/v1/dashboard", axiosConfig);
-      setData({ msg: response.data.msg });
+      const response = await axios.get("http://172.211.85.100:5173/api/v1/dashboard", axiosConfig);
+      setData({ msg: response.data.msg, luckyNumber: response.data.secret });
     } catch (error) {
       toast.error(error.message);
     }

@@ -24,10 +24,11 @@ const Parks = () => {
     useEffect(() => {
         const fetchParks = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/parks');
-                setParks(response.data.parks);
-                setSelectedPark(response.data.parks[0]?.parkId);
+                const response = await axios.get('http://172.211.85.100:3000/parks');
+                setParks(response.data.parks); // Assuming response.data.parks contains the parks array
+                setSelectedPark(response.data.parks[0]?.parkId); // Set the initial selected park
                 setLoading(false);
+                console.log(response.data);
             } catch (error) {
                 setError('Error fetching parks data');
                 setLoading(false);
@@ -41,7 +42,7 @@ const Parks = () => {
     
 
     useEffect(() => {
-        const socket = new WebSocket('ws://localhost:3000');
+        const socket = new WebSocket('ws://172.211.85.100:3000');
 
         socket.addEventListener('open', () => {
             console.log('Connected to WebSocket server');
@@ -88,7 +89,7 @@ const Parks = () => {
         e.preventDefault();
         if (name && selectedPark && date) {
             try {
-                await axios.post('http://localhost:3000/events', {
+                await axios.post('http://172.211.85.100:3000/events', {
                     name,
                     location: parks.find(park => park.parkId === selectedPark)?._id, // Use the _id of the selected park
                     description,
