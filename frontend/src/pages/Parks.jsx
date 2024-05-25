@@ -28,6 +28,7 @@ const Parks = () => {
                 setParks(response.data.parks); // Assuming response.data.parks contains the parks array
                 setSelectedPark(response.data.parks[0]?.parkId); // Set the initial selected park
                 setLoading(false);
+                console.log(response.data);
             } catch (error) {
                 setError('Error fetching parks data');
                 setLoading(false);
