@@ -57,7 +57,7 @@ const Parks = () => {
 
 
     useEffect(() => {
-        const socket = new WebSocket('ws://localhost:3000');
+        const socket = new WebSocket('ws://172.211.85.100:3000');
 
         socket.addEventListener('open', () => {
             console.log('Connected to WebSocket server');
@@ -97,7 +97,7 @@ const Parks = () => {
         const { name, date, description } = formData;
         if (name && date && description && selectedPark) {
             try {
-                await axios.post('http://localhost:3000/events', {
+                await axios.post('http://172.211.85.100:3000/events', {
                     name,
                     location: parks.find(park => park.parkId === selectedPark)?.name || '',
                     date,
