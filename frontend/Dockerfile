@@ -1,6 +1,6 @@
 FROM node:18
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
 COPY package*.json ./
 
@@ -15,4 +15,4 @@ RUN npm run build
 
 EXPOSE 5173
 
-CMD ["npm", "run", "preview"]
+CMD ["npm", "run", "dev"]
