@@ -13,7 +13,7 @@ const Parks = () => {
         // Fetch parks data from the API
         const fetchParks = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/parks');
+                const response = await axios.get('http://172.211.85.100:3000/parks');
                 setParks(response.data.parks); // Assuming response.data.parks contains the parks array
                 setSelectedPark(response.data.parks[0]?.parkId); // Set the initial selected park
             } catch (error) {
@@ -25,7 +25,7 @@ const Parks = () => {
     }, []);
 
     useEffect(() => {
-        const socket = new WebSocket('ws://localhost:3000');
+        const socket = new WebSocket('ws://172.211.85.100:3000');
 
         socket.addEventListener('open', () => {
             console.log('Connected to WebSocket server');
