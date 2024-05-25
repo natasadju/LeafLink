@@ -12,6 +12,7 @@ router.post('/addParks', parkController.addParks);
  */
 router.get('/', parkController.getPark);
 
+
 /*
  * GET
  */

@@ -1,36 +1,39 @@
-import React, { useEffect, useState } from "react";
-import Image from "../assets/image.png";
-import { FaEye } from "react-icons/fa6";
-import { FaEyeSlash } from "react-icons/fa6";
-import "../styles/Register.css";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import Navbar from './NavBar.jsx';
+import "../styles/NavBar.css";
+import "../styles/Parks.css";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
+const Parks = () => {
+    const [ws, setWs] = useState(null);
+    const [parks, setParks] = useState([]);
+    const [selectedPark, setSelectedPark] = useState(0);
+    const [geoJsonData, setGeoJsonData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [formData, setFormData] = useState({
+        name: '',
+        date: '',
+        description: ''
+    });
+    const navigate = useNavigate();
 
-
-const Login = () => {
-  const [ showPassword, setShowPassword ] = useState(false);
-  const navigate = useNavigate();
-  const [ token, setToken ] = useState(JSON.parse(localStorage.getItem("auth")) || "");
-
-
-
-  const handleRegisterSubmit = async (e) => {
-    e.preventDefault();
-    let name = e.target.name.value;
-    let lastname = e.target.lastname.value;
-    let email = e.target.email.value;
-    let password = e.target.password.value;
-    let confirmPassword = e.target.confirmPassword.value;
-
-    if(name.length > 0 && lastname.length > 0 && email.length > 0 && password.length > 0 && confirmPassword.length > 0){
-
-      if(password === confirmPassword){
-        const formData = {
-          username: name + " " + lastname,
-          email,
-          password
+    useEffect(() => {
+        const fetchParks = async () => {
+            try {
+                const response = await axios.get('http://172.211.85.100:3000/parks');
+                setParks(response.data.parks);
+                setSelectedPark(response.data.parks[0]?.parkId);
+                setLoading(false);
+            } catch (error) {
+                setError('Error fetching parks data');
+                setLoading(false);
+                console.error('Error fetching parks data:', error);
+            }
         };
         try{
         const response = await axios.post("http://172.211.85.100:3000/api/v1/register", formData);
@@ -44,57 +47,97 @@ const Login = () => {
       }
     
 
-    }else{
-      toast.error("Please fill all inputs");
-    }
+        fetchParks();
+    }, []);
 
+    useEffect(() => {
+        const socket = new WebSocket('ws://localhost:3000');
 
-  }
+        socket.addEventListener('open', () => {
+            console.log('Connected to WebSocket server');
+            setWs(socket);
+        });
 
-  useEffect(() => {
-    if(token !== ""){
-      toast.success("You already logged in");
-      navigate("/dashboard");
-    }
-  }, []);
+        socket.addEventListener('message', (event) => {
+            console.log('Message from server', event.data);
+            const parsedData = JSON.parse(event.data);
+            setGeoJsonData(parsedData);
+        });
 
-  return (
-    <div className="register-main">
-      <div className="register-left">
-        <img src={Image} alt="" />
-      </div>
-      <div className="register-right">
-        <div className="register-right-container">
-          <div className="register-center">
-            <h2>Welcome to LeafLink!</h2>
-            <p>Please enter your details</p>
-            <form onSubmit={handleRegisterSubmit}>
-            <input type="text" placeholder="Name" name="name" required={true} />
-            <input type="text" placeholder="Lastname" name="lastname" required={true} />
-              <input type="email" placeholder="Email" name="email" required={true} />
-              <div className="pass-input-div">
-                <input type={showPassword ? "text" : "password"} placeholder="Password" name="password" required={true} />
-                {showPassword ? <FaEyeSlash onClick={() => {setShowPassword(!showPassword)}} /> : <FaEye onClick={() => {setShowPassword(!showPassword)}} />}
-                
-              </div>
-              <div className="pass-input-div">
-                <input type={showPassword ? "text" : "password"} placeholder="Confirm Password" name="confirmPassword" required={true} />
-                {showPassword ? <FaEyeSlash onClick={() => {setShowPassword(!showPassword)}} /> : <FaEye onClick={() => {setShowPassword(!showPassword)}} />}
-                
-              </div>
-              <div className="register-center-buttons">
-                <button type="submit">Sign Up</button>
-              </div>
-            </form>
-          </div>
+        socket.addEventListener('error', (error) => {
+            console.error('WebSocket error:', error);
+        });
 
-          <p className="login-bottom-p">
-            Already have an account? <Link to="/login">Login</Link>
-          </p>
+        socket.addEventListener('close', () => {
+            console.log('WebSocket connection closed. Reconnecting...');
+        });
+
+        return () => {
+            socket.close();
+        };
+    }, []);
+
+    const handleParkChange = (e) => {
+        setSelectedPark(Number(e.target.value));
+    };
+
+    const handleInputChange = (e) => {
+        const { id, value } = e.target;
+        setFormData({ ...formData, [id]: value });
+    };
+
+    const handleEventCreation = async (e) => {
+        e.preventDefault();
+        const { name, date, description } = formData;
+        if (name && date && description && selectedPark) {
+            try {
+                await axios.post('http://localhost:3000/events', {
+                    name,
+                    location: parks.find(park => park.parkId === selectedPark)?.name || '',
+                    date,
+                    description
+                });
+                toast.success("Event created successfully");
+                navigate("/events"); // Redirect to events page after successful creation
+            } catch (error) {
+                toast.error("Error creating event: " + error.message);
+            }
+        } else {
+            toast.error("Please fill all inputs");
+        }
+    };
+
+    return (
+        <div>
+            {/* Your existing JSX content */}
+            <div className="form-container">
+                <form className="mt-4" onSubmit={handleEventCreation}>
+                    <h1 className='form-title'>Let's clean together</h1>
+                    <div className="row">
+                        <label htmlFor="eventName">Event Name:</label>
+                        <input type="text" className="form-control" id="name" value={formData.name} onChange={handleInputChange} placeholder="Enter event name" />
+                    </div>
+                    <label htmlFor="location">Location:</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        id="location"
+                        value={parks.find(park => park.parkId === selectedPark)?.name || ''}
+                        readOnly
+                    />
+                    <div className="form-group">
+                        <label htmlFor="eventDate">Event Date:</label>
+                        <input type="date" className="form-datepicker" id="date" value={formData.date} onChange={handleInputChange} />
+                    </div>
+                    <label htmlFor="eventDescription" id='details-label'>Event Details:</label>
+                    <div className="form-group">
+                        <textarea className="form-textarea" id="description" value={formData.description} onChange={handleInputChange} rows="4" />
+                    </div>
+                    <button type="submit" className="btn-send">Create Event</button>
+                </form>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 };
 
-export default Login;
+export default Parks;
