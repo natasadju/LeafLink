@@ -23,32 +23,38 @@ const Parks = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchParks = async () => {
-            try {
-                const response = await axios.get('http://172.211.85.100:3000/parks');
-                setParks(response.data.parks);
-                setSelectedPark(response.data.parks[0]?.parkId);
-                setLoading(false);
-            } catch (error) {
-                setError('Error fetching parks data');
-                setLoading(false);
-                console.error('Error fetching parks data:', error);
-            }
-        };
-        try{
-        const response = await axios.post("http://172.211.85.100:3000/api/v1/register", formData);
-         toast.success("Registration successfull");
-         navigate("/login");
-       }catch(err){
-         toast.error(err.message);
-       }
-      }else{
-        toast.error("Passwords don't match");
-      }
-    
+    const fetchParks = async () => {
+        try {
+            const response = await axios.get('http://172.211.85.100:3000/parks');
+            setParks(response.data.parks);
+            setSelectedPark(response.data.parks[0]?.parkId);
+            setLoading(false);
+        } catch (error) {
+            setError('Error fetching parks data');
+            setLoading(false);
+            console.error('Error fetching parks data:', error);
+        }
+    };
 
-        fetchParks();
-    }, []);
+    const fetchData = async () => {
+        try {
+            const response = await axios.post("http://172.211.85.100:3000/api/v1/register", formData);
+            toast.success("Registration successfull");
+            navigate("/login");
+        } catch (err) {
+            toast.error(err.message);
+        }
+    };
+
+    if (formData.name && formData.date && formData.description) {
+        fetchData();
+    } else {
+        toast.error("Passwords don't match");
+    }
+
+    fetchParks();
+}, []);
+
 
     useEffect(() => {
         const socket = new WebSocket('ws://localhost:3000');
