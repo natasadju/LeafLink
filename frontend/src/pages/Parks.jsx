@@ -27,6 +27,7 @@ const Parks = () => {
                 const response = await axios.get('http://172.211.85.100:3000/parks');
                 setParks(response.data.parks); // Assuming response.data.parks contains the parks array
                 setSelectedPark(response.data.parks[0]?.parkId); // Set the initial selected park
+                setLoading(false);
             } catch (error) {
                 setError('Error fetching parks data');
                 setLoading(false);
