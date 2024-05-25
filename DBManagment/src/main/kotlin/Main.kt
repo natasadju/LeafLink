@@ -16,12 +16,17 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
+import it.skrape.core.htmlDocument
+import it.skrape.fetcher.HttpFetcher
+import it.skrape.fetcher.response
+import it.skrape.fetcher.skrape
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -29,6 +34,8 @@ import okhttp3.logging.HttpLoggingInterceptor
 import okio.IOException
 import java.util.*
 
+
+//TODO: add date-time to airquality scraping data
 
 data class Park(
     val _id: String,
@@ -148,10 +155,8 @@ fun addUser(user: User, onResult: (Boolean) -> Unit) {
         "username" to user.name
     )
 
-    // Convert the map to JSON string
     val jsonBody = gson.toJson(requestData)
 
-    // Create a RequestBody from the JSON string
     val requestBody = jsonBody.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
     val request = Request.Builder()
@@ -199,6 +204,97 @@ fun updateUser(user: User, onResult: (Boolean) -> Unit) {
 }
 
 
+data class ScrapedItem(
+    val station: String,
+    val pm10: String,
+    val pm25: String,
+    val so2: String,
+    val co: String,
+    val ozon: String,
+    val no2: String,
+    val benzen: String
+)
+
+fun scrapeData(option: String): List<ScrapedItem> {
+    return when (option) {
+        "AirQuality" -> scrapeAirQuality()
+        else -> emptyList()
+    }
+}
+
+fun scrapePollen() {
+    //
+}
+
+inline fun <T> T.maybe(block: T.() -> T?): T? = try {
+    block()
+} catch (e: Exception) {
+    null
+}
+
+fun scrapeAirQuality(): List<ScrapedItem> {
+    val scrapedItems = mutableListOf<ScrapedItem>()
+
+    skrape(HttpFetcher) {
+        request {
+            url = "https://www.arso.gov.si/zrak/kakovost%20zraka/podatki/dnevne_koncentracije.html"
+        }
+
+        response {
+            htmlDocument {
+                fun processTable(tableIndex: Int) {
+                    val tables = findAll("table.online")
+                    if (tableIndex < tables.size) {
+                        val table = tables[tableIndex]
+                        table.findAll("tr").drop(3).forEach { row ->
+                            try {
+                                val stationCell = row.maybe { findFirst(".onlineimena") }
+                                if (stationCell != null &&
+                                    (stationCell.text.contains("MB Vrbanski") || stationCell.text.contains("MB Titova"))
+                                ) {
+                                    val station = stationCell.text
+                                    val cells = row.findAll(".onlinedesno")
+                                    if (cells.size >= 7) {
+                                        val pm10 = cells[0].text
+                                        val pm25 = cells[1].text
+                                        val so2 = cells[2].text
+                                        val co = cells[3].text
+                                        val ozon = cells[4].text
+                                        val no2 = cells[5].text
+                                        val benzen = cells[6].text
+
+                                        scrapedItems.add(
+                                            ScrapedItem(
+                                                station = station,
+                                                pm10 = pm10,
+                                                pm25 = pm25,
+                                                so2 = so2,
+                                                co = co,
+                                                ozon = ozon,
+                                                no2 = no2,
+                                                benzen = benzen
+                                            )
+                                        )
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                println("Error: ${e.message}")
+                            }
+                        }
+                    } else {
+                        println("Table at index $tableIndex not found")
+                    }
+                }
+
+                processTable(0)
+            }
+        }
+    }
+
+    return scrapedItems
+}
+
+
 @Composable
 @Preview
 fun App() {
@@ -218,10 +314,106 @@ fun App() {
 
             "Parks" -> ParkGrid()
             "Users" -> UserGrid()
+            "Scraper" -> ScraperMenu()
             else -> {}
         }
     }
 }
+
+@Composable
+fun ScraperMenu() {
+    var expanded by remember { mutableStateOf(false) }
+    var selectedOption by remember { mutableStateOf("AirQuality") }
+    var scrapedData by remember { mutableStateOf(emptyList<ScrapedItem>()) }
+    val options = listOf("AirQuality", "Pollen")
+
+    Column(
+        modifier = Modifier.padding(16.dp)
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Select Data to Scrape:")
+        Box {
+            Button(
+                onClick = { expanded = true },
+                modifier = Modifier
+                    .background(Color.Transparent)
+                    .align(Alignment.Center)
+            ) {
+                Text(selectedOption)
+            }
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                options.forEach { option ->
+                    DropdownMenuItem(onClick = {
+                        selectedOption = option
+                        expanded = false
+                        scrapedData = scrapeData(option)
+                    }) {
+                        Text(option)
+                    }
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        ScrapedDataGrid(scrapedData)
+    }
+}
+
+
+@Composable
+fun ScrapedDataGrid(scrapedData: List<ScrapedItem>) {
+    val lazyGridState = rememberLazyGridState()
+
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(200.dp),
+        state = lazyGridState,
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        items(scrapedData.size) { index ->
+            ScrapedAirCard(scrapedData[index])
+        }
+    }
+}
+
+
+@Composable
+fun ScrapedAirCard(item: ScrapedItem) {
+    Card(
+        modifier = Modifier
+            .padding(8.dp)
+            .aspectRatio(1f),
+        elevation = 2.dp,
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+        ) {
+            Text(
+                text = item.station,
+                modifier = Modifier
+                    .fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text("PM10: ${item.pm10}")
+            Text("PM2.5: ${item.pm25}")
+            Text("SO2: ${item.so2}")
+            Text("CO: ${item.co}")
+            Text("Ozon: ${item.ozon}")
+            Text("NO2: ${item.no2}")
+            Text("Benzen: ${item.benzen}")
+        }
+    }
+}
+
 
 @Composable
 fun UserGrid() {
