@@ -2,3 +2,6 @@
 /.idea
 /backend/node_modules/
 .env
+scrapper/.idea
+scrapper/.gradle
+scrapper/.run

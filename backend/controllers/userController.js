@@ -33,17 +33,14 @@ const login = async (req, res) => {
 };
 
 const dashboard = async (req, res) => {
-  const luckyNumber = Math.floor(Math.random() * 100);
 
   res.status(200).json({
-    msg: `Hello, ${req.user.name}`,
-    secret: `Here is your authorized data, your lucky number is ${luckyNumber}`,
+    msg: `Hello, ${req.user.name}`
   });
 };
 
 const getAllUsers = async (req, res) => {
   let users = await User.find({});
-
   return res.status(200).json({ users });
 };
 
@@ -58,7 +55,7 @@ const register = async (req, res) => {
         password: password,
       });
       await person.save();
-      return res.status(201).json({ person });
+      return res.status(200).json({ person });
     }else{
         return res.status(400).json({msg: "Please add all values in the request body"});
     }
