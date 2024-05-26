@@ -24,13 +24,13 @@ jobs:
 
       - name: Build server image
         run: |
-          docker build -t natasadju/leaflink:latest -f ./server-side/Dockerfile ./server-side
-          docker push natasadju/leaflink:latest
-
+          docker build -t natasadju/leaflink:server-side-latest -f ./backend/Dockerfile ./backend
+          docker push natasadju/leaflink:server-side-latest
       - name: Build client image
         run: |
-          docker build -t natasadju/leaflink:latest -f ./frontend/Dockerfile ./frontend
-          docker push natasadju/leaflink:latest
+          docker build -t natasadju/leaflink:frontend-latest -f ./frontend/Dockerfile ./frontend
+          docker push natasadju/leaflink:frontend-latest
+
 
   notify:
     runs-on: ubuntu-latest
