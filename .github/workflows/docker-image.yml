@@ -22,15 +22,15 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build server image
+      - name: Build and push server image
         run: |
-          docker build -t natasadju/leaflink:server-side-latest -f ./backend/Dockerfile ./backend
-          docker push natasadju/leaflink:server-side-latest
-      - name: Build client image
+          docker build -t natasadju/leaflink:server-latest -f ./backend/Dockerfile ./backend
+          docker push natasadju/leaflink:server-latest
+
+      - name: Build and push client image
         run: |
           docker build -t natasadju/leaflink:frontend-latest -f ./frontend/Dockerfile ./frontend
           docker push natasadju/leaflink:frontend-latest
-
 
   notify:
     runs-on: ubuntu-latest
@@ -40,5 +40,5 @@ jobs:
         uses: joelwmale/webhook-action@2.4.1
         with:
           url: ${{ secrets.WEBHOOK_URL }}
-          headers: '{"Content-Type": "application/json", "X-Hub-Signature-256": "${{ secrets.WEBHOOK_SECRET }}"}'
-          body: '{"text": "Docker image has been successfully built and pushed!"}'
+          headers: '{"Content-Type": "application/json", "X-Webhook-Token": "${{ secrets.WEBHOOK_SECRET }}"}'
+          body: '{"text": "Docker images have been successfully built and pushed!"}'
