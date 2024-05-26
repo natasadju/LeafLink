@@ -24,7 +24,7 @@ jobs:
 
       - name: Build and push server image
         run: |
-          docker build -t natasadju/leaflink:server-latest -f ./server-side/Dockerfile ./server-side
+          docker build -t natasadju/leaflink:server-latest -f ./backend/Dockerfile ./backend
           docker push natasadju/leaflink:server-latest
 
       - name: Build and push client image
