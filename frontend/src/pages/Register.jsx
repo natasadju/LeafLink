@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 
 
 
-const Register = () => {
+const Login = () => {
   const [ showPassword, setShowPassword ] = useState(false);
   const navigate = useNavigate();
   const [ token, setToken ] = useState(JSON.parse(localStorage.getItem("auth")) || "");
@@ -33,7 +33,7 @@ const Register = () => {
           password
         };
         try{
-        const response = await axios.post("http://172.211.85.100:3000/api/v1/register", formData);
+        const response = await axios.post("http://localhost:3000/api/v1/register", formData);
          toast.success("Registration successfull");
          navigate("/login");
        }catch(err){
@@ -97,4 +97,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default Login;
