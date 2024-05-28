@@ -14,10 +14,10 @@ const EventsPage = () => {
     useEffect(() => {
         const fetchEvents = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/events');
+                const response = await axios.get('http://172.211.85.100:3000/events');
                 const eventsWithParkData = await Promise.all(response.data.map(async event => {
                     // Fetch park data based on parkId
-                    const parkResponse = await axios.get(`http://localhost:3000/parks/${event.parkId}`);
+                    const parkResponse = await axios.get(`http://172.211.85.100:3000/parks/${event.parkId}`);
                     const parkData = parkResponse.data;
                     return {
                         ...event,
