@@ -1,0 +1,50 @@
+City "ExampleCity" {
+    Road "MainStreet" {
+        line ((1.0, 1.0), (2.0, 2.0))
+        bend ((2.0, 2.0), (3.0, 3.0), 45.0)
+        material ("asphalt")
+    }
+    Building "Library" {
+        box ((3.0, 3.0), (4.0, 4.0))
+        height (15.0)
+        material ("brick")
+        color ("red")
+    }
+    Park "CentralPark" {
+        circ ((5.0, 5.0), 10.0)
+        text ("Welcome to Central Park")
+    }
+    Lake "BlueLake" {
+        ellip ((6.0, 6.0), 8.0, 4.0)
+    }
+    Greenfield "SoccerField" {
+        box ((7.0, 7.0), (9.0, 8.0))
+    }
+    Bench "ParkBench1" {
+        (10.0, 10.0)
+    }
+    Sculpture "FamousStatue" {
+        (11.0, 11.0)
+    }
+    PublicSign "NoSwimmingSign" {
+        (12.0, 12.0)
+    }
+    Island "Island1" {
+        polyline ((13.0, 13.0), (14.0, 14.0), (15.0, 15.0))
+    }
+    Playground "KidsPlayArea" {
+        polyline ((16.0, 16.0), (17.0, 17.0), (18.0, 18.0))
+    }
+    WalkingTrail "TrailA" {
+        (19.0, 19.0), (20.0, 20.0)
+    }
+    BikeLane "BikePath1" {
+        polyline ((21.0, 21.0), (22.0, 22.0))
+    }
+    Bridge "BridgeX" {
+        arc ((23.0, 23.0), 30.0, 60.0)
+    }
+    UndergroundTunnel "TunnelZ" {
+        curve ((24.0, 24.0), (25.0, 25.0), (26.0, 26.0))
+    }
+}
