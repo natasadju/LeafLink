@@ -20,10 +20,6 @@ app.use("/api/v1", mainRouter);
 const parkRouter = require("./routes/parkRoutes");
 app.use("/parks", parkRouter);
 
-// added a parkRouter
-const eventRouter = require("./routes/eventRoutes");
-app.use("/events", eventRouter);
-
 const port = process.env.PORT || 3000;
 
 // Created an HTTP server

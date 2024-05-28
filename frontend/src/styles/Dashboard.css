@@ -1,64 +1,43 @@
-body {
-  font-family: 'Roboto', sans-serif;
+.dashboard-main{
+    font-size: 30px;
+    height: 100vh;
+    width: 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: #7dd181;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-}
-
-i {
-  margin-right: 10px;
-}
-
-
-.dashboard-main {
-  font-size: 30px;
-  height: 100vh;
-  width: 100%;
-  display: flex;
-  margin-top: 5%;
-  align-items: center;
-  flex-direction: column;
-  color: #7dd181;
-}
-
-.dashboard-main p {
+.dashboard-main p{
   font-size: 20px;
   padding: 0 20px;
   color: #7dd181;
 }
 
-.logout-button {
-  background: #7dd181;
-  color: white;
-  border: 3px solid #7dd181;
-  transition: background 1s linear 0ms;
-  transition: color 500ms linear 0ms;
-  width: 500px;
-  padding: 16px;
-  border-radius: 30px;
-  cursor: pointer;
-  font-weight: 600;
-  margin-top: 10px;
-  font-size: 20px;
-  text-align: center;
-  text-decoration: none;
-}
+.logout-button{
+    background: #7dd181;
+    color: white;
+    border: 3px solid #7dd181;
+    transition: background 1s linear 0ms;
+    transition: color 500ms linear 0ms;
 
-.logout-button:hover {
-  color: #7dd181;
-  background-color: white;
-}
+    width: 500px;
+    padding: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    border-radius: 30px;
+    font-weight: 600;
+    margin-top: 10px;
 
-.carousel-item {
-  width: 100%;
-  max-width: 800px;
-  margin: auto;
-}
+    font-size: 20px;
+    text-align: center;
+    text-decoration: none;
+  }
 
-.carousel-item img {
-  width: 100%;
-  height: 400px; /* Ensure a consistent height */
-  object-fit: cover; /* Ensures images cover the entire area without distortion */
-}
+  
+  .logout-button:hover{
+    color: #7dd181;
+    background-color: white;
+  }
