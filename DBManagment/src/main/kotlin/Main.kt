@@ -32,6 +32,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.logging.HttpLoggingInterceptor
 import okio.IOException
+import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -204,7 +205,7 @@ fun updateUser(user: User, onResult: (Boolean) -> Unit) {
 }
 
 
-data class ScrapedItem(
+data class ScrapedAirData(
     val station: String,
     val pm10: String,
     val pm25: String,
@@ -212,18 +213,52 @@ data class ScrapedItem(
     val co: String,
     val ozon: String,
     val no2: String,
-    val benzen: String
+    val benzen: String,
+    val timestamp: String
 )
 
-fun scrapeData(option: String): List<ScrapedItem> {
+data class PollenItem(
+    val type: String,
+    val value: String,
+    val timestamp: String
+)
+
+fun scrapeData(option: String): List<Any> {
     return when (option) {
         "AirQuality" -> scrapeAirQuality()
+        "Pollen" -> scrapePollen()
         else -> emptyList()
     }
 }
 
-fun scrapePollen() {
-    //
+fun scrapePollen(): List<PollenItem> {
+    val scrapedItems = mutableListOf<PollenItem>()
+    val timestamp = getCurrentTimestamp()
+
+    skrape(HttpFetcher) {
+        request {
+            url = "https://air-quality.com/place/slovenia/maribor/95149348?lang=en&standard=aqi_us"
+        }
+
+        response {
+            htmlDocument {
+                val pollenItems = findFirst(".allergens").findAll(".pollutant-item")
+
+                pollenItems.forEach { item ->
+                    try {
+                        val type = item.findFirst(".name").text
+                        val value = item.findFirst(".value").text
+
+                        scrapedItems.add(PollenItem(type, value, timestamp))
+                    } catch (e: Exception) {
+                        println("Error: ${e.message}")
+                    }
+                }
+            }
+        }
+    }
+
+    return scrapedItems
 }
 
 inline fun <T> T.maybe(block: T.() -> T?): T? = try {
@@ -232,8 +267,14 @@ inline fun <T> T.maybe(block: T.() -> T?): T? = try {
     null
 }
 
-fun scrapeAirQuality(): List<ScrapedItem> {
-    val scrapedItems = mutableListOf<ScrapedItem>()
+fun getCurrentTimestamp(): String {
+    val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+    return sdf.format(Date())
+}
+
+fun scrapeAirQuality(): List<ScrapedAirData> {
+    val scrapedItems = mutableListOf<ScrapedAirData>()
+    val timestamp = getCurrentTimestamp()
 
     skrape(HttpFetcher) {
         request {
@@ -264,7 +305,7 @@ fun scrapeAirQuality(): List<ScrapedItem> {
                                         val benzen = cells[6].text
 
                                         scrapedItems.add(
-                                            ScrapedItem(
+                                            ScrapedAirData(
                                                 station = station,
                                                 pm10 = pm10,
                                                 pm25 = pm25,
@@ -272,7 +313,8 @@ fun scrapeAirQuality(): List<ScrapedItem> {
                                                 co = co,
                                                 ozon = ozon,
                                                 no2 = no2,
-                                                benzen = benzen
+                                                benzen = benzen,
+                                                timestamp = timestamp
                                             )
                                         )
                                     }
@@ -324,11 +366,12 @@ fun App() {
 fun ScraperMenu() {
     var expanded by remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf("AirQuality") }
-    var scrapedData by remember { mutableStateOf(emptyList<ScrapedItem>()) }
+    var scrapedData by remember { mutableStateOf(emptyList<Any>()) }
     val options = listOf("AirQuality", "Pollen")
 
     Column(
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier
+            .padding(16.dp)
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -358,13 +401,12 @@ fun ScraperMenu() {
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
-        ScrapedDataGrid(scrapedData)
+        ScrapedDataGrid(scrapedData, selectedOption)
     }
 }
 
-
 @Composable
-fun ScrapedDataGrid(scrapedData: List<ScrapedItem>) {
+fun ScrapedDataGrid(scrapedData: List<Any>, dataType: String) {
     val lazyGridState = rememberLazyGridState()
 
     LazyVerticalGrid(
@@ -375,18 +417,21 @@ fun ScrapedDataGrid(scrapedData: List<ScrapedItem>) {
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         items(scrapedData.size) { index ->
-            ScrapedAirCard(scrapedData[index])
+            when (dataType) {
+                "AirQuality" -> ScrapedAirCard(scrapedData[index] as ScrapedAirData)
+                "Pollen" -> ScrapedPollenCard(scrapedData[index] as PollenItem)
+            }
         }
     }
 }
 
 
 @Composable
-fun ScrapedAirCard(item: ScrapedItem) {
+fun ScrapedAirCard(item: ScrapedAirData) {
     Card(
         modifier = Modifier
             .padding(8.dp)
-            .aspectRatio(1f),
+            .fillMaxWidth(),
         elevation = 2.dp,
         shape = RoundedCornerShape(8.dp)
     ) {
@@ -410,6 +455,42 @@ fun ScrapedAirCard(item: ScrapedItem) {
             Text("Ozon: ${item.ozon}")
             Text("NO2: ${item.no2}")
             Text("Benzen: ${item.benzen}")
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Timestamp: ${item.timestamp}",
+                fontSize = 14.sp,
+                color = Color.Gray
+            )
+        }
+    }
+}
+
+@Composable
+fun ScrapedPollenCard(item: PollenItem) {
+    Card(
+        modifier = Modifier
+            .padding(8.dp)
+            .aspectRatio(1f),
+        elevation = 2.dp,
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+        ) {
+            Text(
+                text = item.type,
+                modifier = Modifier
+                    .fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text("Type of pollen:  ${item.type}")
+            Text("Value: ${item.value}")
+            Spacer(modifier = Modifier.height(8.dp))
+            Text("Timestamp: ${item.timestamp}")
         }
     }
 }
