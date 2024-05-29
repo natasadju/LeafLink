@@ -52,11 +52,15 @@ module.exports = {
      */
     create: function (req, res) {
         var airQuality = new AirqualityModel({
-			location : req.body.location,
-			timestamp : req.body.timestamp,
-			pm10 : req.body.pm10,
-			pm25 : req.body.pm25,
-			benzene : req.body.benzene
+            station: req.body.station,
+            pm10: req.body.pm10,
+            pm25: req.body.pm25,
+            so2: req.body.so2,
+            co: req.body.co,
+            ozon: req.body.ozon,
+            no2: req.body.no2,
+            benzen: req.body.benzen,
+            timestamp: req.body.timestamp
         });
 
         airQuality.save(function (err, airQuality) {

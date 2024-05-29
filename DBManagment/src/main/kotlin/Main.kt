@@ -21,7 +21,9 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.google.gson.Gson
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
 import it.skrape.core.htmlDocument
 import it.skrape.fetcher.HttpFetcher
@@ -52,6 +54,30 @@ data class User(
     val password: String,
     val __v: Int
 )
+
+
+data class ScrapedAirData(
+    val _id: String,
+    val station: String,
+    val pm10: String,
+    val pm25: String,
+    val so2: String,
+    val co: String,
+    val ozon: String,
+    val no2: String,
+    val benzen: String,
+    val timestamp: String,
+    val __v: Int
+)
+
+data class PollenItem(
+    val _id: String,
+    val type: String,
+    val value: String,
+    val timestamp: String,
+    val __v: Int
+)
+
 
 val client: OkHttpClient by lazy {
     val logging = HttpLoggingInterceptor().apply { setLevel(HttpLoggingInterceptor.Level.BODY) }
@@ -204,24 +230,32 @@ fun updateUser(user: User, onResult: (Boolean) -> Unit) {
     })
 }
 
+fun fetchAirData(onResult: (List<ScrapedAirData>?) -> Unit) {
+    val request = Request.Builder()
+        .url("http://localhost:3000/air")
+        .build()
 
-data class ScrapedAirData(
-    val station: String,
-    val pm10: String,
-    val pm25: String,
-    val so2: String,
-    val co: String,
-    val ozon: String,
-    val no2: String,
-    val benzen: String,
-    val timestamp: String
-)
+    client.newCall(request).enqueue(object : Callback {
+        override fun onFailure(call: Call, e: IOException) {
+            e.printStackTrace()
+            onResult(null)
+        }
 
-data class PollenItem(
-    val type: String,
-    val value: String,
-    val timestamp: String
-)
+        override fun onResponse(call: Call, response: Response) {
+            response.body?.string()?.let { body ->
+                try {
+                    val airDataArray = gson.fromJson(body, JsonArray::class.java)
+                    val airData: List<ScrapedAirData> =
+                        gson.fromJson(airDataArray, object : TypeToken<List<ScrapedAirData>>() {}.type)
+                    onResult(airData)
+                } catch (e: JsonSyntaxException) {
+                    e.printStackTrace()
+                    onResult(null)
+                }
+            }
+        }
+    })
+}
 
 fun scrapeData(option: String): List<Any> {
     return when (option) {
@@ -249,7 +283,15 @@ fun scrapePollen(): List<PollenItem> {
                         val type = item.findFirst(".name").text
                         val value = item.findFirst(".value").text
 
-                        scrapedItems.add(PollenItem(type, value, timestamp))
+                        scrapedItems.add(
+                            PollenItem(
+                                UUID.randomUUID().toString(),
+                                type,
+                                value,
+                                timestamp,
+                                0
+                            )
+                        )
                     } catch (e: Exception) {
                         println("Error: ${e.message}")
                     }
@@ -306,6 +348,7 @@ fun scrapeAirQuality(): List<ScrapedAirData> {
 
                                         scrapedItems.add(
                                             ScrapedAirData(
+                                                _id = UUID.randomUUID().toString(),
                                                 station = station,
                                                 pm10 = pm10,
                                                 pm25 = pm25,
@@ -314,7 +357,8 @@ fun scrapeAirQuality(): List<ScrapedAirData> {
                                                 ozon = ozon,
                                                 no2 = no2,
                                                 benzen = benzen,
-                                                timestamp = timestamp
+                                                timestamp = timestamp,
+                                                __v = 0
                                             )
                                         )
                                     }
@@ -349,11 +393,8 @@ fun App() {
             selectedScreen = button
         }
         when (selectedScreen) {
-            "Add park" -> AddParkScreen {
-            }
-
+            "Add park" -> AddParkScreen {}
             "Add user" -> AddUserScreen {}
-
             "Parks" -> ParkGrid()
             "Users" -> UserGrid()
             "Scraper" -> ScraperMenu()
@@ -361,6 +402,7 @@ fun App() {
         }
     }
 }
+
 
 @Composable
 fun ScraperMenu() {
@@ -428,6 +470,9 @@ fun ScrapedDataGrid(scrapedData: List<Any>, dataType: String) {
 
 @Composable
 fun ScrapedAirCard(item: ScrapedAirData) {
+    var isAdding by remember { mutableStateOf(false) }
+    var showMessage by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier
             .padding(8.dp)
@@ -461,12 +506,42 @@ fun ScrapedAirCard(item: ScrapedAirData) {
                 fontSize = 14.sp,
                 color = Color.Gray
             )
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(
+                onClick = {
+                    isAdding = true
+                    addScrapedAirData(item) { success ->
+                        isAdding = false
+                        showMessage = true
+                    }
+                },
+                enabled = !isAdding
+            ) {
+                if (isAdding) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Color.White
+                    )
+                } else {
+                    Text("Add to Database")
+                }
+            }
+            if (showMessage) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = if (isAdding) "Adding..." else "Data added!",
+                    color = if (isAdding) Color.Gray else Color.Green
+                )
+            }
         }
     }
 }
 
 @Composable
 fun ScrapedPollenCard(item: PollenItem) {
+    var isAdding by remember { mutableStateOf(false) }
+    var showMessage by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier
             .padding(8.dp)
@@ -491,6 +566,33 @@ fun ScrapedPollenCard(item: PollenItem) {
             Text("Value: ${item.value}")
             Spacer(modifier = Modifier.height(8.dp))
             Text("Timestamp: ${item.timestamp}")
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(
+                onClick = {
+                    isAdding = true
+                    addScrapedPollenData(item) { success ->
+                        isAdding = false
+                        showMessage = true
+                    }
+                },
+                enabled = !isAdding
+            ) {
+                if (isAdding) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Color.White
+                    )
+                } else {
+                    Text("Add to Database")
+                }
+            }
+            if (showMessage) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = if (isAdding) "Adding..." else "Data added!",
+                    color = if (isAdding) Color.Gray else Color.Green
+                )
+            }
         }
     }
 }
@@ -931,6 +1033,47 @@ fun AddUserScreen(onUserAdded: () -> Unit) {
     }
 }
 
+fun addScrapedAirData(item: ScrapedAirData, onResult: (Boolean) -> Unit) {
+    val requestBody = gson.toJson(item)
+        .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+
+    val request = Request.Builder()
+        .url("http://localhost:3000/air")
+        .post(requestBody)
+        .build()
+
+    client.newCall(request).enqueue(object : Callback {
+        override fun onFailure(call: Call, e: IOException) {
+            e.printStackTrace()
+            onResult(false)
+        }
+
+        override fun onResponse(call: Call, response: Response) {
+            onResult(response.isSuccessful)
+        }
+    })
+}
+
+fun addScrapedPollenData(item: PollenItem, onResult: (Boolean) -> Unit) {
+    val requestBody = gson.toJson(item)
+        .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+
+    val request = Request.Builder()
+        .url("http://localhost:3000/pollen")
+        .post(requestBody)
+        .build()
+
+    client.newCall(request).enqueue(object : Callback {
+        override fun onFailure(call: Call, e: IOException) {
+            e.printStackTrace()
+            onResult(false)
+        }
+
+        override fun onResponse(call: Call, response: Response) {
+            onResult(response.isSuccessful)
+        }
+    })
+}
 
 @Composable
 fun Sidebar(selectedButton: String, onButtonSelected: (String) -> Unit) {
@@ -957,7 +1100,7 @@ fun Sidebar(selectedButton: String, onButtonSelected: (String) -> Unit) {
             text = "Parks",
             isSelected = selectedButton == "Parks",
             onClick = { onButtonSelected("Parks") },
-            icon = Icons.Default.Menu
+            icon = Icons.Default.Forest
         )
         Divider()
         SidebarButton(
@@ -970,7 +1113,14 @@ fun Sidebar(selectedButton: String, onButtonSelected: (String) -> Unit) {
             text = "Users",
             isSelected = selectedButton == "Users",
             onClick = { onButtonSelected("Users") },
-            icon = Icons.Default.Menu
+            icon = Icons.Default.Person
+        )
+        Divider()
+        SidebarButton(
+            text = "Air Quality",
+            isSelected = selectedButton == "Air Quality",
+            onClick = { onButtonSelected("Air Quality") },
+            icon = Icons.Default.Air
         )
         Divider()
         SidebarButton(
