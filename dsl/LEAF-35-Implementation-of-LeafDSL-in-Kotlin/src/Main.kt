@@ -1,12 +1,14 @@
+import java.io.File
 import java.io.FileInputStream
 
-fun main(args: Array<String>) {
-
-    val inputFile = "test.txt"
-    FileInputStream(inputFile).use { inputStream ->
-        val lexer = Lexer(inputStream)
-        val parser = Parser(lexer)
-        parser.parseProgram()
-        println("Parsing completed successfully.")
+fun main() {
+    val input = File("test.txt").readText()
+    val scanner = Lexer(input)
+    val tokens = scanner.scanTokens()
+    val parser = Parser(tokens)
+    if (parser.parse()) {
+        println("Parsing succeeded.")
+    } else {
+        println("Parsing failed.")
     }
 }
