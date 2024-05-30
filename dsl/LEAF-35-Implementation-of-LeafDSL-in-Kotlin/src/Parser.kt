@@ -1,238 +1,273 @@
-class Parser(private val lexer: Lexer) {
-    private var currentToken: Token = lexer.nextToken()
+class Parser(private val tokens: List<Token>) {
+    private var current = 0
 
-    private fun match(expected: TokenType) {
-        if (currentToken.type == expected) {
-            currentToken = lexer.nextToken()
-        } else {
-            error("Expected $expected but found ${currentToken.type} at row ${currentToken.row}, column ${currentToken.column}")
+    fun parse(): Boolean {
+        try {
+            program()
+            return tokens[current].type == TokenType.EOF
+        } catch (e: ParseException) {
+            println(e.message)
+            return false
         }
     }
 
-    fun parseProgram() {
-
-        parseCity()
+    private fun program() {
+        city()
     }
 
-    private fun parseCity() {
+    private fun city() {
         match(TokenType.CITY)
         match(TokenType.STRING)
         match(TokenType.LBRACE)
-        parseBlocks()
+        blocks()
         match(TokenType.RBRACE)
     }
 
-    private fun parseBlocks() {
-        parseBlock()
-        while (currentToken.type in setOf(
+    private fun blocks() {
+        while (tokens[current].type in setOf(
                 TokenType.ROAD, TokenType.BUILDING, TokenType.PARK, TokenType.LAKE,
-                TokenType.GREENFIELD, TokenType.BENCH, TokenType.SCULPTURE, TokenType.PUBLICSIGN,
-                TokenType.ISLAND, TokenType.PLAYGROUND, TokenType.WALKINGTRAIL, TokenType.BIKELANE,
-                TokenType.BRIDGE, TokenType.UNDERGROUNDTUNNEL
-            )) {
-            parseBlock()
+                TokenType.GREENFIELD, TokenType.BENCHES, TokenType.SCULPTURES, TokenType.PUBLIC_SIGN,
+                TokenType.ISLAND, TokenType.PLAYGROUND, TokenType.WALKING_TRAIL
+            )
+        ) {
+            block()
         }
     }
 
-    private fun parseBlock() {
-        when (currentToken.type) {
-            TokenType.ROAD -> parseSpecificBlock(TokenType.ROAD)
-            TokenType.BUILDING -> parseSpecificBlock(TokenType.BUILDING)
-            TokenType.PARK -> parseSpecificBlock(TokenType.PARK)
-            TokenType.LAKE -> parseSpecificBlock(TokenType.LAKE)
-            TokenType.GREENFIELD -> parseSpecificBlock(TokenType.GREENFIELD)
-            TokenType.BENCH -> parsePointBlock(TokenType.BENCH)
-            TokenType.SCULPTURE -> parsePointBlock(TokenType.SCULPTURE)
-            TokenType.PUBLICSIGN -> parsePointBlock(TokenType.PUBLICSIGN)
-            TokenType.ISLAND -> parseSpecificBlock(TokenType.ISLAND)
-            TokenType.PLAYGROUND -> parseSpecificBlock(TokenType.PLAYGROUND)
-            TokenType.WALKINGTRAIL -> parseWalkingTrailBlock()
-            TokenType.BIKELANE -> parseSpecificBlock(TokenType.BIKELANE)
-            TokenType.BRIDGE -> parseSpecificBlock(TokenType.BRIDGE)
-            TokenType.UNDERGROUNDTUNNEL -> parseSpecificBlock(TokenType.UNDERGROUNDTUNNEL)
-            else -> error("Unexpected block type: ${currentToken.type}")
+    private fun block() {
+        when (tokens[current].type) {
+            TokenType.ROAD -> road()
+            TokenType.BUILDING -> building()
+            TokenType.PARK -> park()
+            TokenType.LAKE -> lake()
+            TokenType.GREENFIELD -> greenfield()
+            TokenType.BENCHES -> benches()
+            TokenType.SCULPTURES -> sculptures()
+            TokenType.PUBLIC_SIGN -> publicSign()
+            TokenType.ISLAND -> island()
+            TokenType.PLAYGROUND -> playground()
+            TokenType.WALKING_TRAIL -> walkingTrail()
+            else -> throw ParseException("Unexpected token: ${tokens[current].lexeme}")
         }
     }
 
-    private fun parseSpecificBlock(type: TokenType) {
-        match(type)
+    private fun road() {
+        match(TokenType.ROAD)
         match(TokenType.STRING)
         match(TokenType.LBRACE)
-        parseCommands()
+        commands()
         match(TokenType.RBRACE)
     }
 
-    private fun parsePointBlock(type: TokenType) {
-        match(type)
+    private fun building() {
+        match(TokenType.BUILDING)
         match(TokenType.STRING)
         match(TokenType.LBRACE)
-        parsePoint()
+        commands()
         match(TokenType.RBRACE)
     }
 
-    private fun parseWalkingTrailBlock() {
-        match(TokenType.WALKINGTRAIL)
+    private fun park() {
+        match(TokenType.PARK)
         match(TokenType.STRING)
         match(TokenType.LBRACE)
-        parsePoint()
+        commands()
+        match(TokenType.RBRACE)
+    }
+
+    private fun lake() {
+        match(TokenType.LAKE)
+        match(TokenType.STRING)
+        match(TokenType.LBRACE)
+        commands()
+        match(TokenType.RBRACE)
+    }
+
+    private fun greenfield() {
+        match(TokenType.GREENFIELD)
+        match(TokenType.STRING)
+        match(TokenType.LBRACE)
+        commands()
+        match(TokenType.RBRACE)
+    }
+
+    private fun benches() {
+        match(TokenType.BENCHES)
+        match(TokenType.STRING)
+        match(TokenType.LBRACE)
+        point()
+        match(TokenType.RBRACE)
+    }
+
+    private fun sculptures() {
+        match(TokenType.SCULPTURES)
+        match(TokenType.STRING)
+        match(TokenType.LBRACE)
+        point()
+        match(TokenType.RBRACE)
+    }
+
+    private fun publicSign() {
+        match(TokenType.PUBLIC_SIGN)
+        match(TokenType.STRING)
+        match(TokenType.LBRACE)
+        point()
+        match(TokenType.RBRACE)
+    }
+
+    private fun island() {
+        match(TokenType.ISLAND)
+        match(TokenType.STRING)
+        match(TokenType.LBRACE)
+        commands()
+        match(TokenType.RBRACE)
+    }
+
+    private fun playground() {
+        match(TokenType.PLAYGROUND)
+        match(TokenType.STRING)
+        match(TokenType.LBRACE)
+        commands()
+        match(TokenType.RBRACE)
+    }
+
+    private fun walkingTrail() {
+        match(TokenType.WALKING_TRAIL)
+        match(TokenType.STRING)
+        match(TokenType.LBRACE)
+        point()
         match(TokenType.COMMA)
-        parsePoint()
+        point()
         match(TokenType.RBRACE)
     }
 
-    private fun parseCommands() {
-        parseCommand()
-        while (currentToken.type in setOf(
+    private fun commands() {
+        while (tokens[current].type in setOf(
                 TokenType.LINE, TokenType.BEND, TokenType.BOX, TokenType.CIRC, TokenType.ELLIP,
-                TokenType.ARC, TokenType.POLYLINE, TokenType.POLYSPLINE, TokenType.CURVE,
-                TokenType.HEIGHT, TokenType.MATERIAL, TokenType.COLOR, TokenType.TEXT
-            )) {
-            parseCommand()
+                TokenType.ARC, TokenType.POLYLINE, TokenType.POLYSPLINE, TokenType.CURVE
+            )
+        ) {
+            command()
         }
     }
 
-    private fun parseCommand() {
-        when (currentToken.type) {
-            TokenType.LINE -> parseLineCommand()
-            TokenType.BEND -> parseBendCommand()
-            TokenType.BOX -> parseBoxCommand()
-            TokenType.CIRC -> parseCircCommand()
-            TokenType.ELLIP -> parseEllipCommand()
-            TokenType.ARC -> parseArcCommand()
-            TokenType.POLYLINE -> parsePolylineCommand(TokenType.POLYLINE)
-            TokenType.POLYSPLINE -> parsePolylineCommand(TokenType.POLYSPLINE)
-            TokenType.CURVE -> parseCurveCommand()
-            TokenType.HEIGHT -> parseHeightCommand()
-            TokenType.MATERIAL -> parseMaterialCommand()
-            TokenType.COLOR -> parseColorCommand()
-            TokenType.TEXT -> parseTextCommand()
-            else -> error("Unexpected command type: ${currentToken.type}")
+    private fun command() {
+        when (tokens[current].type) {
+            TokenType.LINE -> {
+                match(TokenType.LINE)
+                match(TokenType.LPAREN)
+                point()
+                match(TokenType.COMMA)
+                point()
+                match(TokenType.RPAREN)
+            }
+            TokenType.BEND -> {
+                match(TokenType.BEND)
+                match(TokenType.LPAREN)
+                point()
+                match(TokenType.COMMA)
+                point()
+                match(TokenType.COMMA)
+                angle()
+                match(TokenType.RPAREN)
+            }
+            TokenType.BOX -> {
+                match(TokenType.BOX)
+                match(TokenType.LPAREN)
+                point()
+                match(TokenType.COMMA)
+                point()
+                match(TokenType.RPAREN)
+            }
+            TokenType.CIRC -> {
+                match(TokenType.CIRC)
+                match(TokenType.LPAREN)
+                point()
+                match(TokenType.COMMA)
+                real()
+                match(TokenType.RPAREN)
+            }
+            TokenType.ELLIP -> {
+                match(TokenType.ELLIP)
+                match(TokenType.LPAREN)
+                point()
+                match(TokenType.COMMA)
+                real()
+                match(TokenType.COMMA)
+                real()
+                match(TokenType.RPAREN)
+            }
+            TokenType.ARC -> {
+                match(TokenType.ARC)
+                match(TokenType.LPAREN)
+                point()
+                match(TokenType.COMMA)
+                angle()
+                match(TokenType.COMMA)
+                angle()
+                match(TokenType.RPAREN)
+            }
+            TokenType.POLYLINE -> {
+                match(TokenType.POLYLINE)
+                match(TokenType.LPAREN)
+                points()
+                match(TokenType.RPAREN)
+            }
+            TokenType.POLYSPLINE -> {
+                match(TokenType.POLYSPLINE)
+                match(TokenType.LPAREN)
+                points()
+                match(TokenType.RPAREN)
+            }
+            TokenType.CURVE -> {
+                match(TokenType.CURVE)
+                match(TokenType.LPAREN)
+                point()
+                match(TokenType.COMMA)
+                point()
+                match(TokenType.COMMA)
+                point()
+                match(TokenType.RPAREN)
+            }
+            else -> throw ParseException("Unexpected token: ${tokens[current].lexeme}")
         }
     }
 
-    private fun parseLineCommand() {
-        match(TokenType.LINE)
-        match(TokenType.LPAREN)
-        parsePoint()
-        match(TokenType.COMMA)
-        parsePoint()
-        match(TokenType.RPAREN)
-    }
-
-    private fun parseBendCommand() {
-        match(TokenType.BEND)
-        match(TokenType.LPAREN)
-        parsePoint()
-        match(TokenType.COMMA)
-        parsePoint()
-        match(TokenType.COMMA)
-        parseReal()
-        match(TokenType.RPAREN)
-    }
-
-    private fun parseBoxCommand() {
-        match(TokenType.BOX)
-        match(TokenType.LPAREN)
-        parsePoint()
-        match(TokenType.COMMA)
-        parsePoint()
-        match(TokenType.RPAREN)
-    }
-
-    private fun parseCircCommand() {
-        match(TokenType.CIRC)
-        match(TokenType.LPAREN)
-        parsePoint()
-        match(TokenType.COMMA)
-        parseReal()
-        match(TokenType.RPAREN)
-    }
-
-    private fun parseEllipCommand() {
-        match(TokenType.ELLIP)
-        match(TokenType.LPAREN)
-        parsePoint()
-        match(TokenType.COMMA)
-        parseReal()
-        match(TokenType.COMMA)
-        parseReal()
-        match(TokenType.RPAREN)
-    }
-
-    private fun parseArcCommand() {
-        match(TokenType.ARC)
-        match(TokenType.LPAREN)
-        parsePoint()
-        match(TokenType.COMMA)
-        parseReal()
-        match(TokenType.COMMA)
-        parseReal()
-        match(TokenType.RPAREN)
-    }
-
-    private fun parsePolylineCommand(type: TokenType) {
-        match(type)
-        match(TokenType.LPAREN)
-        parsePoints()
-        match(TokenType.RPAREN)
-    }
-
-    private fun parseCurveCommand() {
-        match(TokenType.CURVE)
-        match(TokenType.LPAREN)
-        parsePoint()
-        match(TokenType.COMMA)
-        parsePoint()
-        match(TokenType.COMMA)
-        parsePoint()
-        match(TokenType.RPAREN)
-    }
-
-    private fun parseHeightCommand() {
-        match(TokenType.HEIGHT)
-        match(TokenType.LPAREN)
-        parseReal()
-        match(TokenType.RPAREN)
-    }
-
-    private fun parseMaterialCommand() {
-        match(TokenType.MATERIAL)
-        match(TokenType.LPAREN)
-        match(TokenType.STRING)
-        match(TokenType.RPAREN)
-    }
-
-    private fun parseColorCommand() {
-        match(TokenType.COLOR)
-        match(TokenType.LPAREN)
-        match(TokenType.STRING)
-        match(TokenType.RPAREN)
-    }
-
-    private fun parseTextCommand() {
-        match(TokenType.TEXT)
-        match(TokenType.LPAREN)
-        match(TokenType.STRING)
-        match(TokenType.RPAREN)
-    }
-
-    private fun parsePoints() {
-        parsePoint()
-        while (currentToken.type == TokenType.COMMA) {
+    private fun points() {
+        point()
+        while (tokens[current].type == TokenType.COMMA) {
             match(TokenType.COMMA)
-            parsePoint()
+            point()
         }
     }
 
-    private fun parsePoint() {
+    private fun point() {
         match(TokenType.LPAREN)
-        parseReal()
+        real()
         match(TokenType.COMMA)
-        parseReal()
+        real()
         match(TokenType.RPAREN)
     }
 
-    private fun parseReal() {
-        match(TokenType.REAL)
+    private fun real() {
+        if (tokens[current].type == TokenType.REAL) {
+            match(TokenType.REAL)
+        } else {
+            throw ParseException("Expected real number, found: ${tokens[current].lexeme}")
+        }
     }
+
+    private fun angle() {
+        real()
+    }
+
+    private fun match(type: TokenType) {
+        if (tokens[current].type == type) {
+            current++
+        } else {
+            throw ParseException("Expected token ${type}, found: ${tokens[current].lexeme}")
+        }
+    }
+
+    class ParseException(message: String) : Exception(message)
 }
