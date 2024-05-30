@@ -96,5 +96,5 @@ npm run dev
 2. Go to `localhost:54207/parks/addPark` or whatever the port for the application is and then add the park name with ID.
 
 ```
-Testing the docker compose bash script in progress...
+Testing the docker compose bash script in progress
 ```
