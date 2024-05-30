@@ -1,39 +1,6 @@
-City "Example" {
-    Road "Main St" {
-        line((0.0, 0.0), (1.0, 1.0))
-    }
-    park "Central" {
-        box((1.0, 1.0), (2.0, 2.0))
-    }
-    lake "BigLake" {
-        polyline((1.0, 1.0), (2.0, 2.0), (3.0, 3.0))
-    }
-greenfield "Meadow" {
-        ellip((4.0, 4.0), 1.5, 2.5)
-    }
-sculptures "ArtGarden" {
-        (5.0, 5.0)
-    }
-playground "FunPlayground" {
-        bend((0.0, 0.0), (1.0, 1.0), 30.0)
-    }
-island "LittleIsland" {
-        arc((6.0, 6.0), 90.0, 180.0)
-    }
-walkingtrail "MorningTrail" {
-        (0.0, 0.0),
-        (2.0, 2.0)
-    }
-benches "RestArea" {
-        (3.0, 3.0)
-    }
-    publicSign "InfoSign" {
-        (2.0, 2.0)
-    }
-Road "FirstStreet" {
-        box((0.0, 0.0), (1.0, 1.0))
-    }
-    Building "Office" {
-        curve((1.0, 1.0), (2.0, 2.0), (3.0, 3.0))
+City "MyCity" {
+    Road "Main Road" {
+        line((0, 0), (10, 0))
+        line((15, 5), (20, 5))
     }
 }

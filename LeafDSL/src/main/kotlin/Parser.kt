@@ -1,3 +1,6 @@
+import kotlinx.serialization.json.double
+import kotlinx.serialization.json.jsonPrimitive
+
 class Parser(private val tokens: List<Token>) {
     private var current = 0
     var failed = false
@@ -50,7 +53,7 @@ class Parser(private val tokens: List<Token>) {
             TokenType.ISLAND -> island()
             TokenType.PLAYGROUND -> playground()
             TokenType.WALKING_TRAIL -> walkingtrail()
-            else -> throw ParseException("Unexpected token: ${tokens[current].lexeme}")
+            else -> throw ParseException("Unexpected token: ${tokens[current].lexeme} ${tokens[current].type}")
         }
     }
 
@@ -263,7 +266,7 @@ class Parser(private val tokens: List<Token>) {
                 match(TokenType.RPAREN)
                 ASTNode.Command.Curve(points)
             }
-            else -> throw ParseException("Unexpected token: ${tokens[current].lexeme}")
+            else -> throw ParseException("Unexpected token for commands: ${tokens[current].lexeme}")
         }
     }
 
@@ -277,11 +280,11 @@ class Parser(private val tokens: List<Token>) {
 
     private fun point(): ASTNode.Point {
         match(TokenType.LPAREN)
-        val x = real()
+        val xValue = real().eval()["value"]!!.jsonPrimitive.double
         match(TokenType.COMMA)
-        val y = real()
+        val yValue = real().eval()["value"]!!.jsonPrimitive.double
         match(TokenType.RPAREN)
-        return ASTNode.Point(x, y)
+        return ASTNode.Point(xValue, yValue)
     }
 
     private fun real(): ASTNode.Real {
