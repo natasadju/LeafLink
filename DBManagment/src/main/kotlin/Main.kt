@@ -191,6 +191,7 @@ fun App() {
             "Parks" -> ParkGrid()
             "Users" -> UserGrid()
             "Air Quality" -> AirDataGrid()
+            "Add Air Data" -> AddAirScreen {}
             "Scraper" -> ScraperMenu()
             else -> {}
         }
@@ -387,6 +388,12 @@ fun Sidebar(selectedButton: String, onButtonSelected: (String) -> Unit) {
             icon = Icons.Default.Person
         )
         Divider()
+        SidebarButton(
+            text = "Add Air Data",
+            isSelected = selectedButton == "Add Air Data",
+            onClick = { onButtonSelected("Add Air Data") },
+            icon = Icons.Default.Add
+        )
         SidebarButton(
             text = "Air Quality",
             isSelected = selectedButton == "Air Quality",

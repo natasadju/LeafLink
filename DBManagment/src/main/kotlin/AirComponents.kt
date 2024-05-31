@@ -24,6 +24,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import java.io.IOException
+import java.util.*
 
 
 data class ScrapedAirData(
@@ -241,14 +242,14 @@ fun ScrapedAirCard(item: ScrapedAirData) {
 
 @Composable
 fun EditAirDialog(item: ScrapedAirData, onDismiss: () -> Unit, onUpdate: (ScrapedAirData) -> Unit) {
-    var station by remember { mutableStateOf(item.station) }
-    var pm10 by remember { mutableStateOf(item.pm10) }
-    var pm25 by remember { mutableStateOf(item.pm25) }
-    var so2 by remember { mutableStateOf(item.so2) }
-    var co by remember { mutableStateOf(item.co) }
-    var ozon by remember { mutableStateOf(item.ozon) }
-    var no2 by remember { mutableStateOf(item.no2) }
-    var benzen by remember { mutableStateOf(item.benzen) }
+    var station by remember { mutableStateOf(item.station ?: "") }
+    var pm10 by remember { mutableStateOf(item.pm10 ?: "") }
+    var pm25 by remember { mutableStateOf(item.pm25 ?: "") }
+    var so2 by remember { mutableStateOf(item.so2 ?: "") }
+    var co by remember { mutableStateOf(item.co ?: "") }
+    var ozon by remember { mutableStateOf(item.ozon ?: "") }
+    var no2 by remember { mutableStateOf(item.no2 ?: "") }
+    var benzen by remember { mutableStateOf(item.benzen ?: "") }
     var isUpdating by remember { mutableStateOf(false) }
 
     Dialog(onDismissRequest = onDismiss) {
@@ -387,6 +388,119 @@ fun AirCard(item: ScrapedAirData, onClick: (ScrapedAirData) -> Unit) {
                 text = "Timestamp: ${item.timestamp}",
                 fontSize = 14.sp,
                 color = Color.Gray
+            )
+        }
+    }
+}
+
+@Composable
+fun AddAirScreen(onAirAdded: () -> Unit) {
+    var station by remember { mutableStateOf("") }
+    var pm10 by remember { mutableStateOf("") }
+    var pm25 by remember { mutableStateOf("") }
+    var so2 by remember { mutableStateOf("") }
+    var co by remember { mutableStateOf("") }
+    var ozon by remember { mutableStateOf("") }
+    var no2 by remember { mutableStateOf("") }
+    var benzen by remember { mutableStateOf("") }
+    var isAdding by remember { mutableStateOf(false) }
+    var showMessage by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        TextField(
+            value = station,
+            onValueChange = { station = it },
+            label = { Text("Station") }
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        TextField(
+            value = pm10,
+            onValueChange = { pm10 = it },
+            label = { Text("PM10") }
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        TextField(
+            value = pm25,
+            onValueChange = { pm25 = it },
+            label = { Text("PM2.5") }
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        TextField(
+            value = so2,
+            onValueChange = { so2 = it },
+            label = { Text("SO2") }
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        TextField(
+            value = co,
+            onValueChange = { co = it },
+            label = { Text("CO") }
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        TextField(
+            value = ozon,
+            onValueChange = { ozon = it },
+            label = { Text("Ozon") }
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        TextField(
+            value = no2,
+            onValueChange = { no2 = it },
+            label = { Text("NO2") }
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        TextField(
+            value = benzen,
+            onValueChange = { benzen = it },
+            label = { Text("Benzen") }
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = {
+                isAdding = true
+                val airData = ScrapedAirData(
+                    _id = UUID.randomUUID().toString(),
+                    station = station,
+                    pm10 = pm10,
+                    pm25 = pm25,
+                    so2 = so2,
+                    co = co,
+                    ozon = ozon,
+                    no2 = no2,
+                    benzen = benzen,
+                    timestamp = System.currentTimeMillis().toString(),
+                    __v = 0
+                )
+                addScrapedAirData(airData) { success ->
+                    isAdding = false
+                    showMessage = true
+                    if (success) {
+                        onAirAdded()
+                    }
+                }
+            },
+            enabled = !isAdding
+        ) {
+            if (isAdding) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = Color.White
+                )
+            } else {
+                Text("Add Air Data")
+            }
+        }
+        if (showMessage) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = if (isAdding) "Adding..." else "Air data added!",
+                color = if (isAdding) Color.Gray else Color.Green
             )
         }
     }
