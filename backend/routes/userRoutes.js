@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 // var userController = require('../controllers/userController.js');
 
-const {login, register, dashboard, getAllUsers} = require("../controllers/userController.js");
+const {login, register, dashboard, getAllUsers, getUserDetails} = require("../controllers/userController.js");
 const {addParks} = require("../controllers/parkController.js");
 const authMiddleware = require('../middleware/authError')
 const {update} = require("../controllers/userController");
