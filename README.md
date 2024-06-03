@@ -34,6 +34,12 @@ LeafLink is a digital twin cross-platform project aimed at promoting community e
 
 - **Air Quality Information**: The app integrates with a digital twin to scrape air quality data in Maribor. Users can access real-time air quality information within the app, helping them make informed decisions about outdoor activities.
 
+### 8. Kotlin Compose for Desktop Database Management
+
+- **Database Management**: The Kotlin Compose for Desktop app allows for efficient management of the database, including fetching, inserting, and updating data by communicating with the backend server.
+- **Data Scraping**: The app uses the `skrape{it}` library to scrape air quality data from HTML sites, providing users with updated information on air quality.
+
+
 ## Technologies Used
 
 LeafLink is built using the following technologies:
@@ -43,6 +49,8 @@ LeafLink is built using the following technologies:
 - **Database**: MongoDB
 - **Maps Integration**: Google Maps API
 - **Authentication**: JSON Web Tokens (JWT)
+- **Desktop App**: Kotlin Compose for Desktop
+- **Data Scraping**: skrape{it}
 
 # Installation
 
@@ -86,3 +94,7 @@ npm run dev
 
 1. Go to openstreetmap.org and when you find a park click on the cursor with the question mark and then select the park. On the left in Enclosing Features you will find (if truly a park) Park "Mestni park" for example. When clicked you will see WAY: *the name of the park and (parameters - the id of the park)*.
 2. Go to `localhost:54207/parks/addPark` or whatever the port for the application is and then add the park name with ID.
+
+```
+Testing the docker compose bash script in progress
+```

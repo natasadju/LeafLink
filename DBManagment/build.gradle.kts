@@ -24,7 +24,6 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.1")
     implementation("com.google.code.gson:gson:2.8.8")
     implementation(compose.materialIconsExtended)
-    implementation("it.skrape:skrapeit:1.2.2")
 }
 
 compose.desktop {
