@@ -20,7 +20,7 @@ const AddPark = () => {
                 parkId,
             };
             try {
-                const response = await axios.post("http://172.211.85.100:3000/parks/addParks", formData);
+                const response = await axios.post("http://localhost:3000/parks/addParks", formData);
                 console.log(response.data);
                 toast.success("Successfully added the park!");
                 navigate("/parks");
