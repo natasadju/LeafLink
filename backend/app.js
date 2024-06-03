@@ -20,9 +20,11 @@ app.use("/api/v1", mainRouter);
 const parkRouter = require("./routes/parkRoutes");
 app.use("/parks", parkRouter);
 
-// added a parkRouter
-const eventRouter = require("./routes/eventRoutes");
-app.use("/events", eventRouter);
+const airQualityRouter = require("./routes/airQualityRoutes");
+app.use('/air', airQualityRouter);
+
+const pollenRouter = require("./routes/pollenRoutes");
+app.use('/pollen', pollenRouter);
 
 const port = process.env.PORT || 3000;
 
@@ -30,7 +32,7 @@ const port = process.env.PORT || 3000;
 const server = http.createServer(app);
 
 // Initialized the WebSocket server instance
-const wss = new WebSocket.Server({ server });
+const wss = new WebSocket.Server({server});
 
 // WebSocket connection handling
 wss.on('connection', (ws) => {
@@ -52,7 +54,7 @@ wss.on('connection', (ws) => {
             ws.send(JSON.stringify(geoJsonData));
         } catch (error) {
             console.error('Error processing message:', error);
-            ws.send(JSON.stringify({ error: 'Error processing request' }));
+            ws.send(JSON.stringify({error: 'Error processing request'}));
         }
     });
 
