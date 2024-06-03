@@ -16,7 +16,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.google.gson.Gson
@@ -25,20 +24,9 @@ import it.skrape.fetcher.HttpFetcher
 import it.skrape.fetcher.response
 import it.skrape.fetcher.skrape
 import okhttp3.*
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.logging.HttpLoggingInterceptor
-import okio.IOException
 import java.text.SimpleDateFormat
 import java.util.*
-
-data class PollenItem(
-    val _id: String,
-    val type: String,
-    val value: String,
-    val timestamp: String,
-    val __v: Int
-)
 
 
 val client: OkHttpClient by lazy {
@@ -192,6 +180,8 @@ fun App() {
             "Users" -> UserGrid()
             "Air Quality" -> AirDataGrid()
             "Add Air Data" -> AddAirScreen {}
+            "Pollen" -> PollenGrid()
+            "Add Pollen Data" -> AddPollenScreen {}
             "Scraper" -> ScraperMenu()
             else -> {}
         }
@@ -256,95 +246,10 @@ fun ScrapedDataGrid(scrapedData: List<Any>, dataType: String) {
         items(scrapedData.size) { index ->
             when (dataType) {
                 "AirQuality" -> ScrapedAirCard(scrapedData[index] as ScrapedAirData)
-                "Pollen" -> ScrapedPollenCard(scrapedData[index] as PollenItem)
+                "Pollen" -> PollenCard(scrapedData[index] as PollenItem)
             }
         }
     }
-}
-
-@Composable
-fun ScrapedPollenCard(item: PollenItem) {
-    var isAdding by remember { mutableStateOf(false) }
-    var showMessage by remember { mutableStateOf(false) }
-
-    Card(
-        modifier = Modifier
-            .padding(8.dp)
-            .aspectRatio(1f),
-        elevation = 2.dp,
-        shape = RoundedCornerShape(8.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-        ) {
-            Text(
-                text = item.type,
-                modifier = Modifier
-                    .fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text("Value: ${item.value}")
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = item.timestamp,
-                fontSize = 14.sp,
-                color = Color.Gray
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Button(
-                onClick = {
-                    isAdding = true
-                    addScrapedPollenData(item) { success ->
-                        isAdding = false
-                        showMessage = true
-                    }
-                },
-                enabled = !isAdding
-            ) {
-                if (isAdding) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = Color.White
-                    )
-                } else {
-                    Text("Add to Database")
-                }
-            }
-            if (showMessage) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = if (isAdding) "Adding..." else "Data added!",
-                    color = if (isAdding) Color.Gray else Color.Green
-                )
-            }
-        }
-    }
-}
-
-
-fun addScrapedPollenData(item: PollenItem, onResult: (Boolean) -> Unit) {
-    val requestBody = gson.toJson(item)
-        .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
-
-    val request = Request.Builder()
-        .url("http://localhost:3000/pollen")
-        .post(requestBody)
-        .build()
-
-    client.newCall(request).enqueue(object : Callback {
-        override fun onFailure(call: Call, e: IOException) {
-            e.printStackTrace()
-            onResult(false)
-        }
-
-        override fun onResponse(call: Call, response: Response) {
-            onResult(response.isSuccessful)
-        }
-    })
 }
 
 @Composable
@@ -399,6 +304,13 @@ fun Sidebar(selectedButton: String, onButtonSelected: (String) -> Unit) {
             isSelected = selectedButton == "Air Quality",
             onClick = { onButtonSelected("Air Quality") },
             icon = Icons.Default.Air
+        )
+        Divider()
+        SidebarButton(
+            text = "Pollen",
+            isSelected = selectedButton == "Pollen",
+            onClick = {onButtonSelected("Pollen")},
+            icon = Icons.Default.Menu
         )
         Divider()
         SidebarButton(
