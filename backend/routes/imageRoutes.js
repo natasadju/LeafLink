@@ -1,8 +1,6 @@
 var express = require('express');
 var router = express.Router();
 var imageController = require('../controllers/imageController.js');
-var multer = require('multer');
-var upload = multer({dest: 'public/images'});
 
 /*
  * GET
@@ -17,7 +15,7 @@ router.get('/:id', imageController.show);
 /*
  * POST
  */
-router.post('/', upload.single('imageUrl'), imageController.create);
+router.post('/', imageController.create);
 
 /*
  * PUT
