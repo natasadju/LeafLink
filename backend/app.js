@@ -1,5 +1,6 @@
 require("dotenv").config();
 require('express-async-errors');
+var bodyParser = require('body-parser');
 const connectDB = require("./db/connect");
 const express = require("express");
 const cors = require('cors');
@@ -12,8 +13,24 @@ const axios = require('axios'); // Import Axios here
 const app = express();
 const mainRouter = require("./routes/userRoutes");
 
+// Middleware to parse the request body
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }))
+
+
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    credentials: true,
+    origin: function(origin, callback){
+      // Allow requests with no origin (mobile apps, curl)
+      if(!origin) return callback(null, true);
+      if(allowedOrigins.indexOf(origin)===-1){
+        var msg = "The CORS policy does not allow access from the specified Origin.";
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    }
+  }));
 app.use("/api/v1", mainRouter);
 
 // added a parkRouter
@@ -23,6 +40,9 @@ app.use("/parks", parkRouter);
 // added a parkRouter
 const eventRouter = require("./routes/eventRoutes");
 app.use("/events", eventRouter);
+
+var imageRouter = require('./routes/imageRoutes');
+app.use('/images', imageRouter);
 
 const port = process.env.PORT || 3000;
 

@@ -48,16 +48,18 @@ module.exports = {
      */
     create: async (req, res) => {
         try {
-            const park = await ParkModel.findById(req.body.location); // Use _id of the park as location
+            const park = await ParkModel.findById(req.body.location); 
             if (!park) {
                 return res.status(404).json({ message: 'Park not found' });
             }
 
             const event = new EventModel({
                 name: req.body.name,
-                parkId: req.body.location, // Use _id of the park as location
+                parkId: req.body.location, 
                 date: req.body.date,
-                description: req.body.description,
+                description: req.body.description
+                // organizer: req.body.organizer
+                
             });
 
             const savedEvent = await event.save();

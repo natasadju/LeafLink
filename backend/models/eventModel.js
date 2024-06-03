@@ -5,11 +5,11 @@ var eventSchema = new Schema({
     name: String,
     parkId: {
         type: Schema.Types.ObjectId,
-        ref: 'Park', // Assuming you have a 'Park' model
+        ref: 'Park', 
         required: true
     },
     date: Date,
-    description: String,
+    description: String
     // organizer: {
     //     type: Schema.Types.ObjectId,
     //     ref: 'User',

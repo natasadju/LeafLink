@@ -28,7 +28,7 @@ const Navbar = () => {
             <NavLink className="nav-link" to="/parks" onClick={() => handleNavItemClick('parks')}><i className="fa-solid fa-tree"></i>Green spaces</NavLink>
           </li>
           <li className={`nav-item ${activeTab === 'components' ? 'active' : ''}`}>
-            <NavLink className="nav-link" to="#" onClick={() => handleNavItemClick('components')}><i className="far fa-clone"></i>Components</NavLink>
+            <NavLink className="nav-link" to="#" onClick={() => handleNavItemClick('components')}><i class="fa-solid fa-wind"></i>Air & Pollens</NavLink>
           </li>
           <li className={`nav-item ${activeTab === 'logout' ? 'active' : ''}`}>
             <NavLink className="nav-link" to="/logout" onClick={() => handleNavItemClick('logout')}><i className="fa-solid fa-right-from-bracket"></i>Logout</NavLink>
