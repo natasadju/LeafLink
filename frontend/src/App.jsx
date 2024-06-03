@@ -4,6 +4,7 @@ import { Dashboard, HomeLayout, Landing, Login, Logout, Register, Parks, AddPark
 import EventDetails from "./pages/EventDetails";
 import { ToastContainer, toast } from 'react-toastify';
 import Test from "./pages/Test.jsx";
+import PollenAndAir from "./pages/PollenAndAir.jsx";
 
 const router = createBrowserRouter([
   {
@@ -45,6 +46,10 @@ const router = createBrowserRouter([
       {
         path: "events/:eventId",
         element: <EventDetails />,
+      },
+      {
+        path: "airandpollen",
+        element: <PollenAndAir />,
       }
     ],
   },
