@@ -51,21 +51,12 @@ module.exports = {
      * imageController.create()
      */
     create: function (req, res) {
-        if (!req.file) {
-            return res.status(400).json({
-                message: 'No image uploaded'
-            });
-        }
-    
-        var imageUrl = "images/"+ req.file.filename;
-        var event = req.body.event;
-    
         var image = new ImageModel({
-            imageUrl: imageUrl,
-            event: event,
-            createdAt: new Date()
+			imageUrl : req.body.imageUrl,
+			event : req.body.event,
+			user : req.body.user
         });
-    
+
         image.save(function (err, image) {
             if (err) {
                 return res.status(500).json({
@@ -73,11 +64,10 @@ module.exports = {
                     error: err
                 });
             }
-    
+
             return res.status(201).json(image);
         });
     },
-    
 
     /**
      * imageController.update()
