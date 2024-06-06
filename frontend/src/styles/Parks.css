@@ -1,0 +1,142 @@
+/* Parks.css */
+
+.container {
+    padding-top: 20px;
+    display: flex;
+    flex-direction: row; /* Display children side by side */
+    justify-content: space-between; /* Add space between map and form */
+}
+
+.map-chooser {
+    margin-bottom: 15px;
+    margin-left: 10%;
+}
+
+.map-container {
+    height: 400px;
+    width: 50%;
+    margin: 10px;
+}
+
+.form-container {
+    width: 45%; 
+    margin: 50px;
+}
+
+.label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.select {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.btn-event{
+    width: 100%;
+    margin-top: 20px;
+    padding: 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: 400;
+    background: #7dd181; 
+    color: white; 
+    transition: background 0.3s ease, color 0.3s ease; 
+}
+
+.btn-event:hover {
+    background-color: white; 
+    color: #7dd181; 
+    border: 2px solid #7dd181; 
+}
+
+
+.demo-simple-select-label {
+    width: 70%;
+    padding: 10px;
+    border: 1px solid #7dd181;
+    border-radius: 4px;
+    background-color: #fff;
+    font-size: 16px;
+}
+
+.map-button {
+    width: 50%;
+    height: 5%;
+    padding: 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 30px;
+    font-weight: 600;
+    margin-top: 2%;
+    margin-left: 20%;
+    background: #7dd181;
+    color: white;
+    border: 3px solid #7dd181;
+    transition: background 0.3s ease, color 0.3s ease; 
+}
+
+.map-button:hover {
+    color: #7dd181;
+    background-color: white;
+    border: 2px solid #7dd181; 
+}
+
+.form-title{
+  font-size: 40px;
+  width: 100%;
+  display: flex;
+  margin-top: 1%;   
+  margin-bottom: 20px;
+  align-items: center;
+  flex-direction: column;
+  color: #7dd181;
+}
+
+.form-datepicker{
+    padding: 8px;
+    border: 1px solid #7dd181;
+    border-radius: 5px;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    width: 200px; /* Adjust the width as needed */
+    box-sizing: border-box;
+}
+
+.form-group {
+    margin-bottom: 20px;
+  }
+  
+  label {
+    display: inline-block;
+    width: 150px; /* Adjust the width as needed */
+  }
+  
+  .form-datetimepicker, .form-textarea {
+    padding: 8px;
+    border: 1px solid hsl(0, 0%, 80%);
+    border-radius: 5px;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    width: calc(100% - 170px); /* Adjust width to be responsive, accounting for label width and padding */
+    box-sizing: border-box; /* Ensure padding and border are included in width */
+    border: 1px solid #7dd181;
+    margin-left: 10%;
+  }
+  
+  .form-textarea {
+    resize: vertical; /* Allow vertical resize */
+  }
+
+  #details-label{
+    margin-bottom: 10px;
+  }
+
+  .form-textarea{
+    margin-left: 20%;
+  }
+
+ 
