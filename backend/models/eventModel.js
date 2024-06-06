@@ -1,18 +1,20 @@
 var mongoose = require('mongoose');
-var Schema   = mongoose.Schema;
+var Schema = mongoose.Schema;
 
 var eventSchema = new Schema({
-	'name' : String,
-	'location' : String,
-	'date' : Date,
-	'organizer' : {
-	 	type: Schema.Types.ObjectId,
-	 	ref: 'user'
-	},
-	'attendees' : {
-	 	type: Schema.Types.ObjectId,
-	 	ref: 'user'
-	}
+    name: String,
+    parkId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Park', 
+        required: true
+    },
+    date: Date,
+    description: String
+    // organizer: {
+    //     type: Schema.Types.ObjectId,
+    //     ref: 'User',
+    //     required: true
+    // }
 });
 
-module.exports = mongoose.model('event', eventSchema);
+module.exports = mongoose.model('Event', eventSchema);
