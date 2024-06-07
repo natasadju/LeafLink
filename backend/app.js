@@ -17,6 +17,10 @@ const mainRouter = require("./routes/userRoutes");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }))
 
+const allowedOrigins = [
+    'http://172.211.85.100:5173',
+    'http://172.211.85.100:3000'
+];
 
 app.use(express.json());
 app.use(cors({
