@@ -33,7 +33,7 @@
     margin-bottom: 10px;
 }
 
-.btn-send {
+.btn-event{
     width: 100%;
     margin-top: 20px;
     padding: 12px;
@@ -47,7 +47,7 @@
     transition: background 0.3s ease, color 0.3s ease; 
 }
 
-.btn-send:hover {
+.btn-event:hover {
     background-color: white; 
     color: #7dd181; 
     border: 2px solid #7dd181; 
@@ -116,7 +116,7 @@
     width: 150px; /* Adjust the width as needed */
   }
   
-  .form-datepicker, .form-textarea {
+  .form-datetimepicker, .form-textarea {
     padding: 8px;
     border: 1px solid hsl(0, 0%, 80%);
     border-radius: 5px;
@@ -124,6 +124,7 @@
     width: calc(100% - 170px); /* Adjust width to be responsive, accounting for label width and padding */
     box-sizing: border-box; /* Ensure padding and border are included in width */
     border: 1px solid #7dd181;
+    margin-left: 10%;
   }
   
   .form-textarea {
@@ -137,3 +138,5 @@
   .form-textarea{
     margin-left: 20%;
   }
+
+ 

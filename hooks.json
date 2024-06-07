@@ -1,0 +1,8 @@
+[
+ {
+  "id": "confirm-github-action",
+  "execute-command": "/var/scripts/confirm-github-action.sh",
+  "command-working-directory": "/var/webhook",
+  "response-message": "Webhook recieved and action taken!"
+ }
+]

@@ -95,6 +95,7 @@ const Parks = () => {
                     description,
                     date
                 });
+
                 toast.success("Event created successfully");
                 navigate("/dashboard"); // Redirect to events page after successful creation
             } catch (error) {
@@ -161,14 +162,14 @@ const Parks = () => {
                                 readOnly
                             />
                             <div className="form-group">
-                                <label htmlFor="eventDate">Event Date:</label>
-                                <input type="date" className="form-datepicker" id="date" value={date} onChange={handleInputChange} />
+                                <label htmlFor="eventDateTime">Event Date and Time:</label>
+                                <input type="datetime-local" className="form-datepicker" id="date" value={date} onChange={handleInputChange} />
                             </div>
                             <label htmlFor="eventDescription" id='details-label'>Event Details:</label>
                             <div className="form-group">
                                 <textarea className="form-textarea" id="description" value={description} onChange={handleInputChange} rows="4" />
                             </div>
-                            <button type="submit" className="btn-send">Create Event</button>
+                            <button className="btn-event">Create Event</button>
                         </form>
                     </div>
                 </div>

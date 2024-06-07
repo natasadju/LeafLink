@@ -1,5 +1,6 @@
 require("dotenv").config();
 require('express-async-errors');
+var bodyParser = require('body-parser');
 const connectDB = require("./db/connect");
 const express = require("express");
 const cors = require('cors');
@@ -12,17 +13,42 @@ const axios = require('axios'); // Import Axios here
 const app = express();
 const mainRouter = require("./routes/userRoutes");
 
+// Middleware to parse the request body
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }))
+
+const allowedOrigins = [
+    'http://172.211.85.100:5173',
+    'http://172.211.85.100:3000'
+];
+
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    credentials: true,
+    origin: function(origin, callback){
+      // Allow requests with no origin (mobile apps, curl)
+      if(!origin) return callback(null, true);
+      if(allowedOrigins.indexOf(origin)===-1){
+        var msg = "The CORS policy does not allow access from the specified Origin.";
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    }
+  }));
 app.use("/api/v1", mainRouter);
 
 // added a parkRouter
 const parkRouter = require("./routes/parkRoutes");
 app.use("/parks", parkRouter);
 
-// added a parkRouter
-const eventRouter = require("./routes/eventRoutes");
-app.use("/events", eventRouter);
+const airQualityRouter = require("./routes/airQualityRoutes");
+app.use('/air', airQualityRouter);
+
+const pollenRouter = require("./routes/pollenRoutes");
+app.use('/pollen', pollenRouter);
+
+var imageRouter = require('./routes/imageRoutes');
+app.use('/images', imageRouter);
 
 const port = process.env.PORT || 3000;
 
@@ -30,7 +56,7 @@ const port = process.env.PORT || 3000;
 const server = http.createServer(app);
 
 // Initialized the WebSocket server instance
-const wss = new WebSocket.Server({ server });
+const wss = new WebSocket.Server({server});
 
 // WebSocket connection handling
 wss.on('connection', (ws) => {
@@ -52,7 +78,7 @@ wss.on('connection', (ws) => {
             ws.send(JSON.stringify(geoJsonData));
         } catch (error) {
             console.error('Error processing message:', error);
-            ws.send(JSON.stringify({ error: 'Error processing request' }));
+            ws.send(JSON.stringify({error: 'Error processing request'}));
         }
     });
 

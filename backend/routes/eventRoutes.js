@@ -7,7 +7,6 @@ var eventController = require('../controllers/eventController.js');
  */
 router.get('/', eventController.list);
 
-
 /*
  * GET
  */
@@ -27,5 +26,6 @@ router.put('/:id', eventController.update);
  * DELETE
  */
 router.delete('/:id', eventController.remove);
+
 
 module.exports = router;
