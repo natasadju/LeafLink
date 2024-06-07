@@ -138,6 +138,4 @@ module.exports = {
             return res.status(204).json();
         });
     }
-
-    
 };
