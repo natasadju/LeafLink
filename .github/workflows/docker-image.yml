@@ -46,6 +46,6 @@ jobs:
         uses: joelwmale/webhook-action@2.4.1
         with:
           url: ${{ secrets.WEBHOOK_URL }}
-          headers: '{"Content-Type": "application/json", "X-Hub-Signature-256": "sha256=${{ secrets.WEBHOOK_SECRET }}"}'
+          headers: '{"Content-Type": "application/json", "X-Hub-Signature-256": "${{ secrets.WEBHOOK_SECRET }}"}'
           # headers: '{"Content-Type": "application/json"}'
           body: '{"text": "Docker image has been successfully built and pushed!"}'
