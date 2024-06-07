@@ -8,16 +8,15 @@ var upload = multer({dest: 'public/images'});
  * GET
  */
 router.get('/', imageController.list);
-
 /*
  * GET
  */
 router.get('/:id', imageController.show);
-
+router.get('/event/:eventId', imageController.getByEvent);
 /*
  * POST
  */
-router.post('/', upload.single('imageUrl'), imageController.create);
+router.post('/', upload.single('file'), imageController.create);
 
 /*
  * PUT
