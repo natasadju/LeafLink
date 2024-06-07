@@ -18,6 +18,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }))
 
 const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:3000',
     'http://172.211.85.100:5173',
     'http://172.211.85.100:3000'
 ];
