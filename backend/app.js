@@ -52,6 +52,9 @@ app.use('/pollen', pollenRouter);
 var imageRouter = require('./routes/imageRoutes');
 app.use('/images', imageRouter);
 
+var eventRouter = require('./routes/eventRoutes');
+app.use('/events', eventRouter);
+
 const port = process.env.PORT || 3000;
 
 // Created an HTTP server
