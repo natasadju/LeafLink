@@ -53,6 +53,7 @@ class Parser(private val tokens: List<Token>) {
             TokenType.ISLAND -> island()
             TokenType.PLAYGROUND -> playground()
             TokenType.WALKING_TRAIL -> walkingtrail()
+            TokenType.MARKER -> marker()
             else -> throw ParseException("Unexpected token: ${tokens[current].lexeme} ${tokens[current].type}")
         }
     }
@@ -106,6 +107,7 @@ class Parser(private val tokens: List<Token>) {
         match(TokenType.BENCHES)
         val name = match(TokenType.STRING).lexeme
         match(TokenType.LBRACE)
+        advance()
         val point = point()
         match(TokenType.RBRACE)
         return ASTNode.Block.Benches(name, point)
@@ -115,6 +117,7 @@ class Parser(private val tokens: List<Token>) {
         match(TokenType.SCULPTURES)
         val name = match(TokenType.STRING).lexeme
         match(TokenType.LBRACE)
+        advance()
         val point = point()
         match(TokenType.RBRACE)
         return ASTNode.Block.Sculptures(name, point)
@@ -124,6 +127,7 @@ class Parser(private val tokens: List<Token>) {
         match(TokenType.PUBLIC_SIGN)
         val name = match(TokenType.STRING).lexeme
         match(TokenType.LBRACE)
+        advance()
         val point = point()
         match(TokenType.RBRACE)
         return ASTNode.Block.PublicSign(name, point)
@@ -151,11 +155,9 @@ class Parser(private val tokens: List<Token>) {
         match(TokenType.WALKING_TRAIL)
         val name = match(TokenType.STRING).lexeme
         match(TokenType.LBRACE)
-        val startPoint = point()
-        match(TokenType.COMMA)
-        val endPoint = point()
+        val commands = commands()
         match(TokenType.RBRACE)
-        return ASTNode.Block.WalkingTrail(name, startPoint, endPoint)
+        return ASTNode.Block.WalkingTrail(name, commands)
     }
 
     private fun commands(): List<ASTNode.Command> {
@@ -198,7 +200,7 @@ class Parser(private val tokens: List<Token>) {
                         ASTNode.Command.BendExtended(start, end, angle1, angle2, real)
                     } else {
                         match(TokenType.RPAREN)
-                        ASTNode.Command.BendExtended(start, end, angle1, angle2, ASTNode.Real(0.0))
+                        ASTNode.Command.BendExtended(start, end, angle1, angle2, ASTNode.Command.Real(0.0))
                     }
                 } else {
                     match(TokenType.RPAREN)
@@ -270,36 +272,58 @@ class Parser(private val tokens: List<Token>) {
         }
     }
 
-    private fun points(): List<ASTNode.Point> {
-        val points = mutableListOf<ASTNode.Point>()
+    private fun points(): List<ASTNode.Command.Point> {
+        val points = mutableListOf<ASTNode.Command.Point>()
         do {
             points.add(point())
         } while (tokens[current].type == TokenType.COMMA && match(TokenType.COMMA) != null)
         return points
     }
 
-    private fun point(): ASTNode.Point {
+    private fun point(): ASTNode.Command.Point {
         match(TokenType.LPAREN)
         val xValue = real().eval()["value"]!!.jsonPrimitive.double
         match(TokenType.COMMA)
         val yValue = real().eval()["value"]!!.jsonPrimitive.double
         match(TokenType.RPAREN)
-        return ASTNode.Point(xValue, yValue)
+        return ASTNode.Command.Point(xValue, yValue)
     }
 
-    private fun real(): ASTNode.Real {
-        val value = match(TokenType.REAL).lexeme.toDouble()
-        return ASTNode.Real(value)
+    private fun marker(): ASTNode.Block.Markers {
+        match(TokenType.MARKER)
+        val name = match(TokenType.STRING).lexeme //marker "u"
+        match(TokenType.EQUALSTO)
+        val point = point()
+        match(TokenType.FOREACH)
+        val markerName = match(TokenType.STRING).lexeme //"x"
+        match(TokenType.NEAR)
+        if (tokens[current].lexeme != name) {
+            throw ParseException("Expected tuka ${markerName}, but found ${tokens[current].lexeme}")
+        }
+        match(TokenType.STRING)
+        match(TokenType.LBRACE)
+        match(TokenType.FIND)
+        if (tokens[current].lexeme != markerName) {
+            throw ParseException("Expected ${markerName}, but found ${tokens[current].lexeme}")
+        }
+        match(TokenType.STRING)
+        match(TokenType.RBRACE)
+        return ASTNode.Block.Markers(name, point)
     }
 
-    private fun angle(): ASTNode.Angle {
+    private fun real(): ASTNode.Command.Real {
         val value = match(TokenType.REAL).lexeme.toDouble()
-        return ASTNode.Angle(value)
+        return ASTNode.Command.Real(value)
+    }
+
+    private fun angle(): ASTNode.Command.Angle {
+        val value = match(TokenType.REAL).lexeme.toDouble()
+        return ASTNode.Command.Angle(value)
     }
 
     private fun match(type: TokenType): Token {
         if (check(type)) return advance()
-        throw ParseException("Expected ${type.name}, but found ${tokens[current].type.name}")
+        throw ParseException("Expected ${type.name}, but found ${tokens[current].type.name} ${tokens[current].lexeme}")
     }
 
     private fun check(type: TokenType): Boolean {

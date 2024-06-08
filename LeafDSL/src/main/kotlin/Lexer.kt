@@ -1,6 +1,7 @@
 enum class TokenType {
     CITY, ROAD, BUILDING, PARK, LAKE, GREENFIELD, BENCHES, SCULPTURES, PUBLIC_SIGN, ISLAND, PLAYGROUND, WALKING_TRAIL,
-    LINE, BEND, BOX, CIRC, ELLIP, ARC, POLYLINE, POLYSPLINE, CURVE, POINT, REAL, ANGLE, STRING, LBRACE, RBRACE, LPAREN, RPAREN, COMMA, EOF, ERROR
+    LINE, BEND, BOX, CIRC, ELLIP, ARC, POLYLINE, POLYSPLINE, CURVE, POINT, REAL, ANGLE, STRING, LBRACE, RBRACE, LPAREN,
+    RPAREN, COMMA, EOF, ERROR, MARKER, LET, EQUALSTO, FOREACH, NEAR, FIND
 }
 
 data class Token(val type: TokenType, val lexeme: String, val position: Int)
@@ -21,13 +22,13 @@ class Lexer(private val input: String) {
         "Building" to TokenType.BUILDING,
         "Park" to TokenType.PARK,
         "Lake" to TokenType.LAKE,
-        "greenfield" to TokenType.GREENFIELD,
-        "benches" to TokenType.BENCHES,
-        "sculptures" to TokenType.SCULPTURES,
-        "publicSign" to TokenType.PUBLIC_SIGN,
-        "island" to TokenType.ISLAND,
-        "playground" to TokenType.PLAYGROUND,
-        "walkingtrail" to TokenType.WALKING_TRAIL,
+        "Greenfield" to TokenType.GREENFIELD,
+        "Benches" to TokenType.BENCHES,
+        "Sculptures" to TokenType.SCULPTURES,
+        "PublicSign" to TokenType.PUBLIC_SIGN,
+        "Island" to TokenType.ISLAND,
+        "Playground" to TokenType.PLAYGROUND,
+        "Walkingtrail" to TokenType.WALKING_TRAIL,
         "line" to TokenType.LINE,
         "bend" to TokenType.BEND,
         "box" to TokenType.BOX,
@@ -36,7 +37,12 @@ class Lexer(private val input: String) {
         "arc" to TokenType.ARC,
         "polyline" to TokenType.POLYLINE,
         "polyspline" to TokenType.POLYSPLINE,
-        "curve" to TokenType.CURVE
+        "curve" to TokenType.CURVE,
+        "marker" to TokenType.MARKER,
+        "foreach" to TokenType.FOREACH,
+        "near" to TokenType.NEAR,
+        "find" to TokenType.FIND,
+        "let" to TokenType.LET
     )
 
     private val tokens = mutableListOf<Token>()
@@ -54,6 +60,7 @@ class Lexer(private val input: String) {
                         '(' -> addToken(TokenType.LPAREN)
                         ')' -> addToken(TokenType.RPAREN)
                         ',' -> addToken(TokenType.COMMA)
+                        '=' -> addToken(TokenType.EQUALSTO)
                         '"' -> {
                             state = State.STRING
                             start = position

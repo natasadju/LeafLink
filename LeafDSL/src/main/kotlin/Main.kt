@@ -1,7 +1,6 @@
 import java.io.File
-
 fun main() {
-    val input = File("test.txt").readText()
+    val input = File("test2.txt").readText()
     val scanner = Lexer(input)
     val tokens = scanner.scanTokens()
     val parser = Parser(tokens)

@@ -1,0 +1,5 @@
+City "test" {
+marker "u" = (15.646477734844638,
+          46.56900135289388)
+foreach "x" near "u" { find "x" }
+}
