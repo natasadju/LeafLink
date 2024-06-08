@@ -54,7 +54,8 @@ module.exports = {
         var pollen = new PollenModel({
 			type : req.body.type,
 			value : req.body.value,
-			timestamp : req.body.timestamp
+			timestamp : req.body.timestamp,
+            isFake : req.body.isFake
         });
 
         pollen.save(function (err, pollen) {
@@ -92,6 +93,7 @@ module.exports = {
             pollen.type = req.body.type ? req.body.type : pollen.type;
 			pollen.value = req.body.value ? req.body.value : pollen.value;
 			pollen.timestamp = req.body.timestamp ? req.body.timestamp : pollen.timestamp;
+            pollen.isFake = req.body.isFake ? req.body.isFake : pollen.isFake;
 			
             pollen.save(function (err, pollen) {
                 if (err) {

@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -14,11 +15,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.google.gson.Gson
+import io.github.serpro69.kfaker.Faker
 import it.skrape.core.htmlDocument
 import it.skrape.fetcher.HttpFetcher
 import it.skrape.fetcher.response
@@ -26,8 +29,9 @@ import it.skrape.fetcher.skrape
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 import java.util.*
-
 
 val client: OkHttpClient by lazy {
     val logging = HttpLoggingInterceptor().apply { setLevel(HttpLoggingInterceptor.Level.BODY) }
@@ -43,6 +47,62 @@ fun scrapeData(option: String): List<Any> {
         "AirQuality" -> scrapeAirQuality()
         "Pollen" -> scrapePollen()
         else -> emptyList()
+    }
+}
+
+fun generateData(option: String, count: Int): List<Any> {
+    return when (option) {
+        "AirQuality" -> generateAirData(count)
+        "Pollen" -> generatePollen(count)
+        else -> emptyList()
+    }
+}
+
+fun generateAirData(count: Int): List<AirData> {
+    val faker = Faker()
+    val stations = listOf("MB Titova", "MB Vrbanski")
+    return List(count) {
+        AirData(
+            _id = faker.random.nextUUID(),
+            station = stations.random(),
+            pm10 = faker.random.nextInt(0, 20).toString(),
+            pm25 = faker.random.nextInt(0, 15).toString(),
+            so2 = "",
+            co = "",
+            ozon = faker.random.nextInt(0, 100).toString(),
+            no2 = faker.random.nextInt(3, 40).toString(),
+            benzen = faker.random.nextDouble().toString(),
+            timestamp = generateRandomTimestamp().toString(),
+            isFake = true,
+            __v = 0
+        )
+    }
+}
+
+fun generateRandomTimestamp(): LocalDateTime {
+    val faker = Faker()
+    val year = faker.random.nextInt(2017, LocalDateTime.now().year)
+    val month = faker.random.nextInt(1, 12)
+    val day = faker.random.nextInt(1, 28)
+    val hour = faker.random.nextInt(0, 23)
+    val minute = faker.random.nextInt(0, 59)
+    val second = faker.random.nextInt(0, 59)
+
+    return LocalDateTime.of(year, month, day, hour, minute, second)
+}
+
+fun generatePollen(count: Int): List<PollenItem> {
+    val faker = Faker()
+    val pollenTypes = listOf("Grasses", "Birch", "Olive Tree")
+    return List(count) {
+        PollenItem(
+            _id = faker.random.nextUUID(),
+            type = pollenTypes.random(),
+            value = faker.random.nextDouble().toString(),
+            timestamp = generateRandomTimestamp().toString(),
+            isFake = true,
+            __v = 0
+        )
     }
 }
 
@@ -70,6 +130,7 @@ fun scrapePollen(): List<PollenItem> {
                                 type,
                                 value,
                                 timestamp,
+                                false,
                                 0
                             )
                         )
@@ -95,8 +156,8 @@ fun getCurrentTimestamp(): String {
     return sdf.format(Date())
 }
 
-fun scrapeAirQuality(): List<ScrapedAirData> {
-    val scrapedItems = mutableListOf<ScrapedAirData>()
+fun scrapeAirQuality(): List<AirData> {
+    val scrapedItems = mutableListOf<AirData>()
     val timestamp = getCurrentTimestamp()
 
     skrape(HttpFetcher) {
@@ -128,7 +189,7 @@ fun scrapeAirQuality(): List<ScrapedAirData> {
                                         val benzen = cells[6].text
 
                                         scrapedItems.add(
-                                            ScrapedAirData(
+                                            AirData(
                                                 _id = UUID.randomUUID().toString(),
                                                 station = station,
                                                 pm10 = pm10,
@@ -139,6 +200,7 @@ fun scrapeAirQuality(): List<ScrapedAirData> {
                                                 no2 = no2,
                                                 benzen = benzen,
                                                 timestamp = timestamp,
+                                                isFake = false,
                                                 __v = 0
                                             )
                                         )
@@ -161,7 +223,6 @@ fun scrapeAirQuality(): List<ScrapedAirData> {
     return scrapedItems
 }
 
-
 @Composable
 @Preview
 fun App() {
@@ -183,8 +244,67 @@ fun App() {
             "Pollen" -> PollenGrid()
             "Add Pollen Data" -> AddPollenScreen {}
             "Scraper" -> ScraperMenu()
+            "Generator" -> GeneratorMenu()
             else -> {}
         }
+    }
+}
+
+@Composable
+fun GeneratorMenu() {
+    var expanded by remember { mutableStateOf(false) }
+    var selectedOption by remember { mutableStateOf("AirQuality") }
+    var generatedData by remember { mutableStateOf(emptyList<Any>()) }
+    var count by remember { mutableStateOf("10") }
+    val options = listOf("AirQuality", "Pollen")
+
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Select Data to Generate:")
+        Box {
+            Button(
+                onClick = { expanded = true },
+                modifier = Modifier
+                    .background(Color.Transparent)
+                    .align(Alignment.Center)
+            ) {
+                Text(selectedOption)
+            }
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                options.forEach { option ->
+                    DropdownMenuItem(onClick = {
+                        selectedOption = option
+                        expanded = false
+                        generatedData = emptyList()
+                    }) {
+                        Text(option)
+                    }
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        OutlinedTextField(
+            value = count,
+            onValueChange = { count = it },
+            label = { Text("Count") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = {
+            val countInt = count.toIntOrNull() ?: 10
+            generatedData = generateData(selectedOption, countInt)
+        }) {
+            Text("Generate Data")
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        ScrapedDataGrid(generatedData, selectedOption)
     }
 }
 
@@ -245,7 +365,7 @@ fun ScrapedDataGrid(scrapedData: List<Any>, dataType: String) {
     ) {
         items(scrapedData.size) { index ->
             when (dataType) {
-                "AirQuality" -> ScrapedAirCard(scrapedData[index] as ScrapedAirData)
+                "AirQuality" -> ScrapedAirCard(scrapedData[index] as AirData)
                 "Pollen" -> PollenCard(scrapedData[index] as PollenItem)
             }
         }
@@ -309,7 +429,7 @@ fun Sidebar(selectedButton: String, onButtonSelected: (String) -> Unit) {
         SidebarButton(
             text = "Pollen",
             isSelected = selectedButton == "Pollen",
-            onClick = {onButtonSelected("Pollen")},
+            onClick = { onButtonSelected("Pollen") },
             icon = Icons.Default.Menu
         )
         Divider()
@@ -371,7 +491,6 @@ fun SidebarButton(
         )
     }
 }
-
 
 fun main() = application {
     Window(onCloseRequest = ::exitApplication, title = "Database manager") {

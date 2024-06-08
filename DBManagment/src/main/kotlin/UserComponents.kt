@@ -37,7 +37,7 @@ data class User(
 
 fun fetchUsers(onResult: (List<User>?) -> Unit) {
     val request = Request.Builder()
-        .url("http://localhost:3000/api/v1/users")
+        .url("http://172.211.85.100:3000/api/v1/users")
         .build()
 
     client.newCall(request).enqueue(object : Callback {
@@ -71,7 +71,7 @@ fun addUser(user: User, onResult: (Boolean) -> Unit) {
     val requestBody = jsonBody.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
     val request = Request.Builder()
-        .url("http://localhost:3000/api/v1/register")
+        .url("http://172.211.85.100:3000/api/v1/users/register")
         .post(requestBody)
         .build()
 
@@ -98,7 +98,7 @@ fun updateUser(user: User, onResult: (Boolean) -> Unit) {
         .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
     val request = Request.Builder()
-        .url("http://localhost:3000/api/v1/users/${user._id}")
+        .url("http://172.211.85.100:3000/api/v1/users/${user._id}")
         .put(requestBody)
         .build()
 

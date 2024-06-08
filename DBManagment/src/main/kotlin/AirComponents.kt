@@ -27,7 +27,7 @@ import java.io.IOException
 import java.util.*
 
 
-data class ScrapedAirData(
+data class AirData(
     val _id: String,
     val station: String,
     val pm10: String,
@@ -38,15 +38,16 @@ data class ScrapedAirData(
     val no2: String,
     val benzen: String,
     val timestamp: String,
+    val isFake: Boolean,
     val __v: Int
 )
 
-fun addScrapedAirData(item: ScrapedAirData, onResult: (Boolean) -> Unit) {
+fun addScrapedAirData(item: AirData, onResult: (Boolean) -> Unit) {
     val requestBody = gson.toJson(item)
         .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
     val request = Request.Builder()
-        .url("http://localhost:3000/air")
+        .url("http://172.211.85.100:3000/air")
         .post(requestBody)
         .build()
 
@@ -63,9 +64,9 @@ fun addScrapedAirData(item: ScrapedAirData, onResult: (Boolean) -> Unit) {
 }
 
 
-fun fetchAirData(onResult: (List<ScrapedAirData>?) -> Unit) {
+fun fetchAirData(onResult: (List<AirData>?) -> Unit) {
     val request = Request.Builder()
-        .url("http://localhost:3000/air")
+        .url("http://172.211.85.100:3000/air")
         .build()
 
     client.newCall(request).enqueue(object : Callback {
@@ -78,8 +79,8 @@ fun fetchAirData(onResult: (List<ScrapedAirData>?) -> Unit) {
             response.body?.string()?.let { body ->
                 try {
                     val airDataArray = gson.fromJson(body, JsonArray::class.java)
-                    val airData: List<ScrapedAirData> =
-                        gson.fromJson(airDataArray, object : TypeToken<List<ScrapedAirData>>() {}.type)
+                    val airData: List<AirData> =
+                        gson.fromJson(airDataArray, object : TypeToken<List<AirData>>() {}.type)
                     onResult(airData)
                 } catch (e: JsonSyntaxException) {
                     e.printStackTrace()
@@ -90,7 +91,7 @@ fun fetchAirData(onResult: (List<ScrapedAirData>?) -> Unit) {
     })
 }
 
-fun updateAir(airData: ScrapedAirData, onResult: (Boolean) -> Unit) {
+fun updateAir(airData: AirData, onResult: (Boolean) -> Unit) {
     val updateFields = mutableMapOf<String, Any>(
         "station" to airData.station,
         "pm10" to airData.pm10,
@@ -106,7 +107,7 @@ fun updateAir(airData: ScrapedAirData, onResult: (Boolean) -> Unit) {
         .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
     val request = Request.Builder()
-        .url("http://localhost:3000/air/${airData._id}")
+        .url("http://172.211.85.100:3000/air/${airData._id}")
         .put(requestBody)
         .build()
 
@@ -125,9 +126,9 @@ fun updateAir(airData: ScrapedAirData, onResult: (Boolean) -> Unit) {
 
 @Composable
 fun AirDataGrid() {
-    var airData by remember { mutableStateOf<List<ScrapedAirData>?>(null) }
+    var airData by remember { mutableStateOf<List<AirData>?>(null) }
     val lazyGridState = rememberLazyGridState()
-    var airBeingEdited by remember { mutableStateOf<ScrapedAirData?>(null) }
+    var airBeingEdited by remember { mutableStateOf<AirData?>(null) }
     var showEditDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -171,7 +172,7 @@ fun AirDataGrid() {
 }
 
 @Composable
-fun ScrapedAirCard(item: ScrapedAirData) {
+fun ScrapedAirCard(item: AirData) {
     var isAdding by remember { mutableStateOf(false) }
     var showMessage by remember { mutableStateOf(false) }
 
@@ -241,7 +242,7 @@ fun ScrapedAirCard(item: ScrapedAirData) {
 
 
 @Composable
-fun EditAirDialog(item: ScrapedAirData, onDismiss: () -> Unit, onUpdate: (ScrapedAirData) -> Unit) {
+fun EditAirDialog(item: AirData, onDismiss: () -> Unit, onUpdate: (AirData) -> Unit) {
     var station by remember { mutableStateOf(item.station ?: "") }
     var pm10 by remember { mutableStateOf(item.pm10 ?: "") }
     var pm25 by remember { mutableStateOf(item.pm25 ?: "") }
@@ -354,7 +355,7 @@ fun EditAirDialog(item: ScrapedAirData, onDismiss: () -> Unit, onUpdate: (Scrape
 
 
 @Composable
-fun AirCard(item: ScrapedAirData, onClick: (ScrapedAirData) -> Unit) {
+fun AirCard(item: AirData, onClick: (AirData) -> Unit) {
     Card(
         modifier = Modifier
             .padding(8.dp)
@@ -464,7 +465,7 @@ fun AddAirScreen(onAirAdded: () -> Unit) {
         Button(
             onClick = {
                 isAdding = true
-                val airData = ScrapedAirData(
+                val airData = AirData(
                     _id = UUID.randomUUID().toString(),
                     station = station,
                     pm10 = pm10,
@@ -475,6 +476,7 @@ fun AddAirScreen(onAirAdded: () -> Unit) {
                     no2 = no2,
                     benzen = benzen,
                     timestamp = System.currentTimeMillis().toString(),
+                    isFake = false,
                     __v = 0
                 )
                 addScrapedAirData(airData) { success ->
