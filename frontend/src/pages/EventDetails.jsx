@@ -45,7 +45,7 @@ const EventDetails = () => {
     useEffect(() => {
         const fetchImages = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/images`);
+                const response = await axios.get(`http://172.211.85.100:3000/images`);
                 setImages(response.data.filter(image => image.event === eventId));
             } catch (error) {
                 console.error('Error fetching images:', error);
@@ -73,7 +73,7 @@ const EventDetails = () => {
         }
 
             // Send image data to the server
-            const response = await axios.post(`http://localhost:3000/images`, formData, {
+            const response = await axios.post(`http://172.211.85.100:3000/images`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -134,7 +134,7 @@ const EventDetails = () => {
                 <div class="gallery">
                     <input type="checkbox"/>
                     {images.map((image, index) => (
-                        <img key={index} src={`http://localhost:3000/${image.imageUrl}`} alt={`Event image ${index + 1}`} />
+                        <img key={index} src={`http://172.211.85.100:3000/${image.imageUrl}`} alt={`Event image ${index + 1}`} />
                     ))}    
                 </div>
 
