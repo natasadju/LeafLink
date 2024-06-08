@@ -58,14 +58,29 @@ abstract class ASTNode {
 
     data class City(val name: String, val blocks: List<Block>) : ASTNode() {
         override fun eval(): JsonObject {
-            val features = blocks.map { it.eval() }
-            val featureCollection = JsonObject(
+            val featuresArray = buildJsonArray {
+                blocks.forEach { block ->
+                    val feature = block.eval()
+                    if (isFeatureCollection(feature)) {
+                        // If the feature is a FeatureCollection, nest it in the geometry
+                        return feature
+                    } else {
+                        // Otherwise, add the feature directly
+                        add(feature)
+                    }
+                }
+            }
+
+            return JsonObject(
                 mapOf(
                     "type" to JsonPrimitive("FeatureCollection"),
-                    "features" to JsonArray(features)
+                    "features" to featuresArray
                 )
             )
-            return featureCollection
+        }
+
+        private fun isFeatureCollection(feature: JsonObject): Boolean {
+            return feature["type"]?.jsonPrimitive?.content == "FeatureCollection"
         }
     }
 
@@ -233,13 +248,13 @@ abstract class ASTNode {
 
                 return JsonObject(
                     mapOf(
-                        "type" to JsonPrimitive("FeatureCollecction"),
+                        "type" to JsonPrimitive("FeatureCollection"),
                         "features" to featuresArray,
 
                     )
                 )
             }
-        } // commiting with LEAF-35
+        }
 
 
 
