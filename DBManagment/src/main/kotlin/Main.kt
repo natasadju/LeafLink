@@ -1,11 +1,7 @@
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -15,22 +11,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.google.gson.Gson
-import io.github.serpro69.kfaker.Faker
-import it.skrape.core.htmlDocument
-import it.skrape.fetcher.HttpFetcher
-import it.skrape.fetcher.response
-import it.skrape.fetcher.skrape
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
-import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import java.util.*
 
 val client: OkHttpClient by lazy {
     val logging = HttpLoggingInterceptor().apply { setLevel(HttpLoggingInterceptor.Level.BODY) }
@@ -40,187 +27,6 @@ val client: OkHttpClient by lazy {
 }
 
 val gson = Gson()
-
-fun scrapeData(option: String): List<Any> {
-    return when (option) {
-        "AirQuality" -> scrapeAirQuality()
-        "Pollen" -> scrapePollen()
-        else -> emptyList()
-    }
-}
-
-fun generateData(option: String, count: Int): List<Any> {
-    return when (option) {
-        "AirQuality" -> generateAirData(count)
-        "Pollen" -> generatePollen(count)
-        else -> emptyList()
-    }
-}
-
-fun generateAirData(count: Int): List<AirData> {
-    val faker = Faker()
-    val stations = listOf("MB Titova", "MB Vrbanski")
-    return List(count) {
-        AirData(
-            _id = faker.random.nextUUID(),
-            station = stations.random(),
-            pm10 = faker.random.nextInt(0, 20).toString(),
-            pm25 = faker.random.nextInt(0, 15).toString(),
-            so2 = "",
-            co = "",
-            ozon = faker.random.nextInt(0, 100).toString(),
-            no2 = faker.random.nextInt(3, 40).toString(),
-            benzen = String.format(Locale.US, "%.1f", faker.random.nextDouble()),
-            timestamp = generateRandomTimestamp().toString(),
-            isFake = true,
-            __v = 0
-        )
-    }
-}
-
-fun generateRandomTimestamp(): LocalDateTime {
-    val faker = Faker()
-    val year = faker.random.nextInt(2017, LocalDateTime.now().year)
-    val month = faker.random.nextInt(1, 12)
-    val day = faker.random.nextInt(1, 28)
-    val hour = faker.random.nextInt(0, 23)
-    val minute = faker.random.nextInt(0, 59)
-    val second = faker.random.nextInt(0, 59)
-
-    return LocalDateTime.of(year, month, day, hour, minute, second)
-}
-
-fun generatePollen(count: Int): List<PollenItem> {
-    val faker = Faker()
-    val pollenTypes = listOf("Grasses", "Birch", "Olive Tree")
-    return List(count) {
-        PollenItem(
-            _id = faker.random.nextUUID(),
-            type = pollenTypes.random(),
-            value = String.format(Locale.US, "%.1f", faker.random.nextDouble()),
-            timestamp = generateRandomTimestamp().toString(),
-            isFake = true,
-            __v = 0
-        )
-    }
-}
-
-fun scrapePollen(): List<PollenItem> {
-    val scrapedItems = mutableListOf<PollenItem>()
-    val timestamp = getCurrentTimestamp()
-
-    skrape(HttpFetcher) {
-        request {
-            url = "https://air-quality.com/place/slovenia/maribor/95149348?lang=en&standard=aqi_us"
-        }
-
-        response {
-            htmlDocument {
-                val pollenItems = findFirst(".allergens").findAll(".pollutant-item")
-
-                pollenItems.forEach { item ->
-                    try {
-                        val type = item.findFirst(".name").text
-                        val value = item.findFirst(".value").text
-
-                        scrapedItems.add(
-                            PollenItem(
-                                UUID.randomUUID().toString(),
-                                type,
-                                value,
-                                timestamp,
-                                false,
-                                0
-                            )
-                        )
-                    } catch (e: Exception) {
-                        println("Error: ${e.message}")
-                    }
-                }
-            }
-        }
-    }
-
-    return scrapedItems
-}
-
-inline fun <T> T.maybe(block: T.() -> T?): T? = try {
-    block()
-} catch (e: Exception) {
-    null
-}
-
-fun getCurrentTimestamp(): String {
-    val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-    return sdf.format(Date())
-}
-
-fun scrapeAirQuality(): List<AirData> {
-    val scrapedItems = mutableListOf<AirData>()
-    val timestamp = getCurrentTimestamp()
-
-    skrape(HttpFetcher) {
-        request {
-            url = "https://www.arso.gov.si/zrak/kakovost%20zraka/podatki/dnevne_koncentracije.html"
-        }
-
-        response {
-            htmlDocument {
-                fun processTable(tableIndex: Int) {
-                    val tables = findAll("table.online")
-                    if (tableIndex < tables.size) {
-                        val table = tables[tableIndex]
-                        table.findAll("tr").drop(3).forEach { row ->
-                            try {
-                                val stationCell = row.maybe { findFirst(".onlineimena") }
-                                if (stationCell != null &&
-                                    (stationCell.text.contains("MB Vrbanski") || stationCell.text.contains("MB Titova"))
-                                ) {
-                                    val station = stationCell.text
-                                    val cells = row.findAll(".onlinedesno")
-                                    if (cells.size >= 7) {
-                                        val pm10 = cells[0].text
-                                        val pm25 = cells[1].text
-                                        val so2 = cells[2].text
-                                        val co = cells[3].text
-                                        val ozon = cells[4].text
-                                        val no2 = cells[5].text
-                                        val benzen = cells[6].text
-
-                                        scrapedItems.add(
-                                            AirData(
-                                                _id = UUID.randomUUID().toString(),
-                                                station = station,
-                                                pm10 = pm10,
-                                                pm25 = pm25,
-                                                so2 = so2,
-                                                co = co,
-                                                ozon = ozon,
-                                                no2 = no2,
-                                                benzen = benzen,
-                                                timestamp = timestamp,
-                                                isFake = false,
-                                                __v = 0
-                                            )
-                                        )
-                                    }
-                                }
-                            } catch (e: Exception) {
-                                println("Error: ${e.message}")
-                            }
-                        }
-                    } else {
-                        println("Table at index $tableIndex not found")
-                    }
-                }
-
-                processTable(0)
-            }
-        }
-    }
-
-    return scrapedItems
-}
 
 @Composable
 @Preview
@@ -249,127 +55,6 @@ fun App() {
     }
 }
 
-@Composable
-fun GeneratorMenu() {
-    var expanded by remember { mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf("AirQuality") }
-    var generatedData by remember { mutableStateOf(emptyList<Any>()) }
-    var count by remember { mutableStateOf("10") }
-    val options = listOf("AirQuality", "Pollen")
-
-    Column(
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Select Data to Generate:")
-        Box {
-            Button(
-                onClick = { expanded = true },
-                modifier = Modifier
-                    .background(Color.Transparent)
-                    .align(Alignment.Center)
-            ) {
-                Text(selectedOption)
-            }
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                options.forEach { option ->
-                    DropdownMenuItem(onClick = {
-                        selectedOption = option
-                        expanded = false
-                        generatedData = emptyList()
-                    }) {
-                        Text(option)
-                    }
-                }
-            }
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-        OutlinedTextField(
-            value = count,
-            onValueChange = { count = it },
-            label = { Text("Count") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = {
-            val countInt = count.toIntOrNull() ?: 10
-            generatedData = generateData(selectedOption, countInt)
-        }) {
-            Text("Generate Data")
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-        ScrapedDataGrid(generatedData, selectedOption)
-    }
-}
-
-
-@Composable
-fun ScraperMenu() {
-    var expanded by remember { mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf("AirQuality") }
-    var scrapedData by remember { mutableStateOf(emptyList<Any>()) }
-    val options = listOf("AirQuality", "Pollen")
-
-    Column(
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Select Data to Scrape:")
-        Box {
-            Button(
-                onClick = { expanded = true },
-                modifier = Modifier
-                    .background(Color.Transparent)
-                    .align(Alignment.Center)
-            ) {
-                Text(selectedOption)
-            }
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                options.forEach { option ->
-                    DropdownMenuItem(onClick = {
-                        selectedOption = option
-                        expanded = false
-                        scrapedData = scrapeData(option)
-                    }) {
-                        Text(option)
-                    }
-                }
-            }
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-        ScrapedDataGrid(scrapedData, selectedOption)
-    }
-}
-
-@Composable
-fun ScrapedDataGrid(scrapedData: List<Any>, dataType: String) {
-    val lazyGridState = rememberLazyGridState()
-
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(200.dp),
-        state = lazyGridState,
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        items(scrapedData.size) { index ->
-            when (dataType) {
-                "AirQuality" -> ScrapedAirCard(scrapedData[index] as AirData)
-                "Pollen" -> PollenCard(scrapedData[index] as PollenItem)
-            }
-        }
-    }
-}
 
 @Composable
 fun Sidebar(selectedButton: String, onButtonSelected: (String) -> Unit) {
@@ -426,10 +111,16 @@ fun Sidebar(selectedButton: String, onButtonSelected: (String) -> Unit) {
         )
         Divider()
         SidebarButton(
+            text = "Add Pollen",
+            isSelected = selectedButton == "Add Pollen Data",
+            onClick = { onButtonSelected("Add Pollen Data") },
+            icon = Icons.Default.Add
+        )
+        SidebarButton(
             text = "Pollen",
             isSelected = selectedButton == "Pollen",
             onClick = { onButtonSelected("Pollen") },
-            icon = Icons.Default.Menu
+            icon = Icons.Default.Grass
         )
         Divider()
         SidebarButton(
