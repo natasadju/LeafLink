@@ -3,6 +3,7 @@ import subprocess
 import hmac
 import hashlib
 import logging
+import os
 
 app = Flask(__name__)
 
@@ -10,8 +11,14 @@ app.logger.setLevel(logging.INFO)
 
 webhook_secret = "secret"  # Replace "your_secret_here" with your actual secret
 
+# Print the current working directory
+#current_working_directory = os.getcwd()
+#app.logger.info("%s", current_working_directory)
+#subprocess.run(['sh', './update_container.sh'], check = True)
+
 @app.route('/github-action-webhook', methods=['POST'])
 def webhook():
+
     data = request.json
     app.logger.info("Received webhook data: %s", data)
 
@@ -39,4 +46,5 @@ def webhook():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+
 
