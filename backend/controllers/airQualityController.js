@@ -53,15 +53,15 @@ module.exports = {
     create: function (req, res) {
         var airQuality = new AirqualityModel({
             station: req.body.station,
-            timestamp: req.body.timestamp,
-            so2: req.body.so2,
-            co: req.body.co,
             pm10: req.body.pm10,
             pm25: req.body.pm25,
-            o3: req.body.o3,
+            so2: req.body.so2,
+            co: req.body.co,
+            ozon: req.body.o3,
             no2: req.body.no2,
-            benzene: req.body.benzene,
-            isFake: req.body.isFake
+            benzen: req.body.benzen,
+            isFake: req.body.isFake,
+            timestamp: req.body.timestamp
         });
 
         airQuality.save(function (err, airQuality) {
@@ -102,9 +102,9 @@ module.exports = {
             airQuality.pm25 = req.body.pm25 ? req.body.pm25 : airQuality.pm25;
             airQuality.so2 = req.body.so2 ? req.body.so2 : airQuality.so2;
             airQuality.co = req.body.co ? req.body.co : airQuality.co;
-            airQuality.o3 = req.body.o3 ? req.body.o3 : airQuality.o3;
+            airQuality.ozon = req.body.ozon ? req.body.ozon : airQuality.ozon;
             airQuality.no2 = req.body.no2 ? req.body.no2 : airQuality.no2;
-            airQuality.benzene = req.body.benzene ? req.body.benzene : airQuality.benzene;
+            airQuality.benzen = req.body.benzen ? req.body.benzen : airQuality.benzen;
             airQuality.isFake = req.body.isFake !== undefined ? req.body.isFake : airQuality.isFake;
             airQuality.timestamp = req.body.timestamp ? req.body.timestamp : airQuality.timestamp;
 
