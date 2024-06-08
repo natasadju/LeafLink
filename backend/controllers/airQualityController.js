@@ -127,7 +127,7 @@ module.exports = {
     remove: function (req, res) {
         var id = req.params.id;
 
-        AirqualityModel.findByIdAndRemove(id, function (err) {
+        AirqualityModel.findByIdAndRemove(id, function (err, airQuality) {
             if (err) {
                 return res.status(500).json({
                     message: 'Error when deleting the airQuality.',
