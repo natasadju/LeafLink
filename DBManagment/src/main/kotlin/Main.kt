@@ -30,7 +30,6 @@ import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
 import java.util.*
 
 val client: OkHttpClient by lazy {
@@ -71,7 +70,7 @@ fun generateAirData(count: Int): List<AirData> {
             co = "",
             ozon = faker.random.nextInt(0, 100).toString(),
             no2 = faker.random.nextInt(3, 40).toString(),
-            benzen = faker.random.nextDouble().toString(),
+            benzen = String.format(Locale.US, "%.1f", faker.random.nextDouble()),
             timestamp = generateRandomTimestamp().toString(),
             isFake = true,
             __v = 0
@@ -98,7 +97,7 @@ fun generatePollen(count: Int): List<PollenItem> {
         PollenItem(
             _id = faker.random.nextUUID(),
             type = pollenTypes.random(),
-            value = faker.random.nextDouble().toString(),
+            value = String.format(Locale.US, "%.1f", faker.random.nextDouble()),
             timestamp = generateRandomTimestamp().toString(),
             isFake = true,
             __v = 0
