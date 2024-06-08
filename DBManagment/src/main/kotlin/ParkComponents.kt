@@ -36,7 +36,7 @@ data class Park(
 
 fun fetchParks(onResult: (List<Park>?) -> Unit) {
     val request = Request.Builder()
-        .url("http://localhost:3000/parks")
+        .url("http://172.211.85.100:3000/parks")
         .build()
 
     client.newCall(request).enqueue(object : Callback {
@@ -62,7 +62,7 @@ fun addPark(park: Park, onResult: (Boolean) -> Unit) {
         .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
     val request = Request.Builder()
-        .url("http://localhost:3000/parks/addparks")
+        .url("http://172.211.85.100:3000/parks/parks/addparks")
         .post(requestBody)
         .build()
 
@@ -83,7 +83,7 @@ fun updatePark(park: Park, onResult: (Boolean) -> Unit) {
         .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
     val request = Request.Builder()
-        .url("http://localhost:3000/parks/${park._id}")
+        .url("http://172.211.85.100:3000/parks/${park._id}")
         .put(requestBody)
         .build()
 

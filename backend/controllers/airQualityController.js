@@ -52,11 +52,16 @@ module.exports = {
      */
     create: function (req, res) {
         var airQuality = new AirqualityModel({
-			location : req.body.location,
-			timestamp : req.body.timestamp,
-			pm10 : req.body.pm10,
-			pm25 : req.body.pm25,
-			benzene : req.body.benzene
+            station: req.body.station,
+            timestamp: req.body.timestamp,
+            so2: req.body.so2,
+            co: req.body.co,
+            pm10: req.body.pm10,
+            pm25: req.body.pm25,
+            o3: req.body.o3,
+            no2: req.body.no2,
+            benzene: req.body.benzene,
+            isFake: req.body.isFake
         });
 
         airQuality.save(function (err, airQuality) {
@@ -70,6 +75,7 @@ module.exports = {
             return res.status(201).json(airQuality);
         });
     },
+
 
     /**
      * airQualityController.update()
@@ -91,11 +97,16 @@ module.exports = {
                 });
             }
 
-            airQuality.location = req.body.location ? req.body.location : airQuality.location;
-			airQuality.timestamp = req.body.timestamp ? req.body.timestamp : airQuality.timestamp;
-			airQuality.pm10 = req.body.pm10 ? req.body.pm10 : airQuality.pm10;
-			airQuality.pm25 = req.body.pm25 ? req.body.pm25 : airQuality.pm25;
-			airQuality.benzene = req.body.benzene ? req.body.benzene : airQuality.benzene;
+            airQuality.station = req.body.station ? req.body.station : airQuality.station;
+            airQuality.timestamp = req.body.timestamp ? req.body.timestamp : airQuality.timestamp;
+            airQuality.so2 = req.body.so2 ? req.body.so2 : airQuality.so2;
+            airQuality.co = req.body.co ? req.body.co : airQuality.co;
+            airQuality.pm10 = req.body.pm10 ? req.body.pm10 : airQuality.pm10;
+            airQuality.pm25 = req.body.pm25 ? req.body.pm25 : airQuality.pm25;
+            airQuality.o3 = req.body.o3 ? req.body.o3 : airQuality.o3;
+            airQuality.no2 = req.body.no2 ? req.body.no2 : airQuality.no2;
+            airQuality.benzene = req.body.benzene ? req.body.benzene : airQuality.benzene;
+            airQuality.isFake = req.body.isFake !== undefined ? req.body.isFake : airQuality.isFake;
 			
             airQuality.save(function (err, airQuality) {
                 if (err) {

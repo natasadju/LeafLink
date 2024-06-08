@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var Schema   = mongoose.Schema;
 
 var airQualitySchema = new Schema({
-	'location' : String,
+	'station' : String,
 	'timestamp' : Date,
 	'so2' : Number,
 	'co' : Number,
@@ -10,7 +10,8 @@ var airQualitySchema = new Schema({
 	'pm25' : Number,
 	'03' : Number,
 	'no2' : Number,
-	'benzene' : Number
+	'benzene' : Number,
+	'isFake' : Boolean
 });
 
 module.exports = mongoose.model('airQuality', airQualitySchema);

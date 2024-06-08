@@ -25,6 +25,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.8.8")
     implementation(compose.materialIconsExtended)
     implementation("it.skrape:skrapeit:1.2.2")
+    implementation("io.github.serpro69:kotlin-faker:1.11.0")
 }
 
 compose.desktop {

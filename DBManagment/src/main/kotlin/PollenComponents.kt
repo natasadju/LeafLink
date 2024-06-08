@@ -29,12 +29,13 @@ data class PollenItem(
     val type: String,
     val value: String,
     val timestamp: String,
+    val isFake: Boolean,
     val __v: Int
 )
 
 fun fetchPollenData(onResult: (List<PollenItem>?) -> Unit) {
     val request = Request.Builder()
-        .url("http://localhost:3000/pollen")
+        .url("http://172.211.85.100:3000/pollen")
         .build()
 
     client.newCall(request).enqueue(object : Callback {
@@ -64,7 +65,7 @@ fun addPollenData(item: PollenItem, onResult: (Boolean) -> Unit) {
         .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
     val request = Request.Builder()
-        .url("http://localhost:3000/pollen")
+        .url("http://172.211.85.100:3000/pollen")
         .post(requestBody)
         .build()
 
@@ -177,6 +178,7 @@ fun AddPollenScreen(onPollenAdded: () -> Unit) {
                     type = type,
                     value = value,
                     timestamp = System.currentTimeMillis().toString(),
+                    isFake = false,
                     __v = 0
                 )
                 addPollenData(pollen) { success ->
