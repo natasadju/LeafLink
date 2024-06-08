@@ -4,6 +4,7 @@ var bodyParser = require('body-parser');
 const connectDB = require("./db/connect");
 const express = require("express");
 const cors = require('cors');
+var path = require('path');
 // Added the websocket
 const http = require('http');
 const WebSocket = require('ws');
@@ -25,18 +26,7 @@ const allowedOrigins = [
 ];
 
 app.use(express.json());
-app.use(cors({
-    credentials: true,
-    origin: function(origin, callback){
-      // Allow requests with no origin (mobile apps, curl)
-      if(!origin) return callback(null, true);
-      if(allowedOrigins.indexOf(origin)===-1){
-        var msg = "The CORS policy does not allow access from the specified Origin.";
-        return callback(new Error(msg), false);
-      }
-      return callback(null, true);
-    }
-  }));
+app.use(cors());
 app.use("/api/v1", mainRouter);
 
 // added a parkRouter
@@ -49,8 +39,9 @@ app.use('/air', airQualityRouter);
 const pollenRouter = require("./routes/pollenRoutes");
 app.use('/pollen', pollenRouter);
 
-var imageRouter = require('./routes/imageRoutes');
-app.use('/images', imageRouter);
+app.use(express.static(path.join(__dirname, 'public')));
+var imageRouter = require("./routes/imageRoutes");
+app.use("/images", imageRouter);
 
 var eventRouter = require('./routes/eventRoutes');
 app.use('/events', eventRouter);

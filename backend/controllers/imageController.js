@@ -23,6 +23,28 @@ module.exports = {
         });
     },
 
+    getByEvent: function (req, res) {
+        var eventId = req.params.eventId;
+    
+        ImageModel.find({ event: eventId }, function (err, images) {
+            if (err) {
+                return res.status(500).json({
+                    message: 'Error when getting images for event.',
+                    error: err
+                });
+            }
+
+            if (!images.length) {
+                return res.status(404).json({
+                    message: 'No images found for this event'
+                });
+            }
+    
+            return res.json(images);
+        });
+    },
+    
+
     /**
      * imageController.show()
      */

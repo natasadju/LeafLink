@@ -14,6 +14,7 @@ const EventDetails = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [photo, setPhoto] = useState(null);
+    const [images, setImages] = useState([]);
 
     useEffect(() => {
         const fetchEvent = async () => {
@@ -29,6 +30,7 @@ const EventDetails = () => {
                     parkName: parkData.name,
                     parkLocation: [parkData.lat, parkData.long],
                 });
+
                 setLoading(false);
             } catch (error) {
                 setError('Error fetching event data');
@@ -40,6 +42,19 @@ const EventDetails = () => {
         fetchEvent();
     }, [eventId]);
 
+    useEffect(() => {
+        const fetchImages = async () => {
+            try {
+                const response = await axios.get(`http://172.211.85.100:3000/images`);
+                setImages(response.data.filter(image => image.event === eventId));
+            } catch (error) {
+                console.error('Error fetching images:', error);
+            }
+        };
+
+        fetchImages();
+    }, [eventId]);
+
     const handleImageUpload = async (e) => {
         e.preventDefault();
         if (!photo) {
@@ -49,8 +64,13 @@ const EventDetails = () => {
 
         try {
             const formData = new FormData();
-            formData.append('imageUrl', photo);
+            formData.append('file', photo);
             formData.append('event', eventId);
+
+            // Log formData content
+            for (let [key, value] of formData.entries()) { 
+                console.log(`${key}:`, value);
+        }
 
             // Send image data to the server
             const response = await axios.post(`http://172.211.85.100:3000/images`, formData, {
@@ -61,6 +81,7 @@ const EventDetails = () => {
 
             // Handle response from the server, if needed
             toast.success('Image uploaded successfully:', response.data);
+            window.location.reload();
         } catch (error) {
             toast.error('Error uploading image:', error);
         }
@@ -112,14 +133,9 @@ const EventDetails = () => {
                 </div>
                 <div class="gallery">
                     <input type="checkbox"/>
-                    <img src="https://www.visitmaribor.si/media/4013/mestni_park_arkade_slovenia_slovenija_maribor_pohorje_uros_leva.jpg?anchor=center&mode=crop&width=1200&height=630"/>
-                    <img src="https://kraji.eu/PICTURES/podravsko_pomurska/maribor_z_okolico/maribor/mariborski_park/mestni_park/IMG_4187_maribor_mestni_park_promenada_promenada_big.jpg"/>
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQXopV-3dTyCQ4mwnpODs6hShELL4bW4yzNvQ&sd" alt="a house on a mountain"/>
-                    <img src="https://picsum.photos/id/106/300/300" alt="sime pink flowers"/>
-                    <img src="https://picsum.photos/id/136/300/300" alt="big rocks with some trees"/>
-                    <img src="https://picsum.photos/id/1039/300/300" alt="a waterfall, a lot of tree and a great view from the sky"/>
-                    <img src="https://picsum.photos/id/110/300/300" alt="a cool landscape"/>
-                    <img src="https://picsum.photos/id/1047/300/300" alt="inside a town between two big buildings"/>    
+                    {images.map((image, index) => (
+                        <img key={index} src={`http://172.211.85.100:3000/${image.imageUrl}`} alt={`Event image ${index + 1}`} />
+                    ))}    
                 </div>
 
             </div>
