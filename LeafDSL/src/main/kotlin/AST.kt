@@ -604,5 +604,119 @@ abstract class ASTNode {
             }
         }
     }
+    fun findIntersections(polygons: List<JsonObject>) {
+        val intersectionPoints = mutableListOf<JsonArray>()
+
+        polygons.forEachIndexed { index, polygon ->
+            val coordinates = polygon["geometry"]?.jsonObject?.get("coordinates")?.jsonArray ?: return@forEachIndexed
+            if (hasSelfIntersections(coordinates)) {
+                println("Polygon $index has self-intersections.")
+                return
+            }
+        }
+
+        for (i in polygons.indices) {
+            for (j in i + 1 until polygons.size) {
+                if (hasIntersections(polygons[i], polygons[j])) {
+                    println("Polygon $i intersects with Polygon $j.")
+                }
+            }
+        }
+
+        if (intersectionPoints.isNotEmpty()) {
+            println("Found intersections at points: $intersectionPoints")
+        } else {
+            println("No intersections found.")
+        }
+    }
+
+
+    //Converting the JsonArray coordinates into a list of points.
+    //Iterating over each edge of the polygon and checks if it intersects with any other edge using the doIntersect function.
+    //Returns true if any intersection is found.
+    fun hasSelfIntersections(coordinates: JsonArray): Boolean {
+        val points = coordinates.map { it.jsonArray }
+        val n = points.size
+        for (i in 0 until n) {
+            val p1 = points[i]
+            val p2 = points[(i + 1) % n]
+            for (j in i + 1 until n) {
+                val p3 = points[j]
+                val p4 = points[(j + 1) % n]
+                if (doIntersect(p1, p2, p3, p4)) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    //Iterates over each edge of the first polygon and checks
+    //if it intersects with any edge of the second polygon using the doIntersect function.
+    fun hasIntersections(polygon1: JsonObject, polygon2: JsonObject): Boolean {
+        val coordinates1 = polygon1["geometry"]!!.jsonObject["coordinates"]!!.jsonArray
+        val coordinates2 = polygon2["geometry"]!!.jsonObject["coordinates"]!!.jsonArray
+        val points1 = coordinates1.map { it.jsonArray }
+        val points2 = coordinates2.map { it.jsonArray }
+
+        for (i in points1.indices) {
+            val p1 = points1[i]
+            val p2 = points1[(i + 1) % points1.size]
+            for (j in points2.indices) {
+                val p3 = points2[j]
+                val p4 = points2[(j + 1) % points2.size]
+                if (doIntersect(p1, p2, p3, p4)) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    //Check the orientation of the triplets of points to determine if two line segments intersect.
+    //Handle collinear cases where points lie on the same line segment.
+    fun doIntersect(p1: JsonArray, p2: JsonArray, p3: JsonArray, p4: JsonArray): Boolean {
+        val o1 = orientation(p1, p2, p3)
+        val o2 = orientation(p1, p2, p4)
+        val o3 = orientation(p3, p4, p1)
+        val o4 = orientation(p3, p4, p2)
+
+        if (o1 != o2 && o3 != o4) return true
+
+        if (o1 == 0 && onSegment(p1, p3, p2)) return true
+        if (o2 == 0 && onSegment(p1, p4, p2)) return true
+        if (o3 == 0 && onSegment(p3, p1, p4)) return true
+        if (o4 == 0 && onSegment(p3, p2, p4)) return true
+
+        return false
+    }
+
+    //Determine the orientation of the ordered triplet of points (p, q, r). The function returns:
+    //0 if points are collinear.
+    //1 if the triplet is oriented clockwise.
+    //2 if the triplet is oriented counterclockwise.
+    fun orientation(p: JsonArray, q: JsonArray, r: JsonArray): Int {
+        val val1 = (q[1].double - p[1].double) * (r[0].double - q[0].double) -
+                (q[0].double - p[0].double) * (r[1].double - q[1].double)
+        return when {
+            val1 > 0 -> 1
+            val1 < 0 -> 2
+            else -> 0
+        }
+    }
+
+    //Check if point q lies on the line segment pr.
+    fun onSegment(p: JsonArray, q: JsonArray, r: JsonArray): Boolean {
+        return q[0].double <= max(p[0].double, r[0].double) && q[0].double >= min(p[0].double, r[0].double) &&
+                q[1].double <= max(p[1].double, r[1].double) && q[1].double >= min(p[1].double, r[1].double)
+    }
+
+    val JsonElement.double: Double
+        get() = this.jsonPrimitive.double
+
+    fun max(a: Double, b: Double): Double = if (a > b) a else b
+
+    fun min(a: Double, b: Double): Double = if (a < b) a else b
+
 
 }
