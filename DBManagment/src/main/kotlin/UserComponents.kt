@@ -58,7 +58,6 @@ fun fetchUsers(onResult: (List<User>?) -> Unit) {
 }
 
 
-
 fun addUser(user: User, onResult: (Boolean) -> Unit) {
     val requestData = mapOf(
         "email" to user.email,
@@ -71,7 +70,7 @@ fun addUser(user: User, onResult: (Boolean) -> Unit) {
     val requestBody = jsonBody.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
     val request = Request.Builder()
-        .url("http://172.211.85.100:3000/api/v1/users/register")
+        .url("http://172.211.85.100:3000/api/v1/register")
         .post(requestBody)
         .build()
 
@@ -113,6 +112,7 @@ fun updateUser(user: User, onResult: (Boolean) -> Unit) {
         }
     })
 }
+
 @Composable
 fun UserGrid() {
     var users by remember { mutableStateOf<List<User>?>(null) }

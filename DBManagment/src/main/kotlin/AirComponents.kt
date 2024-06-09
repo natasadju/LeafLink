@@ -24,6 +24,8 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import java.io.IOException
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 
@@ -356,6 +358,9 @@ fun EditAirDialog(item: AirData, onDismiss: () -> Unit, onUpdate: (AirData) -> U
 
 @Composable
 fun AirCard(item: AirData, onClick: (AirData) -> Unit) {
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+    val formattedDate = LocalDateTime.parse(item.timestamp, DateTimeFormatter.ISO_DATE_TIME).format(formatter)
+
     Card(
         modifier = Modifier
             .padding(8.dp)
@@ -386,7 +391,7 @@ fun AirCard(item: AirData, onClick: (AirData) -> Unit) {
             Text("Benzen: ${item.benzen}")
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Timestamp: ${item.timestamp}",
+                text = "Timestamp: ${formattedDate}",
                 fontSize = 14.sp,
                 color = Color.Gray
             )

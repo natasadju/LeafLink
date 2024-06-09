@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.google.gson.Gson
@@ -52,6 +53,7 @@ fun App() {
             "Generator" -> GeneratorMenu()
             "Add Event" -> AddEventScreen {}
             "Events" -> EventGrid()
+            "About" -> AboutTab()
             else -> {}
         }
     }
@@ -102,13 +104,13 @@ fun Sidebar(selectedButton: String, onButtonSelected: (String) -> Unit) {
         SidebarButton(
             text = "Add Event",
             isSelected = selectedButton == "Add Event",
-            onClick = {onButtonSelected("Add Event")},
+            onClick = { onButtonSelected("Add Event") },
             icon = Icons.Default.Add
         )
         SidebarButton(
             text = "Events",
             isSelected = selectedButton == "Events",
-            onClick = {onButtonSelected("Events")},
+            onClick = { onButtonSelected("Events") },
             icon = Icons.Default.Event
         )
         Divider()
@@ -195,6 +197,94 @@ fun SidebarButton(
             modifier = Modifier.fillMaxWidth()
         )
     }
+}
+
+@Composable
+fun AboutTab() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = Icons.Default.Info,
+                contentDescription = "About Icon",
+                tint = MaterialTheme.colors.primary,
+                modifier = Modifier.size(32.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "About the Database Management App",
+                style = MaterialTheme.typography.h4.copy(fontSize = 24.sp),
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+        }
+        Text(
+            text = "This database management application is designed for the LeafLink site. It enables efficient management of the site's database, allowing users to perform tasks such as adding, editing, and viewing various types of data. Additionally, the app can scrape data from the web and generate synthetic data for testing purposes.",
+            style = MaterialTheme.typography.body1,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+        Divider(color = Color.Gray, thickness = 1.dp, modifier = Modifier.padding(vertical = 16.dp))
+        Text(
+            text = "Key Features:",
+            style = MaterialTheme.typography.h5,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        FeatureItem(text = "Add, Edit, and View Database Content: Users can easily manage the database on various data entries such as parks, users, events, air quality, and pollen data.")
+        FeatureItem(text = "Data Scraping: The app uses the skrape{it} library to scrape air quality data from HTML sites, providing users with updated information.")
+        FeatureItem(text = "Fake Data Generation: For testing purposes, the app can generate synthetic data that mimics real-world data.")
+        Divider(color = Color.Gray, thickness = 1.dp, modifier = Modifier.padding(vertical = 16.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = Icons.Default.People,
+                contentDescription = "Team Icon",
+                tint = MaterialTheme.colors.primary,
+                modifier = Modifier.size(32.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "Developed by Project Group Alters",
+                style = MaterialTheme.typography.h5.copy(fontSize = 24.sp),
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+        }
+        Text(
+            text = "This project was developed by the dedicated team of Alters. The team members include:",
+            style = MaterialTheme.typography.body1,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        TeamMember(name = "Teodora Zečević")
+        TeamMember(name = "Nataša Đurić")
+        TeamMember(name = "Gligor Gligorov")
+        Divider(color = Color.Gray, thickness = 1.dp, modifier = Modifier.padding(vertical = 16.dp))
+        Text(
+            text = "The Alters team is committed to enhancing community engagement and environmental awareness through innovative digital solutions like this application.",
+            style = MaterialTheme.typography.body1
+        )
+    }
+}
+
+@Composable
+fun FeatureItem(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.body1,
+        modifier = Modifier.padding(bottom = 8.dp)
+    )
+}
+
+@Composable
+fun TeamMember(name: String) {
+    Text(
+        text = name,
+        style = MaterialTheme.typography.body1,
+        modifier = Modifier.padding(bottom = 4.dp)
+    )
 }
 
 fun main() = application {

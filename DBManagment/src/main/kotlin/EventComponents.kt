@@ -5,6 +5,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Event
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -12,17 +14,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import java.io.IOException
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 data class Event(
@@ -200,7 +203,8 @@ fun EditEventDialog(event: Event, onDismiss: () -> Unit, onUpdate: (Event) -> Un
                     Button(
                         onClick = {
                             isUpdating = true
-                            val updatedEvent = event.copy(name = name, parkId = parkId, description = description, date = date)
+                            val updatedEvent =
+                                event.copy(name = name, parkId = parkId, description = description, date = date)
                             updateEvent(updatedEvent) { success ->
                                 isUpdating = false
                                 if (success) {
@@ -228,10 +232,13 @@ fun EditEventDialog(event: Event, onDismiss: () -> Unit, onUpdate: (Event) -> Un
 
 @Composable
 fun EventCard(event: Event, onClick: (Event) -> Unit) {
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+    val formattedDate = LocalDateTime.parse(event.date, DateTimeFormatter.ISO_DATE_TIME).format(formatter)
+
     Card(
         modifier = Modifier
             .padding(8.dp)
-            .aspectRatio(1f)
+            .fillMaxHeight()
             .clickable { onClick(event) },
         elevation = 2.dp,
         shape = RoundedCornerShape(8.dp)
@@ -243,21 +250,36 @@ fun EventCard(event: Event, onClick: (Event) -> Unit) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Icon(
+                imageVector = Icons.Default.Event,
+                contentDescription = "Event Icon",
+                modifier = Modifier.size(30.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = event.name,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
             )
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "Park ID: ${event.parkId}",
+                fontSize = 16.sp,
                 textAlign = TextAlign.Center
             )
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "Description: ${event.description}",
+                fontSize = 16.sp,
                 textAlign = TextAlign.Center
             )
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Date: ${event.date}",
+                text = "Date: $formattedDate",
+                fontSize = 14.sp,
+                color = Color.Gray,
                 textAlign = TextAlign.Center
             )
         }
