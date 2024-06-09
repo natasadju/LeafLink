@@ -6,7 +6,7 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Event
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,8 +14,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
 import okhttp3.Call
 import okhttp3.Callback
@@ -24,20 +24,22 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import java.io.IOException
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
-data class User(
+data class Event(
     val _id: String,
     val name: String,
-    val email: String,
-    val password: String,
+    val parkId: String,
+    val description: String,
+    val date: String,
     val __v: Int
 )
 
-
-fun fetchUsers(onResult: (List<User>?) -> Unit) {
+fun fetchEvents(onResult: (List<Event>?) -> Unit) {
     val request = Request.Builder()
-        .url("http://172.211.85.100:3000/api/v1/users")
+        .url("http://172.211.85.100:3000/events")
         .build()
 
     client.newCall(request).enqueue(object : Callback {
@@ -47,30 +49,25 @@ fun fetchUsers(onResult: (List<User>?) -> Unit) {
         }
 
         override fun onResponse(call: Call, response: Response) {
-            response.body?.string().let { body ->
-                val jsonObject = gson.fromJson(body, JsonObject::class.java)
-                val usersArray = jsonObject.getAsJsonArray("users")
-                val users: List<User> = gson.fromJson(usersArray, object : TypeToken<List<User>>() {}.type)
-                onResult(users)
+            response.body?.string()?.let { body ->
+                try {
+                    val events: List<Event> = gson.fromJson(body, object : TypeToken<List<Event>>() {}.type)
+                    onResult(events)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    onResult(null)
+                }
             }
         }
     })
 }
 
-
-fun addUser(user: User, onResult: (Boolean) -> Unit) {
-    val requestData = mapOf(
-        "email" to user.email,
-        "password" to user.password,
-        "username" to user.name
-    )
-
-    val jsonBody = gson.toJson(requestData)
-
-    val requestBody = jsonBody.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+fun addEvent(event: Event, onResult: (Boolean) -> Unit) {
+    val requestBody = gson.toJson(event)
+        .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
     val request = Request.Builder()
-        .url("http://172.211.85.100:3000/api/v1/register")
+        .url("http://172.211.85.100:3000/events")
         .post(requestBody)
         .build()
 
@@ -86,18 +83,12 @@ fun addUser(user: User, onResult: (Boolean) -> Unit) {
     })
 }
 
-
-fun updateUser(user: User, onResult: (Boolean) -> Unit) {
-    val updateFields = mutableMapOf<String, Any>(
-        "name" to user.name,
-        "email" to user.email
-    )
-
-    val requestBody = gson.toJson(updateFields)
+fun updateEvent(event: Event, onResult: (Boolean) -> Unit) {
+    val requestBody = gson.toJson(event)
         .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
     val request = Request.Builder()
-        .url("http://172.211.85.100:3000/api/v1/users/${user._id}")
+        .url("http://172.211.85.100:3000/events/${event._id}")
         .put(requestBody)
         .build()
 
@@ -114,19 +105,19 @@ fun updateUser(user: User, onResult: (Boolean) -> Unit) {
 }
 
 @Composable
-fun UserGrid() {
-    var users by remember { mutableStateOf<List<User>?>(null) }
+fun EventGrid() {
+    var events by remember { mutableStateOf<List<Event>?>(null) }
     val lazyGridState = rememberLazyGridState()
-    var userBeingEdited by remember { mutableStateOf<User?>(null) }
+    var eventBeingEdited by remember { mutableStateOf<Event?>(null) }
     var showEditDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        fetchUsers { fetchedUsers ->
-            users = fetchedUsers
+        fetchEvents { fetchedEvents ->
+            events = fetchedEvents
         }
     }
 
-    users?.let { userList ->
+    events?.let { eventList ->
         LazyVerticalGrid(
             columns = GridCells.Adaptive(200.dp),
             state = lazyGridState,
@@ -134,9 +125,9 @@ fun UserGrid() {
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            items(userList.size) { index ->
-                UserCard(user = userList[index]) {
-                    userBeingEdited = it
+            items(eventList.size) { index ->
+                EventCard(event = eventList[index]) {
+                    eventBeingEdited = it
                     showEditDialog = true
                 }
             }
@@ -148,23 +139,24 @@ fun UserGrid() {
         CircularProgressIndicator()
     }
 
-    if (showEditDialog && userBeingEdited != null) {
-        EditUserDialog(
-            user = userBeingEdited!!,
+    if (showEditDialog && eventBeingEdited != null) {
+        EditEventDialog(
+            event = eventBeingEdited!!,
             onDismiss = { showEditDialog = false },
-            onUpdate = { updatedUser ->
-                users = users?.map { if (it._id == updatedUser._id) updatedUser else it }
+            onUpdate = { updatedEvent ->
+                events = events?.map { if (it._id == updatedEvent._id) updatedEvent else it }
                 showEditDialog = false
             }
         )
     }
 }
 
-
 @Composable
-fun EditUserDialog(user: User, onDismiss: () -> Unit, onUpdate: (User) -> Unit) {
-    var username by remember { mutableStateOf(user.name) }
-    var email by remember { mutableStateOf(user.email) }
+fun EditEventDialog(event: Event, onDismiss: () -> Unit, onUpdate: (Event) -> Unit) {
+    var name by remember { mutableStateOf(event.name) }
+    var parkId by remember { mutableStateOf(event.parkId) }
+    var description by remember { mutableStateOf(event.description) }
+    var date by remember { mutableStateOf(event.date) }
     var isUpdating by remember { mutableStateOf(false) }
 
     Dialog(onDismissRequest = onDismiss) {
@@ -177,17 +169,27 @@ fun EditUserDialog(user: User, onDismiss: () -> Unit, onUpdate: (User) -> Unit) 
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = "Edit User", style = MaterialTheme.typography.h6)
+                Text(text = "Edit Event", style = MaterialTheme.typography.h6)
                 Spacer(modifier = Modifier.height(16.dp))
                 TextField(
-                    value = username,
-                    onValueChange = { username = it },
-                    label = { Text("Name") }
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Event Name") }
                 )
                 TextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("Email") }
+                    value = parkId,
+                    onValueChange = { parkId = it },
+                    label = { Text("Park ID") }
+                )
+                TextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    label = { Text("Description") }
+                )
+                TextField(
+                    value = date,
+                    onValueChange = { date = it },
+                    label = { Text("Date") }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Row {
@@ -201,11 +203,12 @@ fun EditUserDialog(user: User, onDismiss: () -> Unit, onUpdate: (User) -> Unit) 
                     Button(
                         onClick = {
                             isUpdating = true
-                            val updatedUser = user.copy(name = username, email = email)
-                            updateUser(updatedUser) { success ->
+                            val updatedEvent =
+                                event.copy(name = name, parkId = parkId, description = description, date = date)
+                            updateEvent(updatedEvent) { success ->
                                 isUpdating = false
                                 if (success) {
-                                    onUpdate(updatedUser)
+                                    onUpdate(updatedEvent)
                                 }
                             }
                         },
@@ -228,12 +231,15 @@ fun EditUserDialog(user: User, onDismiss: () -> Unit, onUpdate: (User) -> Unit) 
 }
 
 @Composable
-fun UserCard(user: User, onClick: (User) -> Unit) {
+fun EventCard(event: Event, onClick: (Event) -> Unit) {
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+    val formattedDate = LocalDateTime.parse(event.date, DateTimeFormatter.ISO_DATE_TIME).format(formatter)
+
     Card(
         modifier = Modifier
             .padding(8.dp)
-            .aspectRatio(1f)
-            .clickable { onClick(user) },
+            .fillMaxHeight()
+            .clickable { onClick(event) },
         elevation = 2.dp,
         shape = RoundedCornerShape(8.dp)
     ) {
@@ -245,30 +251,47 @@ fun UserCard(user: User, onClick: (User) -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = "User Icon",
-                modifier = Modifier.size(50.dp)
+                imageVector = Icons.Default.Event,
+                contentDescription = "Event Icon",
+                modifier = Modifier.size(30.dp)
             )
-            Spacer(Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = user.name,
-                fontWeight = FontWeight.Bold,
+                text = event.name,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Park ID: ${event.parkId}",
+                fontSize = 16.sp,
                 textAlign = TextAlign.Center
             )
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "E-mail: ${user.email}",
+                text = "Description: ${event.description}",
+                fontSize = 16.sp,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Date: $formattedDate",
+                fontSize = 14.sp,
+                color = Color.Gray,
                 textAlign = TextAlign.Center
             )
         }
     }
 }
 
-
 @Composable
-fun AddUserScreen(onUserAdded: () -> Unit) {
-    var username by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+fun AddEventScreen(onEventAdded: () -> Unit) {
+    var name by remember { mutableStateOf("") }
+    var parkId by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+    var date by remember { mutableStateOf("") }
     var isAdding by remember { mutableStateOf(false) }
     var showMessage by remember { mutableStateOf(false) }
 
@@ -280,37 +303,45 @@ fun AddUserScreen(onUserAdded: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TextField(
-            value = username,
-            onValueChange = { username = it },
-            label = { Text("User Name") }
+            value = name,
+            onValueChange = { name = it },
+            label = { Text("Event Name") }
         )
         Spacer(modifier = Modifier.height(8.dp))
         TextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("E-mail") }
+            value = parkId,
+            onValueChange = { parkId = it },
+            label = { Text("Park ID") }
         )
+        Spacer(modifier = Modifier.height(8.dp))
         TextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Password") }
+            value = description,
+            onValueChange = { description = it },
+            label = { Text("Description") }
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        TextField(
+            value = date,
+            onValueChange = { date = it },
+            label = { Text("Date") }
         )
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = {
                 isAdding = true
-                val user = User(
+                val event = Event(
                     _id = UUID.randomUUID().toString(),
-                    name = username,
-                    email = email,
-                    password = password,
-                    __v = 0
+                    name = name,
+                    parkId = parkId,
+                    description = description,
+                    __v = 0,
+                    date = date
                 )
-                addUser(user) { success ->
+                addEvent(event) { success ->
                     isAdding = false
                     showMessage = true
                     if (success) {
-                        onUserAdded()
+                        onEventAdded()
                     }
                 }
             },
@@ -322,13 +353,13 @@ fun AddUserScreen(onUserAdded: () -> Unit) {
                     color = Color.White
                 )
             } else {
-                Text("Add User")
+                Text("Add Event")
             }
         }
         if (showMessage) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = if (isAdding) "Adding..." else "User added!",
+                text = if (isAdding) "Adding..." else "Event added!",
                 color = if (isAdding) Color.Gray else Color.Green
             )
         }

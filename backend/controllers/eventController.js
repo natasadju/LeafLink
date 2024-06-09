@@ -77,7 +77,7 @@ module.exports = {
     update: function(req, res){
         // Add validation rules
         body('name').optional().notEmpty().withMessage('Name is required'),
-        body('location').optional().notEmpty().withMessage('Location is required'),
+        body('parkId').optional().notEmpty().withMessage('Location is required'),
         body('date').optional().notEmpty().withMessage('Date is required'),
         body('description').optional().notEmpty().withMessage('Description is required'),
 
@@ -97,10 +97,9 @@ module.exports = {
                 }
 
                 event.name = req.body.name || event.name;
-                event.location = req.body.location || event.location;
+                event.parkId = req.body.parkId || event.parkId;
                 event.date = req.body.date || event.date;
                 event.description = req.body.description || event.description;
-                event.organizer = req.body.organizer || event.organizer;
 
                 const updatedEvent = await event.save();
                 res.json(updatedEvent);
