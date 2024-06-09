@@ -167,7 +167,7 @@ class Parser(private val tokens: List<Token>) {
         } while (tokens[current].type in listOf(
                 TokenType.LINE, TokenType.BEND, TokenType.BOX,
                 TokenType.CIRC, TokenType.ELLIP, TokenType.ARC,
-                TokenType.POLYLINE, TokenType.POLYSPLINE, TokenType.CURVE))
+                TokenType.POLYLINE, TokenType.CURVE))
         return commands
     }
 
@@ -253,13 +253,6 @@ class Parser(private val tokens: List<Token>) {
                 val points = points()
                 match(TokenType.RPAREN)
                 ASTNode.Command.Polyline(points)
-            }
-            TokenType.POLYSPLINE -> {
-                match(TokenType.POLYSPLINE)
-                match(TokenType.LPAREN)
-                val points = points()
-                match(TokenType.RPAREN)
-                ASTNode.Command.Polyspline(points)
             }
             TokenType.CURVE -> {
                 match(TokenType.CURVE)

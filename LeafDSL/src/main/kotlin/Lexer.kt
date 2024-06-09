@@ -1,6 +1,6 @@
 enum class TokenType {
     CITY, ROAD, BUILDING, PARK, LAKE, GREENFIELD, BENCHES, SCULPTURES, PUBLIC_SIGN, ISLAND, PLAYGROUND, WALKING_TRAIL,
-    LINE, BEND, BOX, CIRC, ELLIP, ARC, POLYLINE, POLYSPLINE, CURVE, POINT, REAL, ANGLE, STRING, LBRACE, RBRACE, LPAREN,
+    LINE, BEND, BOX, CIRC, ELLIP, ARC, POLYLINE, CURVE, POINT, REAL, ANGLE, STRING, LBRACE, RBRACE, LPAREN,
     RPAREN, COMMA, EOF, ERROR, MARKER, LET, EQUALSTO, FOREACH, NEAR, FIND
 }
 
@@ -36,7 +36,6 @@ class Lexer(private val input: String) {
         "ellip" to TokenType.ELLIP,
         "arc" to TokenType.ARC,
         "polyline" to TokenType.POLYLINE,
-        "polyspline" to TokenType.POLYSPLINE,
         "curve" to TokenType.CURVE,
         "marker" to TokenType.MARKER,
         "foreach" to TokenType.FOREACH,

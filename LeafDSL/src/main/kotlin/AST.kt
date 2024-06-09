@@ -458,13 +458,6 @@ abstract class ASTNode {
             }
         }
 
-        data class Polyspline(val points: List<Point>) : Command() {
-            override fun eval(): JsonArray {
-                val coordinates = JsonArray(points.map { it.eval() })
-                return coordinates
-            }
-        }
-
         data class BendExtended(val start: Point, val end: Point, val angle1: Angle, val angle2: Angle, val real: Real) : Command() {
             override fun eval(): JsonArray {
                 val bezier1 = Bezier.bend(start.toCoordinates(), end.toCoordinates(), angle1.value)
