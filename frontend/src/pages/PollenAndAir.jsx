@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../styles/PollenAndAir.css';
 import Navbar from './NavBar';
-import AirQualityTable from './AirQualityTable'; // Import the table component
-import AirQualityGraph from './AirQualityGraph'; // Import the graph component
+import AirQualityTable from './AirQualityTable'; 
+import AirQualityGraph from './AirQualityGraph'; 
+import PollenData from './PollenData';
+
 
 function PollenAndAir() {
   const [isPollenOpen, setIsPollenOpen] = useState(false);
@@ -66,7 +68,7 @@ function PollenAndAir() {
           </div>
           {isPollenOpen && (
             <div className="content">
-              <div>Pollen content goes here...</div>
+              <PollenData data={pollenData} />
             </div>
           )}
         </div>
