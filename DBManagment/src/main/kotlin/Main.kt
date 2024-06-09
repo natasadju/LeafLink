@@ -50,6 +50,8 @@ fun App() {
             "Add Pollen Data" -> AddPollenScreen {}
             "Scraper" -> ScraperMenu()
             "Generator" -> GeneratorMenu()
+            "Add Event" -> AddEventScreen {}
+            "Events" -> EventGrid()
             else -> {}
         }
     }
@@ -95,6 +97,19 @@ fun Sidebar(selectedButton: String, onButtonSelected: (String) -> Unit) {
             isSelected = selectedButton == "Users",
             onClick = { onButtonSelected("Users") },
             icon = Icons.Default.Person
+        )
+        Divider()
+        SidebarButton(
+            text = "Add Event",
+            isSelected = selectedButton == "Add Event",
+            onClick = {onButtonSelected("Add Event")},
+            icon = Icons.Default.Add
+        )
+        SidebarButton(
+            text = "Events",
+            isSelected = selectedButton == "Events",
+            onClick = {onButtonSelected("Events")},
+            icon = Icons.Default.Event
         )
         Divider()
         SidebarButton(
