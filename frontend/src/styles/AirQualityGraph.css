@@ -1,0 +1,30 @@
+
+.airQualityGraph {
+    width: 100%;
+    max-width: 800px; /* Adjust max-width as needed */
+    margin: 10 auto;
+  }
+  
+  .airQualityGraph svg {
+    width: 100%;
+    height: auto;
+  }
+  
+  .axis path,
+  .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+  }
+  
+  .axis text {
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+  }
+  
+  .line {
+    fill: none;
+    stroke: steelblue;
+    stroke-width: 1.5px;
+  }
+  
