@@ -5,3 +5,5 @@
 scrapper/.idea
 scrapper/.gradle
 scrapper/.run
+/LeafDSL/.gradle
+/LeafDSL/.idea
