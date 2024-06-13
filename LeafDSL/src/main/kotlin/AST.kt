@@ -8,7 +8,6 @@ import java.io.IOException
 import okhttp3.*
 import kotlinx.serialization.json.Json
 import java.util.concurrent.CountDownLatch
-import kotlinx.serialization.json.*
 
 @Serializable
 data class Park(
@@ -362,13 +361,10 @@ abstract class ASTNode {
 
         data class Bend(val start: Point, val end: Point, val angle: Angle) : Command() {
             override fun eval(): JsonArray {
-                // Create a Bezier curve representing the bend
                 val bezier = Bezier.bend(start.toCoordinates(), end.toCoordinates(), angle.value)
 
-                // Generate points along the curve
                 val points = bezier.toPoints(20) // Adjust segmentsCount as needed
 
-                // Convert points to JsonArray
                 val coordinates = JsonArray(points.map { it.toPoint().eval() })
 
                 return coordinates
@@ -398,10 +394,10 @@ abstract class ASTNode {
                 val points = mutableListOf<Point>()
                 for (i in 0 until numSegments) {
                     val angle = i * angleStep
-                    val x = center.x + radius.value * cos(angle)
-                    val y = center.y + radius.value * sin(angle)
-                    val distanceFromCenter = Math.sqrt((x - center.x) * (x - center.x) + (y - center.y) * (y - center.y))
-                    println("Angle: $angle, X: $x, Y: $y, Distance from center: $distanceFromCenter") // Debugging print statement
+                    val x = center.x + radius.value * Math.cos(angle)
+                    val y = center.y + radius.value * Math.sin(angle)
+                    //val distanceFromCenter = Math.sqrt((x - center.x) * (x - center.x) + (y - center.y) * (y - center.y))
+                    //println("Angle: $angle, X: $x, Y: $y, Distance from center: $distanceFromCenter") // Debugging print statement
                     points.add(Point(x, y))
                 }
                 // Closing the circle by adding the first point at the end
@@ -608,7 +604,8 @@ abstract class ASTNode {
         val intersectionPoints = mutableListOf<JsonArray>()
 
         polygons.forEachIndexed { index, polygon ->
-            val coordinates = polygon["geometry"]?.jsonObject?.get("coordinates")?.jsonArray ?: return@forEachIndexed
+            val coordinates = polygon["geometry"]?.jsonObject?.get("coordinates")?.jsonArray
+                ?: return@forEachIndexed
             if (hasSelfIntersections(coordinates)) {
                 println("Polygon $index has self-intersections.")
                 return
@@ -711,12 +708,11 @@ abstract class ASTNode {
                 q[1].double <= max(p[1].double, r[1].double) && q[1].double >= min(p[1].double, r[1].double)
     }
 
-    val JsonElement.double: Double
+    private val JsonElement.double: Double
         get() = this.jsonPrimitive.double
 
     fun max(a: Double, b: Double): Double = if (a > b) a else b
 
     fun min(a: Double, b: Double): Double = if (a < b) a else b
-
 
 }

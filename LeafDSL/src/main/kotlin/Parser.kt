@@ -54,6 +54,7 @@ class Parser(private val tokens: List<Token>) {
             TokenType.PLAYGROUND -> playground()
             TokenType.WALKING_TRAIL -> walkingtrail()
             TokenType.MARKER -> marker()
+            TokenType.POINT -> sculptures()
             else -> throw ParseException("Unexpected token: ${tokens[current].lexeme} ${tokens[current].type}")
         }
     }

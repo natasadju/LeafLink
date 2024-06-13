@@ -41,7 +41,8 @@ class Lexer(private val input: String) {
         "foreach" to TokenType.FOREACH,
         "near" to TokenType.NEAR,
         "find" to TokenType.FIND,
-        "let" to TokenType.LET
+        "let" to TokenType.LET,
+        "point" to TokenType.POINT
     )
 
     private val tokens = mutableListOf<Token>()
