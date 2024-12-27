@@ -31,6 +31,8 @@ data class Park(
     val _id: String,
     val name: String,
     val parkId: String,
+    val lat: String,
+    val long: String,
     val __v: Int
 )
 
@@ -58,7 +60,7 @@ fun fetchParks(onResult: (List<Park>?) -> Unit) {
 
 
 fun addPark(park: Park, onResult: (Boolean) -> Unit) {
-    val requestBody = gson.toJson(mapOf("name" to park.name, "parkId" to park.parkId))
+    val requestBody = gson.toJson(mapOf("name" to park.name, "parkId" to park.parkId, "long" to park.long, "lat" to park.lat))
         .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
     val request = Request.Builder()
@@ -79,7 +81,7 @@ fun addPark(park: Park, onResult: (Boolean) -> Unit) {
 }
 
 fun updatePark(park: Park, onResult: (Boolean) -> Unit) {
-    val requestBody = gson.toJson(mapOf("name" to park.name, "parkId" to park.parkId))
+    val requestBody = gson.toJson(mapOf("name" to park.name, "parkId" to park.parkId, "long" to park.long, "lat" to park.lat))
         .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
     val request = Request.Builder()
@@ -150,6 +152,8 @@ fun ParkGrid() {
 fun EditParkDialog(park: Park, onDismiss: () -> Unit, onUpdate: (Park) -> Unit) {
     var name by remember { mutableStateOf(park.name) }
     var parkId by remember { mutableStateOf(park.parkId) }
+    var long by remember { mutableStateOf(park.long) }
+    var lat by remember { mutableStateOf(park.lat) }
     var isUpdating by remember { mutableStateOf(false) }
 
     Dialog(onDismissRequest = onDismiss) {
@@ -174,6 +178,16 @@ fun EditParkDialog(park: Park, onDismiss: () -> Unit, onUpdate: (Park) -> Unit) 
                     onValueChange = { parkId = it },
                     label = { Text("Park ID") }
                 )
+                TextField(
+                    value = lat,
+                    onValueChange = { lat = it },
+                    label = { Text("Latitude") }
+                )
+                TextField(
+                    value = long,
+                    onValueChange = { long = it },
+                    label = { Text("Longitude") }
+                )
                 Spacer(modifier = Modifier.height(16.dp))
                 Row {
                     Button(
@@ -186,7 +200,7 @@ fun EditParkDialog(park: Park, onDismiss: () -> Unit, onUpdate: (Park) -> Unit) 
                     Button(
                         onClick = {
                             isUpdating = true
-                            val updatedPark = park.copy(name = name, parkId = parkId)
+                            val updatedPark = park.copy(name = name, parkId = parkId, lat = lat, long = long)
                             updatePark(updatedPark) { success ->
                                 isUpdating = false
                                 if (success) {
@@ -245,6 +259,14 @@ fun ParkCard(park: Park, onClick: (Park) -> Unit) {
                 text = "ID: ${park.parkId}",
                 textAlign = TextAlign.Center
             )
+            Text(
+                text = "Latitude: ${park.lat}",
+                textAlign = TextAlign.Center
+            )
+            Text(
+                text = "Longitude: ${park.long}",
+                textAlign = TextAlign.Center
+            )
         }
     }
 }
@@ -254,6 +276,8 @@ fun ParkCard(park: Park, onClick: (Park) -> Unit) {
 fun AddParkScreen(onParkAdded: () -> Unit) {
     var name by remember { mutableStateOf("") }
     var parkId by remember { mutableStateOf("") }
+    var lat by remember { mutableStateOf("") }
+    var long by remember { mutableStateOf("") }
     var isAdding by remember { mutableStateOf(false) }
     var showMessage by remember { mutableStateOf(false) }
 
@@ -276,6 +300,17 @@ fun AddParkScreen(onParkAdded: () -> Unit) {
             label = { Text("parkId") }
         )
         Spacer(modifier = Modifier.height(16.dp))
+        TextField(
+            value = lat,
+            onValueChange = { lat = it },
+            label = { Text("Latitude") }
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        TextField(
+            value = long,
+            onValueChange = { long = it },
+            label = { Text("Longitude") }
+        )
         Button(
             onClick = {
                 isAdding = true
@@ -283,6 +318,8 @@ fun AddParkScreen(onParkAdded: () -> Unit) {
                     _id = UUID.randomUUID().toString(),
                     name = name,
                     parkId = parkId,
+                    lat = lat,
+                    long = long,
                     __v = 0
                 )
                 addPark(park) { success ->
