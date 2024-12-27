@@ -2,6 +2,7 @@
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import { Dashboard, HomeLayout, Landing, Login, Logout, Register, Parks, AddPark } from "./pages";
 import EventDetails from "./pages/EventDetails";
+import PollenAndAir from "./pages/PollenAndAir.jsx";
 import { ToastContainer, toast } from 'react-toastify';
 import Test from "./pages/Test.jsx";
 
@@ -45,6 +46,10 @@ const router = createBrowserRouter([
       {
         path: "events/:eventId",
         element: <EventDetails />,
+      },
+      {
+        path: "airandpollen",
+        element: <PollenAndAir />,
       }
     ],
   },
