@@ -22,4 +22,7 @@ interface ApiService {
 
     @GET("pollen")
     fun getPollens(): Call<List<Pollen>>
+
+    @GET("air")
+    fun getAirQuality(): Call<List<AirQuality>>
 }

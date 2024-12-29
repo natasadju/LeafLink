@@ -24,6 +24,8 @@ class PollenAirFragment : Fragment() {
 
     private var _binding: FragmentPollenAndAirBinding? = null
     private val binding get() = _binding!!
+    private var allPollens: List<Pollen> = emptyList()
+    private var allAirQualityData: List<AirQuality> = emptyList()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,6 +46,11 @@ class PollenAirFragment : Fragment() {
         }
 
         // Fetch air quality data
+        fetchAirQualityData { airQuality ->
+            allAirQualityData = airQuality
+            setupAirQualityDropdown(airQuality)
+            displayAirQualityData(airQuality) // Default display of air quality
+        }
 
         // Set up collapsible sections
         setupCollapsibleSections()
@@ -73,6 +80,22 @@ class PollenAirFragment : Fragment() {
         })
     }
 
+    private fun fetchAirQualityData(onAirQualityFetched: (List<AirQuality>) -> Unit) {
+        RetrofitClient.instance.getAirQuality().enqueue(object : Callback<List<AirQuality>> {
+            override fun onResponse(call: Call<List<AirQuality>>, response: Response<List<AirQuality>>) {
+                if (response.isSuccessful && response.body() != null) {
+                    onAirQualityFetched(response.body()!!)
+                } else {
+                    val errorMessage = "Error: ${response.code()} - ${response.message()}"
+                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
+                }
+            }
+
+            override fun onFailure(call: Call<List<AirQuality>>, t: Throwable) {
+                Toast.makeText(requireContext(), "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
 
     private fun setupDropdown(pollens: List<Pollen>) {
         val types = pollens.map { it.type }.distinct().sorted()
@@ -100,6 +123,27 @@ class PollenAirFragment : Fragment() {
         binding.recyclerView.adapter = PollenAdapter(pollens)
     }
 
+    private fun setupAirQualityDropdown(airQuality: List<AirQuality>) {
+        val stations = airQuality.map { it.station }.distinct().sorted()
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, stations)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.airQualitySpinner.adapter = adapter
+
+        binding.airQualitySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selectedStation = stations[position]
+                val filteredAirQuality = airQuality.filter { it.station == selectedStation }
+                displayAirQualityData(filteredAirQuality)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+    }
+
+    private fun displayAirQualityData(airQuality: List<AirQuality>) {
+        binding.airQualityRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.airQualityRecyclerView.adapter = AirQualityAdapter(airQuality)
+    }
 
     private fun createTextView(text: String): TextView {
         return TextView(requireContext()).apply { this.text = text }
@@ -112,6 +156,10 @@ class PollenAirFragment : Fragment() {
         }
 
         // Air quality section collapsible
+        binding.airQualitySectionHeader.setOnClickListener {
+            toggleSectionVisibility(binding.airQualitySection)
+        }
+    }
 
     private fun toggleSectionVisibility(section: View) {
         section.visibility = if (section.visibility == View.VISIBLE) {
