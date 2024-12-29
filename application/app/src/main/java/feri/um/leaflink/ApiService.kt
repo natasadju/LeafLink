@@ -19,4 +19,7 @@ interface ApiService {
 
     @GET("images/event/{eventId}")
     fun getImagesByEventId(@Path("eventId") eventId: String): Call<List<Image>>
+
+    @GET("pollen")
+    fun getPollens(): Call<List<Pollen>>
 }
