@@ -1,7 +1,9 @@
 package feri.um.leaflink
 
 import retrofit2.Call
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface ApiService {
@@ -25,4 +27,7 @@ interface ApiService {
 
     @GET("air")
     fun getAirQuality(): Call<List<AirQuality>>
+
+    @POST("events")
+    fun addEvent(@Body event: EventNew): Call<Event>
 }

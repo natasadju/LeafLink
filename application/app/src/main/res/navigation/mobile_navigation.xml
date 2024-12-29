@@ -13,7 +13,7 @@
 
     <fragment
         android:id="@+id/nav_addEvent"
-        android:name="feri.um.leaflink.ui.gallery.GalleryFragment"
+        android:name="feri.um.leaflink.ui.gallery.AddFragment"
         android:label="@string/menu_gallery"
         tools:layout="@layout/fragment_add" />
 

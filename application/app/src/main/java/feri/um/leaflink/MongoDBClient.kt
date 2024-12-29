@@ -34,4 +34,15 @@ object MongoDBClient {
         val collection = database?.getCollection<Park>("parks")
         return collection?.find()?.toList() ?: emptyList()
     }
+
+    suspend fun addEvent(event: Event): Boolean {
+        return try {
+            val collection = database?.getCollection<Event>("events")
+            collection?.insertOne(event)
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
 }
