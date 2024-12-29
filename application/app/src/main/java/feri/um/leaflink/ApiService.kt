@@ -16,4 +16,7 @@ interface ApiService {
 
     @GET("parks/{id}")
     fun getParkDetails(@Path("id") parkId: String): Call<Park>
+
+    @GET("images/event/{eventId}")
+    fun getImagesByEventId(@Path("eventId") eventId: String): Call<List<Image>>
 }
