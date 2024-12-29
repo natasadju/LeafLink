@@ -1,0 +1,99 @@
+.container-data {
+    width: 90%;
+    margin: 0 auto;
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .column {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .column.open {
+    background-color: #f0f0f0;
+  }
+  
+  .header {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    color: #7dd181;
+  }
+  
+  .header span {
+    font-size: 20px;
+    margin-right: 10px;
+  }
+  
+  .header h2 {
+    margin: 0;
+  }
+  
+  .content {
+    padding: 10px;
+    border-top: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .content p {
+    margin: 5px 0;
+  }
+
+  .content h3{
+    color: #7dd181;
+    text-align: center;
+    margin-bottom: 1%;
+  }
+  
+  .airQualityContent {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+  }
+  
+  .airQualityTables, .airQualityGraphs {
+    display: flex;
+    flex-direction: row;
+  }
+  
+  .airQualityTable {
+    margin-top: 20px;
+    width: 50%;
+    padding: 5px;
+  }
+  
+  .airQualityTable table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .airQualityTable th, .airQualityTable td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    color:black
+  }
+
+  
+  .airQualityTable th {
+    background-color: #f2f2f2;
+    color: #4b7f52;
+  }
+  
+  .airQualityGraph svg {
+    width: 100%;
+    height: 300px;
+    margin-top: 5%;
+    margin-left: 5%;
+  }
+
+  .filterFakeAirQuality {
+    text-align: center;
+  }
+  

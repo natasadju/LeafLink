@@ -1,0 +1,73 @@
+.pollen-container {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start; /* Align items at the top */
+  }
+  
+  .pollen-chart {
+    flex: 1;
+  }
+  
+  .data-table {
+    flex: 1;
+  }
+
+  
+  .data-table table {
+    border-collapse: collapse;
+    width: 80%;
+    margin-left: 10%;
+    margin-bottom: 2%;
+  }
+  
+  .data-table th, .data-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+  
+  .data-table th {
+    background-color: #f2f2f2;
+    text-align: center;
+    color: #4b7f52;
+  }
+  
+ 
+  
+  .data-table td {
+    text-align: left;
+  }
+  
+  .pollen-dropdown {
+    width: 50%;
+    padding: 10px;
+    border: 1px solid #7dd181;
+    border-radius: 4px;
+    background-color: #fff;
+    font-size: 16px;
+    margin-left: 25%;
+    margin-bottom: 2%;
+  }
+  
+  .pollen-chart svg .x-axis text {
+    text-anchor: end;
+    transform: rotate(-65deg);
+    transform-origin: 10px 10px;
+    margin-left: 60%;
+  }
+  
+
+#pollen-chart svg .x-axis text {
+  text-anchor: end;
+  transform: rotate(-65deg);
+  transform-origin: 10px 10px;
+}
+
+#pollen-chart{
+    margin-left: 30%;
+    margin-bottom: 2%;
+}
+
+.checkbox-container{
+    text-align: center;
+    margin-bottom: 2%;
+}
