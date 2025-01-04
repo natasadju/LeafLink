@@ -1,0 +1,122 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Korisnik\\Downloads\\N5\\N5\\Blockchain\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{FDC12258-7E48-4C96-A377-44CDDF0F1C5F}|Blockchain\\Blockchain.csproj|C:\\Users\\Korisnik\\Downloads\\N5\\N5\\Blockchain\\blockchain\\block.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FDC12258-7E48-4C96-A377-44CDDF0F1C5F}|Blockchain\\Blockchain.csproj|solutionrelative:blockchain\\block.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FDC12258-7E48-4C96-A377-44CDDF0F1C5F}|Blockchain\\Blockchain.csproj|C:\\Users\\Korisnik\\Downloads\\N5\\N5\\Blockchain\\blockchain\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FDC12258-7E48-4C96-A377-44CDDF0F1C5F}|Blockchain\\Blockchain.csproj|solutionrelative:blockchain\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{00000000-0000-0000-0000-000000000000}|\u003CSolution\u003E|Blockchain||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FDC12258-7E48-4C96-A377-44CDDF0F1C5F}|Blockchain\\Blockchain.csproj|c:\\users\\korisnik\\downloads\\n5\\n5\\blockchain\\blockchain\\form1.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FDC12258-7E48-4C96-A377-44CDDF0F1C5F}|Blockchain\\Blockchain.csproj|solutionrelative:blockchain\\form1.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FDC12258-7E48-4C96-A377-44CDDF0F1C5F}|Blockchain\\Blockchain.csproj|C:\\Users\\Korisnik\\Downloads\\N5\\N5\\Blockchain\\blockchain\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{FDC12258-7E48-4C96-A377-44CDDF0F1C5F}|Blockchain\\Blockchain.csproj|solutionrelative:blockchain\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FDC12258-7E48-4C96-A377-44CDDF0F1C5F}|Blockchain\\Blockchain.csproj|c:\\users\\korisnik\\downloads\\n5\\n5\\blockchain\\blockchain\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FDC12258-7E48-4C96-A377-44CDDF0F1C5F}|Blockchain\\Blockchain.csproj|solutionrelative:blockchain\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FDC12258-7E48-4C96-A377-44CDDF0F1C5F}|Blockchain\\Blockchain.csproj|c:\\users\\korisnik\\downloads\\n5\\n5\\blockchain\\blockchain\\||{B270807C-D8C6-49EB-8EBE-8E8D566637A1}|5e9a8ac2-4f34-4521-858f-4c248ba31532"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 1,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedHeight": 263,
+          "SelectedChildIndex": 4,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Blockchain",
+              "DocumentMoniker": "C:\\Users\\Korisnik\\Downloads\\N5\\N5\\Blockchain\\Blockchain\\Blockchain.csproj",
+              "RelativeDocumentMoniker": "Blockchain\\Blockchain.csproj",
+              "ToolTip": "C:\\Users\\Korisnik\\Downloads\\N5\\N5\\Blockchain\\Blockchain\\Blockchain.csproj",
+              "RelativeToolTip": "Blockchain\\Blockchain.csproj",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-01-04T10:07:41.829Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Form1.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\Korisnik\\Downloads\\N5\\N5\\Blockchain\\Blockchain\\Form1.Designer.cs",
+              "RelativeDocumentMoniker": "Blockchain\\Form1.Designer.cs",
+              "ToolTip": "C:\\Users\\Korisnik\\Downloads\\N5\\N5\\Blockchain\\Blockchain\\Form1.Designer.cs",
+              "RelativeToolTip": "Blockchain\\Form1.Designer.cs",
+              "ViewState": "AgIAAEEBAAAAAAAAAAAQwDABAAAyAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-04T09:53:39.057Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Form1.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\Korisnik\\Downloads\\N5\\N5\\Blockchain\\Blockchain\\Form1.cs",
+              "RelativeDocumentMoniker": "Blockchain\\Form1.cs",
+              "ToolTip": "C:\\Users\\Korisnik\\Downloads\\N5\\N5\\Blockchain\\Blockchain\\Form1.cs [Design]",
+              "RelativeToolTip": "Blockchain\\Form1.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-04T09:50:26.839Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Korisnik\\Downloads\\N5\\N5\\Blockchain\\Blockchain\\Program.cs",
+              "RelativeDocumentMoniker": "Blockchain\\Program.cs",
+              "ToolTip": "C:\\Users\\Korisnik\\Downloads\\N5\\N5\\Blockchain\\Blockchain\\Program.cs",
+              "RelativeToolTip": "Blockchain\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-04T09:50:27.003Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Block.cs",
+              "DocumentMoniker": "C:\\Users\\Korisnik\\Downloads\\N5\\N5\\Blockchain\\Blockchain\\Block.cs",
+              "RelativeDocumentMoniker": "Blockchain\\Block.cs",
+              "ToolTip": "C:\\Users\\Korisnik\\Downloads\\N5\\N5\\Blockchain\\Blockchain\\Block.cs",
+              "RelativeToolTip": "Blockchain\\Block.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-04T09:50:27.005Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Form1.cs",
+              "DocumentMoniker": "C:\\Users\\Korisnik\\Downloads\\N5\\N5\\Blockchain\\Blockchain\\Form1.cs",
+              "RelativeDocumentMoniker": "Blockchain\\Form1.cs",
+              "ToolTip": "C:\\Users\\Korisnik\\Downloads\\N5\\N5\\Blockchain\\Blockchain\\Form1.cs",
+              "RelativeToolTip": "Blockchain\\Form1.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAO4BAAAmAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-04T09:50:27.254Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
