@@ -2,6 +2,7 @@ const express = require("express");
 const multer = require("multer");
 const { PythonShell } = require("python-shell");
 const path = require("path");
+const imageProcessingController = require("../controllers/imageProcessingController");
 
 const router = express.Router();
 
@@ -48,5 +49,7 @@ router.post("/upload", upload.single("file"), async (req, res) => {
         res.status(500).json({ error: "Error uploading the image" });
     }
 });
+
+router.get('/check', imageProcessingController.show);
 
 module.exports = router;
