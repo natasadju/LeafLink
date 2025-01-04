@@ -46,6 +46,9 @@ app.use("/images", imageRouter);
 var eventRouter = require('./routes/eventRoutes');
 app.use('/events', eventRouter);
 
+const imageProcessRouter = require("./routes/scanImageRoutes");
+app.use('/processImages', imageProcessRouter);
+
 const port = process.env.PORT || 3000;
 
 // Created an HTTP server
