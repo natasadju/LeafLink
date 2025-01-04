@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Security.Cryptography;
+using MPI;
 
 namespace Blockchain
 {
@@ -21,6 +22,24 @@ namespace Blockchain
         {
             InitializeComponent();
             label_diff.Text = globalDifficulty.ToString();
+
+            MPIManager.OnBlockchainUpdated += UpdateBlockchainGUI;
+        }
+
+        private void UpdateBlockchainGUI(List<Block> blockChain)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => UpdateBlockchainGUI(blockChain)));
+                return;
+            }
+
+            // Update the rich text box to display the blockchain
+            richTextBox_chain.Clear();
+            foreach (Block block in blockChain)
+            {
+                richTextBox_chain.AppendText(block.ToString() + "\n\n");
+            }
         }
         //constants
         static string ip = "127.0.0.1";
@@ -236,73 +255,29 @@ namespace Blockchain
         private void btn_mine_Click(object sender, EventArgs e) //Mine
         {
             btn_mine.Enabled = false;
-            //listener thread start
-            Thread thListener = new Thread(new ThreadStart(StartMining));
-            thListener.IsBackground = true;
-            thListener.Start();
+
+            Thread miningThread = new Thread(StartMining);
+            miningThread.IsBackground = true;
+            miningThread.Start();
         }
 
         private void StartMining()
         {
-            while (true)
+            Console.WriteLine("Mining started.");
+            int rank = Communicator.world.Rank; // Identify if it's Master or Worker
+
+            if (rank == 0)
             {
-                List<Block> newBlockChain = new List<Block>();
-                newBlockChain = JsonConvert.DeserializeObject<List<Block>>(JsonConvert.SerializeObject(blockChain));
-                Block block = new Block();
-                //creating block
-                block.index = blockChain.Count;
-                block.miner = textBox_username.Text;
-                block.data = randomString();
-                block.timeStamp = DateTime.Now;
-
-                if (blockChain.Count > 0)
-                    block.previousHash = blockChain[blockChain.Count - 1].hash;
-                else
-                    block.previousHash = "0";
-
-                block.difficulty = globalDifficulty;
-                block.nonce = 0;
-
-                //mining
-                bool hashRun = true;
-                while (hashRun)
-                {
-                    hashRun = false;
-                    block.hash = sha256_hash(block);
-
-                    //check if right difficulty
-                    for(int i = 0; i < block.difficulty; i++)
-                    {
-                        if (block.hash[i] != '0')
-                        {
-                            hashRun = true;
-                            block.nonce++;
-                            if (block.nonce % 100 == 0)
-                            {
-                                //print incorrect block
-                                richTextBox_blocks.Invoke(new Action(() =>
-                                {
-                                    richTextBox_blocks.Select(richTextBox_blocks.TextLength, 0);
-                                    richTextBox_blocks.SelectionColor = Color.Red;
-                                    richTextBox_blocks.AppendText("New Block (difficulty: " + block.difficulty + ")\nHash: " + block.hash + "\n");
-                                }));
-                            }
-                            break;
-                        }
-                    }
-                }
-
-                //print correct block
-                richTextBox_blocks.Invoke(new Action(() => {
-                    richTextBox_blocks.Select(richTextBox_blocks.TextLength, 0);
-                    richTextBox_blocks.SelectionColor = Color.Green;
-                    richTextBox_blocks.AppendText("New Block (difficulty: " + block.difficulty + ")\nHash: " + block.hash + "\n");
-                }));
-
-                newBlockChain.Add(block);
-                ManageBlock(newBlockChain);
+                // Master Node - Manages the blockchain
+                MPIManager.MasterNode(Communicator.world);
+            }
+            else
+            {
+                // Worker Node - Mines the blocks
+                MPIManager.WorkerNode(Communicator.world);
             }
         }
+
 
         private bool Validate(List<Block> newBlockChain)
         {

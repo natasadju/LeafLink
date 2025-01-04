@@ -84,7 +84,7 @@
             // btn_connect_to
             // 
             this.btn_connect_to.Enabled = false;
-            this.btn_connect_to.Location = new System.Drawing.Point(713, 58);
+            this.btn_connect_to.Location = new System.Drawing.Point(646, 12);
             this.btn_connect_to.Name = "btn_connect_to";
             this.btn_connect_to.Size = new System.Drawing.Size(75, 23);
             this.btn_connect_to.TabIndex = 3;
@@ -95,7 +95,7 @@
             // textBox_connect_to
             // 
             this.textBox_connect_to.Enabled = false;
-            this.textBox_connect_to.Location = new System.Drawing.Point(607, 58);
+            this.textBox_connect_to.Location = new System.Drawing.Point(540, 12);
             this.textBox_connect_to.Name = "textBox_connect_to";
             this.textBox_connect_to.Size = new System.Drawing.Size(100, 22);
             this.textBox_connect_to.TabIndex = 4;
@@ -129,7 +129,6 @@
             // 
             // richTextBox_chain
             // 
-            this.richTextBox_chain.Cursor = System.Windows.Forms.Cursors.Arrow;
             this.richTextBox_chain.ForeColor = System.Drawing.Color.Green;
             this.richTextBox_chain.HideSelection = false;
             this.richTextBox_chain.Location = new System.Drawing.Point(12, 220);
@@ -142,7 +141,6 @@
             // 
             // richTextBox_blocks
             // 
-            this.richTextBox_blocks.Cursor = System.Windows.Forms.Cursors.Default;
             this.richTextBox_blocks.HideSelection = false;
             this.richTextBox_blocks.Location = new System.Drawing.Point(411, 220);
             this.richTextBox_blocks.Name = "richTextBox_blocks";
@@ -155,7 +153,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(526, 63);
+            this.label3.Location = new System.Drawing.Point(459, 17);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(73, 16);
             this.label3.TabIndex = 10;
@@ -181,7 +179,6 @@
             // 
             // richTextBox_validation
             // 
-            this.richTextBox_validation.Cursor = System.Windows.Forms.Cursors.Default;
             this.richTextBox_validation.HideSelection = false;
             this.richTextBox_validation.Location = new System.Drawing.Point(12, 113);
             this.richTextBox_validation.Name = "richTextBox_validation";
@@ -211,7 +208,6 @@
             // 
             // richTextBox_connected_to
             // 
-            this.richTextBox_connected_to.Cursor = System.Windows.Forms.Cursors.Default;
             this.richTextBox_connected_to.ForeColor = System.Drawing.Color.Blue;
             this.richTextBox_connected_to.HideSelection = false;
             this.richTextBox_connected_to.Location = new System.Drawing.Point(414, 113);

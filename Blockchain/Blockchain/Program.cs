@@ -1,22 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using MPI;
+using System;
 using System.Windows.Forms;
 
 namespace Blockchain
 {
     internal static class Program
     {
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            MPI.Environment.Run(ref args, comm =>
+            {
+                if (comm.Rank == 0) // Master Node: Run GUI
+                {
+                    Application.EnableVisualStyles();
+                    Application.SetCompatibleTextRenderingDefault(false);
+                    Application.Run(new Form1());
+                }
+                else // Worker Nodes: Run mining tasks
+                {
+                    Console.WriteLine($"Worker Node {comm.Rank} started.");
+                    MPIManager.WorkerNode(comm);
+                }
+            });
         }
     }
 }

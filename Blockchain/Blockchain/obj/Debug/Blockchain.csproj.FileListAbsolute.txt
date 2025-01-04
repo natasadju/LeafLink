@@ -38,3 +38,4 @@ C:\Users\Korisnik\Downloads\N5\N5\Blockchain\Blockchain\obj\Debug\Blockchain.csp
 C:\Users\Korisnik\Downloads\N5\N5\Blockchain\Blockchain\obj\Debug\Blockchain.csproj.Up2Date
 C:\Users\Korisnik\Downloads\N5\N5\Blockchain\Blockchain\obj\Debug\Blockchain.exe
 C:\Users\Korisnik\Downloads\N5\N5\Blockchain\Blockchain\obj\Debug\Blockchain.pdb
+C:\Users\Korisnik\Desktop\Leaflink\Blockchain\Blockchain\obj\Debug\Blockchain.csproj.AssemblyReference.cache

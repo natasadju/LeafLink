@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Blockchain
 {
-    internal class Block
+    public class Block
     {
         public int index { get; set; }
         public string miner { get; set; }
