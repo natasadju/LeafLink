@@ -40,6 +40,7 @@ def predict_trash_type(image_path, model, device, categories):
         return f"Error processing image: {str(e)}"
 
 if __name__ == "__main__":
+    #print("i have been envokeD!")
     # Dynamically determine the directory of the script
     SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -47,27 +48,36 @@ if __name__ == "__main__":
     MODEL_PATH = os.path.join(SCRIPT_DIR, "garbage_classifier2.pth")
     ANNOTATION_FILE = os.path.join(SCRIPT_DIR, "_annotations.coco.json")
 
+    #print("Starting model.py...")
+
     # Ensure annotation file exists
     if not os.path.exists(ANNOTATION_FILE):
         print(f"Error: Annotation file '{ANNOTATION_FILE}' not found.")
         sys.exit(1)
 
+    #print("Annotation file found. Loading annotations...")
     with open(ANNOTATION_FILE) as f:
         coco_data = json.load(f)
     categories = {cat["id"]: cat["name"] for cat in coco_data["categories"]}
 
+    #print(f"Categories loaded: {categories}")
+
     num_classes = len(categories) + 1
+    #print("Loading model...")
     model, device = load_model(MODEL_PATH, num_classes)
+    #print("Model loaded successfully.")
 
     if len(sys.argv) < 2:
         print("Usage: python model.py <image_path>")
         sys.exit(1)
 
     image_path = sys.argv[1]
+    #print(f"Received image path: {image_path}")
 
     if not os.path.exists(image_path):
         print(f"Error: File '{image_path}' not found.")
         sys.exit(1)
 
+    #print("Image file found. Starting prediction...")
     result = predict_trash_type(image_path, model, device, categories)
     print(result)
