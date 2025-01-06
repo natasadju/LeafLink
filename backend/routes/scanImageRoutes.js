@@ -33,7 +33,7 @@ router.post("/upload", upload.single("file"), async (req, res) => {
         const pythonScript = path.join(__dirname, "../scripts", "model.py");
 
         // Spawn a Python process
-        const pythonProcess = spawn("python", [pythonScript, filePath]);
+        const pythonProcess = spawn("python3", [pythonScript, filePath]);
 
         let pythonOutput = ""; // Variable to capture Python output
 
