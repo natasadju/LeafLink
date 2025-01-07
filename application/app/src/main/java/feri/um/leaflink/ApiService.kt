@@ -36,7 +36,7 @@ interface ApiService {
     fun addEvent(@Body event: EventNew): Call<Event>
 
     @Multipart
-    @POST("imageProcessing/upload")
+    @POST("processImages/upload")
     fun uploadImage(
         @Part file: MultipartBody.Part
     ): Call<ResponseBody>

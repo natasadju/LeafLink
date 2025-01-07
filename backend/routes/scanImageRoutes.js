@@ -79,7 +79,7 @@ router.post("/upload", upload.single("file"), async (req, res) => {
 });
 
 // Health check endpoint
-router.get('/check', (req, res) => {
+router.get('/upload', (req, res) => {
     console.log("Health check endpoint called.");
     imageProcessingController.show(req, res);
 });

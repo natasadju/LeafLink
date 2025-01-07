@@ -8,9 +8,10 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.Menu
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.FileProvider
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -27,18 +28,17 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.ResponseBody
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
-import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.*
 
 class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     private lateinit var currentPhotoPath: String
+    private lateinit var galleryLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +46,18 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setSupportActionBar(binding.appBarMain.toolbar)
+
+        galleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data = result.data
+                val imageUri = data?.data
+                if (imageUri != null) {
+                    handleSelectedImage(imageUri)
+                } else {
+                    Toast.makeText(this, "Failed to get image", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
 
         binding.appBarMain.fab2.setOnClickListener {
             showImageSelectionDialog()
@@ -77,6 +89,15 @@ class MainActivity : AppCompatActivity() {
             R.id.nav_home, R.id.nav_addEvent, R.id.nav_pollen), drawerLayout)
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+    }
+
+    private fun handleSelectedImage(uri: Uri) {
+        val inputStream = contentResolver.openInputStream(uri)
+        val file = File(cacheDir, "selected_image.jpg")
+        file.outputStream().use {
+            inputStream?.copyTo(it)
+        }
+        uploadImage(file)
     }
 
     private fun showEventsDialog(events: List<Event>) {
@@ -113,40 +134,24 @@ class MainActivity : AppCompatActivity() {
 
     private fun showImageSelectionDialog() {
         val options = arrayOf("Take a Picture", "Select from Gallery")
-        val builder = androidx.appcompat.app.AlertDialog.Builder(this)
+        val builder = AlertDialog.Builder(this)
         builder.setTitle("Choose an option")
         builder.setItems(options) { _, which ->
             when (which) {
-                0 -> takePicture()
+                0 -> {
+                    val intent = Intent(this, CameraActivity::class.java)
+                    startActivity(intent)
+                }
                 1 -> selectImageFromGallery()
             }
         }
         builder.show()
     }
 
-    private fun takePicture() {
-        val photoFile: File? = try {
-            createImageFile()
-        } catch (ex: IOException) {
-            null
-        }
-
-        photoFile?.also {
-            val photoURI: Uri = FileProvider.getUriForFile(
-                this,
-                "${packageName}.fileprovider",
-                it
-            )
-            val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
-                putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
-            }
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
-        }
-    }
 
     private fun selectImageFromGallery() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        startActivityForResult(intent, REQUEST_IMAGE_PICK)
+        galleryLauncher.launch(intent)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -168,18 +173,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun uploadImage(file: File) {
-        // Create a RequestBody for the file
         val requestFile = file.asRequestBody("image/jpeg".toMediaType())
-
-        // Wrap the file into a MultipartBody.Part
         val multipartBody = MultipartBody.Part.createFormData("file", file.name, requestFile)
 
-        // Call the uploadImage endpoint
         RetrofitClient.instance.uploadImage(multipartBody).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 runOnUiThread {
                     if (response.isSuccessful) {
-                        Toast.makeText(this@MainActivity, "Image uploaded successfully", Toast.LENGTH_SHORT).show()
+                        val responseBody = response.body()?.string() // Convert response body to string
+                        try {
+                            val jsonObject = responseBody?.let { JSONObject(it) } // Parse as JSON
+                            val result = jsonObject?.getString("result") // Extract the "result" key
+                            Toast.makeText(this@MainActivity, "Response: $result", Toast.LENGTH_LONG).show()
+                        } catch (e: Exception) {
+                            Toast.makeText(this@MainActivity, "Error parsing response", Toast.LENGTH_SHORT).show()
+                        }
                     } else {
                         Toast.makeText(this@MainActivity, "Upload failed: ${response.message()}", Toast.LENGTH_SHORT).show()
                     }
@@ -194,13 +202,6 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    private fun createImageFile(): File {
-        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        val storageDir: File = getExternalFilesDir(null)!!
-        return File.createTempFile("JPEG_${timeStamp}_", ".jpg", storageDir).apply {
-            currentPhotoPath = absolutePath
-        }
-    }
 
     private fun getRealPathFromURI(contentUri: Uri): String {
         val cursor = contentResolver.query(contentUri, null, null, null, null)
