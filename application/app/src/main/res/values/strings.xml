@@ -14,4 +14,10 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="take_picture">Take picture</string>
     <string name="cancel">Cancel</string>
+    <string name="notification_upload_success_title">The photo was successfully processed.</string>
+    <string name="notification_upload_fail_title">The photo was not successfully processed!</string>
+    <string name="notification_upload_error_title">The photo was not uploaded successfully!</string>
+    <string name="notification_channel_name">Image processing notification</string>
+    <string name="notification_channel_description">Notifications for trash recognition</string>
+    <string name="notification_upload_success_message">Results for your picture: %1$s</string>
 </resources>

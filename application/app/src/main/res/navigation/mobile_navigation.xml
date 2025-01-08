@@ -22,4 +22,11 @@
         android:name="feri.um.leaflink.ui.pollenAndAir.PollenAirFragment"
         android:label="@string/menu_slideshow"
         tools:layout="@layout/fragment_pollen_and_air" />
+
+    <fragment
+        android:id="@+id/imageProcessingFragment"
+        android:name="feri.um.leaflink.ui.imageProcessing.ImageProcessFragment"
+        android:label="Image Processing"
+        tools:layout="@layout/fragment_image_process" />
+
 </navigation>

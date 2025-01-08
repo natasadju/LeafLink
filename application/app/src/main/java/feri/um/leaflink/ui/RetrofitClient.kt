@@ -10,9 +10,9 @@ object RetrofitClient {
     private const val BASE_URL = "http://172.211.85.100:3000/"
 
     private val okHttpClient = OkHttpClient.Builder()
-        .connectTimeout(80, TimeUnit.SECONDS) // Set connection timeout
-        .readTimeout(80, TimeUnit.SECONDS)    // Set read timeout
-        .writeTimeout(80, TimeUnit.SECONDS)   // Set write timeout
+        .connectTimeout(300, TimeUnit.SECONDS) // Set connection timeout
+        .readTimeout(300, TimeUnit.SECONDS)    // Set read timeout
+        .writeTimeout(300, TimeUnit.SECONDS)   // Set write timeout
         .build()
 
     val instance: ApiService by lazy {

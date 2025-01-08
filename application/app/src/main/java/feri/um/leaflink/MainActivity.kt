@@ -47,6 +47,18 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.appBarMain.toolbar)
 
+        val navController = findNavController(R.id.nav_host_fragment_content_main)
+
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            if (destination.id == R.id.imageProcessingFragment) {
+                binding.appBarMain.fab.hide()
+                binding.appBarMain.fab2.hide()
+            } else {
+                binding.appBarMain.fab.show()
+                binding.appBarMain.fab2.show()
+            }
+        }
+    
         galleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val data = result.data
@@ -62,6 +74,7 @@ class MainActivity : AppCompatActivity() {
         binding.appBarMain.fab2.setOnClickListener {
             showImageSelectionDialog()
         }
+
         binding.appBarMain.fab.setOnClickListener {
             RetrofitClient.instance.getEvents().enqueue(object : Callback<List<Event>> {
                 override fun onResponse(call: Call<List<Event>>, response: Response<List<Event>>) {
@@ -83,7 +96,6 @@ class MainActivity : AppCompatActivity() {
 
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
 
         appBarConfiguration = AppBarConfiguration(setOf(
             R.id.nav_home, R.id.nav_addEvent, R.id.nav_pollen), drawerLayout)
@@ -106,7 +118,6 @@ class MainActivity : AppCompatActivity() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_events_list, null)
         val recyclerView = dialogView.findViewById<RecyclerView>(R.id.recyclerViewEvents)
 
-        // Pass the current Context (this) to the adapter
         val adapter = EventsAdapter(this, events)
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -139,8 +150,8 @@ class MainActivity : AppCompatActivity() {
         builder.setItems(options) { _, which ->
             when (which) {
                 0 -> {
-                    val intent = Intent(this, CameraActivity::class.java)
-                    startActivity(intent)
+                    val navController = findNavController(R.id.nav_host_fragment_content_main)
+                    navController.navigate(R.id.imageProcessingFragment)
                 }
                 1 -> selectImageFromGallery()
             }
@@ -180,10 +191,10 @@ class MainActivity : AppCompatActivity() {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 runOnUiThread {
                     if (response.isSuccessful) {
-                        val responseBody = response.body()?.string() // Convert response body to string
+                        val responseBody = response.body()?.string()
                         try {
-                            val jsonObject = responseBody?.let { JSONObject(it) } // Parse as JSON
-                            val result = jsonObject?.getString("result") // Extract the "result" key
+                            val jsonObject = responseBody?.let { JSONObject(it) }
+                            val result = jsonObject?.getString("result")
                             Toast.makeText(this@MainActivity, "Response: $result", Toast.LENGTH_LONG).show()
                         } catch (e: Exception) {
                             Toast.makeText(this@MainActivity, "Error parsing response", Toast.LENGTH_SHORT).show()
