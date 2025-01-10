@@ -1,0 +1,82 @@
+
+gameplay.png
+size: 1024, 1024
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+bird
+  rotate: false
+  xy: 221, 3
+  size: 200, 169
+  orig: 200, 169
+  offset: 0, 0
+  index: -1
+boy
+  rotate: false
+  xy: 611, 2
+  size: 400, 400
+  orig: 400, 400
+  offset: 0, 0
+  index: -1
+garbage2
+  rotate: false
+  xy: 2, 189
+  size: 252, 185
+  orig: 252, 185
+  offset: 0, 0
+  index: -1
+garbage3
+  rotate: false
+  xy: 2, 5
+  size: 217, 182
+  orig: 217, 182
+  offset: 0, 0
+  index: -1
+greenLeaf
+  rotate: false
+  xy: 256, 174
+  size: 200, 200
+  orig: 200, 200
+  offset: 0, 0
+  index: -1
+leaf-green
+  rotate: false
+  xy: 458, 279
+  size: 38, 95
+  orig: 38, 95
+  offset: 0, 0
+  index: -1
+leaf-red
+  rotate: false
+  xy: 458, 182
+  size: 38, 95
+  orig: 38, 95
+  offset: 0, 0
+  index: -1
+redLeaf
+  rotate: false
+  xy: 611, 404
+  size: 408, 612
+  orig: 408, 612
+  offset: 0, 0
+  index: -1
+tree
+  rotate: false
+  xy: 2, 376
+  size: 607, 640
+  orig: 607, 640
+  offset: 0, 0
+  index: -1
+
+gameplay2.png
+size: 256, 256
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+garbage1
+  rotate: false
+  xy: 2, 2
+  size: 212, 152
+  orig: 212, 152
+  offset: 0, 0
+  index: -1

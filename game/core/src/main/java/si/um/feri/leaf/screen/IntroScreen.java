@@ -47,7 +47,6 @@ public class IntroScreen extends ScreenAdapter {
 
         gameplayAtlas = assetManager.get(AssetDescriptors.GAMEPLAY);
 
-        // Ensure assets are loaded before creating actors
         if (gameplayAtlas != null) {
             stage.addActor(createTreeWithShake());
         } else {
@@ -67,7 +66,6 @@ public class IntroScreen extends ScreenAdapter {
         );
         tree.setOrigin(Align.center);
 
-        // Shake the tree for 2 seconds
         tree.addAction(
             Actions.sequence(
                 Actions.moveBy(5f, 0f, 0.3f),   // Shake right

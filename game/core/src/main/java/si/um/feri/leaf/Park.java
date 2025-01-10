@@ -2,7 +2,6 @@ package si.um.feri.leaf;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
-
 public class Park {
     private String _id;
     private String name;
