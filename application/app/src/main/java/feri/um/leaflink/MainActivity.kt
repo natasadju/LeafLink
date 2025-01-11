@@ -1,17 +1,20 @@
 package feri.um.leaflink
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -24,6 +27,7 @@ import com.google.android.material.navigation.NavigationView
 import feri.um.leaflink.databinding.ActivityMainBinding
 import feri.um.leaflink.events.EventsAdapter
 import feri.um.leaflink.ui.RetrofitClient
+import feri.um.leaflink.ui.settings.SettingsFragment
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.MediaType.Companion.toMediaType
@@ -41,9 +45,20 @@ class MainActivity : AppCompatActivity() {
     private lateinit var galleryLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val sharedPreferences =
+            getSharedPreferences(SettingsFragment.PREFS_NAME, Context.MODE_PRIVATE)
+        val theme =
+            sharedPreferences.getString(SettingsFragment.THEME_KEY, SettingsFragment.THEME_LIGHT)
+        if (theme == SettingsFragment.THEME_DARK) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        }
+
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
 
         setSupportActionBar(binding.appBarMain.toolbar)
 
@@ -58,18 +73,19 @@ class MainActivity : AppCompatActivity() {
                 binding.appBarMain.fab2.show()
             }
         }
-    
-        galleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val data = result.data
-                val imageUri = data?.data
-                if (imageUri != null) {
-                    handleSelectedImage(imageUri)
-                } else {
-                    Toast.makeText(this, "Failed to get image", Toast.LENGTH_SHORT).show()
+
+        galleryLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == Activity.RESULT_OK) {
+                    val data = result.data
+                    val imageUri = data?.data
+                    if (imageUri != null) {
+                        handleSelectedImage(imageUri)
+                    } else {
+                        Toast.makeText(this, "Failed to get image", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
-        }
 
         binding.appBarMain.fab2.setOnClickListener {
             showImageSelectionDialog()
@@ -84,12 +100,20 @@ class MainActivity : AppCompatActivity() {
                             showEventsDialog(it)
                         }
                     } else {
-                        Toast.makeText(this@MainActivity, "Failed to load events", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Failed to load events",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
 
                 override fun onFailure(call: Call<List<Event>>, t: Throwable) {
-                    Toast.makeText(this@MainActivity, "Erroooooor: ${t.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Erroooooor: ${t.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             })
         }
@@ -97,8 +121,11 @@ class MainActivity : AppCompatActivity() {
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
 
-        appBarConfiguration = AppBarConfiguration(setOf(
-            R.id.nav_home, R.id.nav_addEvent, R.id.nav_pollen), drawerLayout)
+        appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.nav_home, R.id.nav_addEvent, R.id.nav_pollen
+            ), drawerLayout
+        )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
     }
@@ -138,6 +165,17 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_settings -> {
+                findNavController(R.id.nav_host_fragment_content_main).navigate(R.id.action_nav_home_to_settingsFragment)
+                true
+            }
+
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
@@ -153,6 +191,7 @@ class MainActivity : AppCompatActivity() {
                     val navController = findNavController(R.id.nav_host_fragment_content_main)
                     navController.navigate(R.id.imageProcessingFragment)
                 }
+
                 1 -> selectImageFromGallery()
             }
         }
@@ -174,6 +213,7 @@ class MainActivity : AppCompatActivity() {
                     val file = File(currentPhotoPath)
                     uploadImage(file)
                 }
+
                 REQUEST_IMAGE_PICK -> {
                     val imageUri = data?.data ?: return
                     val file = File(getRealPathFromURI(imageUri))
@@ -195,19 +235,32 @@ class MainActivity : AppCompatActivity() {
                         try {
                             val jsonObject = responseBody?.let { JSONObject(it) }
                             val result = jsonObject?.getString("result")
-                            Toast.makeText(this@MainActivity, "Response: $result", Toast.LENGTH_LONG).show()
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Response: $result",
+                                Toast.LENGTH_LONG
+                            ).show()
                         } catch (e: Exception) {
-                            Toast.makeText(this@MainActivity, "Error parsing response", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Error parsing response",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     } else {
-                        Toast.makeText(this@MainActivity, "Upload failed: ${response.message()}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Upload failed: ${response.message()}",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             }
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 runOnUiThread {
-                    Toast.makeText(this@MainActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "Error: ${t.message}", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
         })

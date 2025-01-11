@@ -10,7 +10,6 @@
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Add Event</string>
     <string name="menu_slideshow">Pollen and Air</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="take_picture">Take picture</string>
     <string name="cancel">Cancel</string>
@@ -20,4 +19,17 @@
     <string name="notification_channel_name">Image processing notification</string>
     <string name="notification_channel_description">Notifications for trash recognition</string>
     <string name="notification_upload_success_message">Results for your picture: %1$s</string>
+    <string name="text_deafult_theme">Choose your preferred theme:</string>
+    <string name="text_theme_light">Light Theme</string>
+    <string name="text_theme_dark">Dark Theme</string>
+    <string name="notification_textview">Notifications:</string>
+    <string name="off">Off</string>
+    <string name="settings_fragment_label">Settings</string>
+    <string name="pm10">PM10</string>
+    <string name="pm25">PM2.5</string>
+    <string name="so2">So2</string>
+    <string name="no2">No2</string>
+    <string name="co2">CO2</string>
+    <string name="ozone">Ozone</string>
+    <string name="benzene">Benzene</string>
 </resources>
