@@ -625,10 +625,10 @@ namespace Blockchain
 
         private void textBox_connect_to_TextChanged(object sender, EventArgs e)
         {
-            if (int.TryParse(textBox_connect_to.Text, out int port) && port > 0 && port <= 65535)
-                btn_connect_to.Enabled = true;
-            else
+            if (textBox_connect_to.Text == "")
                 btn_connect_to.Enabled = false;
+            else
+                btn_connect_to.Enabled = true;
         }
 
         private void label11_Click(object sender, EventArgs e)
