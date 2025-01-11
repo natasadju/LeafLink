@@ -49,6 +49,7 @@
             this.label10 = new System.Windows.Forms.Label();
             this.label_diff = new System.Windows.Forms.Label();
             this.label_len = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // textBox_port
@@ -269,11 +270,22 @@
             this.label_len.TabIndex = 22;
             this.label_len.Text = "0";
             // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(32, 101);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(44, 16);
+            this.label8.TabIndex = 23;
+            this.label8.Text = "label8";
+            this.label8.Click += new System.EventHandler(this.label8_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 509);
+            this.Controls.Add(this.label8);
             this.Controls.Add(this.label_len);
             this.Controls.Add(this.label_diff);
             this.Controls.Add(this.label10);
@@ -327,6 +339,7 @@
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label_diff;
         private System.Windows.Forms.Label label_len;
+        private System.Windows.Forms.Label label8;
     }
 }
 

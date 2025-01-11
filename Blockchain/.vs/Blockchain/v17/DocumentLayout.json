@@ -7,12 +7,12 @@
       "RelativeMoniker": "D:0:0:{FDC12258-7E48-4C96-A377-44CDDF0F1C5F}|Blockchain\\Blockchain.csproj|solutionrelative:blockchain\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FDC12258-7E48-4C96-A377-44CDDF0F1C5F}|Blockchain\\Blockchain.csproj|C:\\Users\\Korisnik\\Desktop\\Leaflink\\LeafLink\\Blockchain\\blockchain\\block.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FDC12258-7E48-4C96-A377-44CDDF0F1C5F}|Blockchain\\Blockchain.csproj|solutionrelative:blockchain\\block.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{FDC12258-7E48-4C96-A377-44CDDF0F1C5F}|Blockchain\\Blockchain.csproj|C:\\Users\\Korisnik\\Desktop\\Leaflink\\LeafLink\\Blockchain\\blockchain\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
       "RelativeMoniker": "D:0:0:{FDC12258-7E48-4C96-A377-44CDDF0F1C5F}|Blockchain\\Blockchain.csproj|solutionrelative:blockchain\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FDC12258-7E48-4C96-A377-44CDDF0F1C5F}|Blockchain\\Blockchain.csproj|C:\\Users\\Korisnik\\Desktop\\Leaflink\\LeafLink\\Blockchain\\blockchain\\block.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FDC12258-7E48-4C96-A377-44CDDF0F1C5F}|Blockchain\\Blockchain.csproj|solutionrelative:blockchain\\block.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{FDC12258-7E48-4C96-A377-44CDDF0F1C5F}|Blockchain\\Blockchain.csproj|C:\\Users\\Korisnik\\Desktop\\Leaflink\\LeafLink\\Blockchain\\blockchain\\form1.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -54,7 +54,8 @@
               "RelativeToolTip": "Blockchain\\Form1.Designer.cs",
               "ViewState": "AgIAABMAAAAAAAAAAAAAABMAAAAkAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-04T11:28:02.37Z"
+              "WhenOpened": "2025-01-04T11:28:02.37Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -94,7 +95,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
               "Title": "Form1.cs [Design]",
               "DocumentMoniker": "C:\\Users\\Korisnik\\Desktop\\Leaflink\\LeafLink\\Blockchain\\Blockchain\\Form1.cs",
               "RelativeDocumentMoniker": "Blockchain\\Form1.cs",
@@ -106,7 +107,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "Block.cs",
               "DocumentMoniker": "C:\\Users\\Korisnik\\Desktop\\Leaflink\\LeafLink\\Blockchain\\Blockchain\\Block.cs",
               "RelativeDocumentMoniker": "Blockchain\\Block.cs",
@@ -124,7 +125,7 @@
               "RelativeDocumentMoniker": "Blockchain\\Form1.cs",
               "ToolTip": "C:\\Users\\Korisnik\\Desktop\\Leaflink\\LeafLink\\Blockchain\\Blockchain\\Form1.cs",
               "RelativeToolTip": "Blockchain\\Form1.cs",
-              "ViewState": "AgIAABgAAAAAAAAAAAAAACIAAAAnAAAAAAAAAA==",
+              "ViewState": "AgIAAAcCAAAAAAAAAAASwAACAAAhAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-01-04T10:42:49.109Z",
               "EditorCaption": ""

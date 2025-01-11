@@ -510,8 +510,11 @@ namespace Blockchain
             try
             {
                 // Use the local IP and get the port from the text box
-                string ipLocal = ip; // Automatically fetched local IP
-                int portLocal = int.Parse(textBox_connect_to.Text); // User-entered port
+                string ipAddress = textBox_connect_to.Text;
+
+                string[] parts = ipAddress.Split(':');
+                string ipLocal = parts[0];
+                int portLocal = int.Parse(parts[1]);
 
                 // Check if the connection already exists
                 var connection = new Tuple<string, int>(ipLocal, portLocal);
@@ -635,7 +638,7 @@ namespace Blockchain
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
+            label8.Text = $"My IP: {ip}";
         }
 
 
@@ -643,6 +646,11 @@ namespace Blockchain
         private void richTextBox_connected_to_TextChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void label8_Click(object sender, EventArgs e)
+        {
+          
         }
     }
 }
