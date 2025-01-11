@@ -137,7 +137,7 @@
             this.richTextBox_chain.Size = new System.Drawing.Size(379, 218);
             this.richTextBox_chain.TabIndex = 8;
             this.richTextBox_chain.Text = "";
-            this.richTextBox_chain.TextChanged += new System.EventHandler(this.richTextBox_chain_TextChanged);
+            this.richTextBox_chain.TextChanged += new System.EventHandler(this.richTextBox_chain.TextChanged);
             // 
             // richTextBox_blocks
             // 
