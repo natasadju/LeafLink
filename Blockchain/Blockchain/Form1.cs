@@ -32,8 +32,7 @@ namespace Blockchain
 
 
         //constants
-        static string ip = Dns.GetHostEntry(Dns.GetHostName()).AddressList
-                   .FirstOrDefault(x => x.AddressFamily == AddressFamily.InterNetwork)?.ToString();
+        static string ip = GetWlanIp();
         static double blockGenerationInterval = 10; //seconds
         static int diffAdjustInterval = 10; //blocks
         static double timeExpected = blockGenerationInterval * diffAdjustInterval;
@@ -43,6 +42,35 @@ namespace Blockchain
         static List<Block> blockChain = new List<Block>();
 
         string[] argsGlobal;
+
+
+        static string GetWlanIp()
+        {
+            string wlanIp = null;
+
+            foreach (NetworkInterface nic in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (nic.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 &&
+                    nic.OperationalStatus == OperationalStatus.Up)
+                {
+                    var ipProps = nic.GetIPProperties();
+                    foreach (var address in ipProps.UnicastAddresses)
+                    {
+                        if (address.Address.AddressFamily == AddressFamily.InterNetwork)
+                        {
+                            wlanIp = address.Address.ToString();
+                            break;
+                        }
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(wlanIp))
+                    break;
+            }
+
+            return wlanIp ?? Dns.GetHostEntry(Dns.GetHostName()).AddressList
+                .FirstOrDefault(x => x.AddressFamily == AddressFamily.InterNetwork)?.ToString();
+        }
 
 
 
