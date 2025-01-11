@@ -54,6 +54,7 @@
             // textBox_port
             // 
             this.textBox_port.Location = new System.Drawing.Point(91, 60);
+            this.textBox_port.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.textBox_port.Name = "textBox_port";
             this.textBox_port.Size = new System.Drawing.Size(100, 22);
             this.textBox_port.TabIndex = 1;
@@ -63,6 +64,7 @@
             // 
             this.btn_connect.Enabled = false;
             this.btn_connect.Location = new System.Drawing.Point(197, 30);
+            this.btn_connect.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btn_connect.Name = "btn_connect";
             this.btn_connect.Size = new System.Drawing.Size(75, 23);
             this.btn_connect.TabIndex = 1;
@@ -74,6 +76,7 @@
             // 
             this.btn_mine.Enabled = false;
             this.btn_mine.Location = new System.Drawing.Point(197, 59);
+            this.btn_mine.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btn_mine.Name = "btn_mine";
             this.btn_mine.Size = new System.Drawing.Size(75, 23);
             this.btn_mine.TabIndex = 2;
@@ -84,7 +87,8 @@
             // btn_connect_to
             // 
             this.btn_connect_to.Enabled = false;
-            this.btn_connect_to.Location = new System.Drawing.Point(646, 12);
+            this.btn_connect_to.Location = new System.Drawing.Point(713, 58);
+            this.btn_connect_to.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btn_connect_to.Name = "btn_connect_to";
             this.btn_connect_to.Size = new System.Drawing.Size(75, 23);
             this.btn_connect_to.TabIndex = 3;
@@ -95,7 +99,8 @@
             // textBox_connect_to
             // 
             this.textBox_connect_to.Enabled = false;
-            this.textBox_connect_to.Location = new System.Drawing.Point(540, 12);
+            this.textBox_connect_to.Location = new System.Drawing.Point(607, 58);
+            this.textBox_connect_to.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.textBox_connect_to.Name = "textBox_connect_to";
             this.textBox_connect_to.Size = new System.Drawing.Size(100, 22);
             this.textBox_connect_to.TabIndex = 4;
@@ -104,6 +109,7 @@
             // textBox_username
             // 
             this.textBox_username.Location = new System.Drawing.Point(91, 30);
+            this.textBox_username.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.textBox_username.Name = "textBox_username";
             this.textBox_username.Size = new System.Drawing.Size(100, 22);
             this.textBox_username.TabIndex = 0;
@@ -129,31 +135,33 @@
             // 
             // richTextBox_chain
             // 
+            this.richTextBox_chain.Cursor = System.Windows.Forms.Cursors.Arrow;
             this.richTextBox_chain.ForeColor = System.Drawing.Color.Green;
             this.richTextBox_chain.HideSelection = false;
-            this.richTextBox_chain.Location = new System.Drawing.Point(12, 220);
+            this.richTextBox_chain.Location = new System.Drawing.Point(12, 275);
+            this.richTextBox_chain.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.richTextBox_chain.Name = "richTextBox_chain";
             this.richTextBox_chain.ReadOnly = true;
             this.richTextBox_chain.Size = new System.Drawing.Size(379, 218);
             this.richTextBox_chain.TabIndex = 8;
             this.richTextBox_chain.Text = "";
-            this.richTextBox_chain.TextChanged += new System.EventHandler(this.richTextBox_chain.TextChanged);
             // 
             // richTextBox_blocks
             // 
+            this.richTextBox_blocks.Cursor = System.Windows.Forms.Cursors.Default;
             this.richTextBox_blocks.HideSelection = false;
-            this.richTextBox_blocks.Location = new System.Drawing.Point(411, 220);
+            this.richTextBox_blocks.Location = new System.Drawing.Point(411, 275);
+            this.richTextBox_blocks.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.richTextBox_blocks.Name = "richTextBox_blocks";
             this.richTextBox_blocks.ReadOnly = true;
             this.richTextBox_blocks.Size = new System.Drawing.Size(377, 218);
             this.richTextBox_blocks.TabIndex = 9;
             this.richTextBox_blocks.Text = "";
-            this.richTextBox_blocks.TextChanged += new System.EventHandler(this.richTextBox_blocks_TextChanged);
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(459, 17);
+            this.label3.Location = new System.Drawing.Point(525, 63);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(73, 16);
             this.label3.TabIndex = 10;
@@ -171,7 +179,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(411, 201);
+            this.label5.Location = new System.Drawing.Point(411, 256);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(89, 16);
             this.label5.TabIndex = 12;
@@ -179,11 +187,13 @@
             // 
             // richTextBox_validation
             // 
+            this.richTextBox_validation.Cursor = System.Windows.Forms.Cursors.Default;
             this.richTextBox_validation.HideSelection = false;
-            this.richTextBox_validation.Location = new System.Drawing.Point(12, 113);
+            this.richTextBox_validation.Location = new System.Drawing.Point(12, 168);
+            this.richTextBox_validation.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.richTextBox_validation.Name = "richTextBox_validation";
             this.richTextBox_validation.ReadOnly = true;
-            this.richTextBox_validation.Size = new System.Drawing.Size(379, 81);
+            this.richTextBox_validation.Size = new System.Drawing.Size(379, 82);
             this.richTextBox_validation.TabIndex = 13;
             this.richTextBox_validation.Text = "";
             this.richTextBox_validation.TextChanged += new System.EventHandler(this.richTextBox_validation_TextChanged);
@@ -191,7 +201,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(12, 91);
+            this.label6.Location = new System.Drawing.Point(12, 146);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(130, 16);
             this.label6.TabIndex = 15;
@@ -200,7 +210,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(411, 91);
+            this.label7.Location = new System.Drawing.Point(411, 146);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(81, 16);
             this.label7.TabIndex = 16;
@@ -208,12 +218,14 @@
             // 
             // richTextBox_connected_to
             // 
+            this.richTextBox_connected_to.Cursor = System.Windows.Forms.Cursors.Default;
             this.richTextBox_connected_to.ForeColor = System.Drawing.Color.Blue;
             this.richTextBox_connected_to.HideSelection = false;
-            this.richTextBox_connected_to.Location = new System.Drawing.Point(414, 113);
+            this.richTextBox_connected_to.Location = new System.Drawing.Point(413, 168);
+            this.richTextBox_connected_to.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.richTextBox_connected_to.Name = "richTextBox_connected_to";
             this.richTextBox_connected_to.ReadOnly = true;
-            this.richTextBox_connected_to.Size = new System.Drawing.Size(374, 81);
+            this.richTextBox_connected_to.Size = new System.Drawing.Size(375, 82);
             this.richTextBox_connected_to.TabIndex = 17;
             this.richTextBox_connected_to.Text = "";
             this.richTextBox_connected_to.TextChanged += new System.EventHandler(this.richTextBox_connected_to_TextChanged);
@@ -240,7 +252,7 @@
             // 
             this.label_diff.AutoSize = true;
             this.label_diff.ForeColor = System.Drawing.Color.Black;
-            this.label_diff.Location = new System.Drawing.Point(418, 33);
+            this.label_diff.Location = new System.Drawing.Point(419, 33);
             this.label_diff.Name = "label_diff";
             this.label_diff.Size = new System.Drawing.Size(14, 16);
             this.label_diff.TabIndex = 21;
@@ -251,7 +263,7 @@
             // 
             this.label_len.AutoSize = true;
             this.label_len.ForeColor = System.Drawing.Color.Blue;
-            this.label_len.Location = new System.Drawing.Point(430, 62);
+            this.label_len.Location = new System.Drawing.Point(429, 62);
             this.label_len.Name = "label_len";
             this.label_len.Size = new System.Drawing.Size(14, 16);
             this.label_len.TabIndex = 22;
@@ -261,7 +273,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(800, 509);
             this.Controls.Add(this.label_len);
             this.Controls.Add(this.label_diff);
             this.Controls.Add(this.label10);
@@ -283,6 +295,7 @@
             this.Controls.Add(this.btn_mine);
             this.Controls.Add(this.btn_connect);
             this.Controls.Add(this.textBox_port);
+            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Form1";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);

@@ -1,41 +1,42 @@
-C:\Users\mitro\source\repos\Blockchain\Blockchain\bin\Debug\Blockchain.exe.config
-C:\Users\mitro\source\repos\Blockchain\Blockchain\bin\Debug\Blockchain.exe
-C:\Users\mitro\source\repos\Blockchain\Blockchain\bin\Debug\Blockchain.pdb
-C:\Users\mitro\source\repos\Blockchain\Blockchain\obj\Debug\Blockchain.csproj.AssemblyReference.cache
-C:\Users\mitro\source\repos\Blockchain\Blockchain\obj\Debug\Blockchain.csproj.SuggestedBindingRedirects.cache
-C:\Users\mitro\source\repos\Blockchain\Blockchain\obj\Debug\Blockchain.Form1.resources
-C:\Users\mitro\source\repos\Blockchain\Blockchain\obj\Debug\Blockchain.Properties.Resources.resources
-C:\Users\mitro\source\repos\Blockchain\Blockchain\obj\Debug\Blockchain.csproj.GenerateResource.cache
-C:\Users\mitro\source\repos\Blockchain\Blockchain\obj\Debug\Blockchain.csproj.CoreCompileInputs.cache
-C:\Users\mitro\source\repos\Blockchain\Blockchain\obj\Debug\Blockchain.exe
-C:\Users\mitro\source\repos\Blockchain\Blockchain\obj\Debug\Blockchain.pdb
-C:\Users\mitro\source\repos\Blockchain\Blockchain\bin\Debug\Newtonsoft.Json.dll
-C:\Users\mitro\source\repos\Blockchain\Blockchain\bin\Debug\Newtonsoft.Json.xml
-C:\Users\mitro\source\repos\Blockchain\Blockchain\obj\Debug\Blockchain.csproj.CopyComplete
-C:\Users\User\Desktop\N5\Blockchain\Blockchain\bin\Debug\Blockchain.exe.config
-C:\Users\User\Desktop\N5\Blockchain\Blockchain\bin\Debug\Blockchain.exe
-C:\Users\User\Desktop\N5\Blockchain\Blockchain\bin\Debug\Blockchain.pdb
-C:\Users\User\Desktop\N5\Blockchain\Blockchain\bin\Debug\Newtonsoft.Json.dll
-C:\Users\User\Desktop\N5\Blockchain\Blockchain\bin\Debug\Newtonsoft.Json.xml
-C:\Users\User\Desktop\N5\Blockchain\Blockchain\obj\Debug\Blockchain.csproj.AssemblyReference.cache
-C:\Users\User\Desktop\N5\Blockchain\Blockchain\obj\Debug\Blockchain.Form1.resources
-C:\Users\User\Desktop\N5\Blockchain\Blockchain\obj\Debug\Blockchain.Properties.Resources.resources
-C:\Users\User\Desktop\N5\Blockchain\Blockchain\obj\Debug\Blockchain.csproj.GenerateResource.cache
-C:\Users\User\Desktop\N5\Blockchain\Blockchain\obj\Debug\Blockchain.csproj.CoreCompileInputs.cache
-C:\Users\User\Desktop\N5\Blockchain\Blockchain\obj\Debug\Blockchain.csproj.CopyComplete
-C:\Users\User\Desktop\N5\Blockchain\Blockchain\obj\Debug\Blockchain.exe
-C:\Users\User\Desktop\N5\Blockchain\Blockchain\obj\Debug\Blockchain.pdb
-C:\Users\Korisnik\Downloads\N5\N5\Blockchain\Blockchain\bin\Debug\Blockchain.exe.config
-C:\Users\Korisnik\Downloads\N5\N5\Blockchain\Blockchain\bin\Debug\Blockchain.exe
-C:\Users\Korisnik\Downloads\N5\N5\Blockchain\Blockchain\bin\Debug\Blockchain.pdb
-C:\Users\Korisnik\Downloads\N5\N5\Blockchain\Blockchain\bin\Debug\Newtonsoft.Json.dll
-C:\Users\Korisnik\Downloads\N5\N5\Blockchain\Blockchain\bin\Debug\Newtonsoft.Json.xml
-C:\Users\Korisnik\Downloads\N5\N5\Blockchain\Blockchain\obj\Debug\Blockchain.csproj.AssemblyReference.cache
-C:\Users\Korisnik\Downloads\N5\N5\Blockchain\Blockchain\obj\Debug\Blockchain.Form1.resources
-C:\Users\Korisnik\Downloads\N5\N5\Blockchain\Blockchain\obj\Debug\Blockchain.Properties.Resources.resources
-C:\Users\Korisnik\Downloads\N5\N5\Blockchain\Blockchain\obj\Debug\Blockchain.csproj.GenerateResource.cache
-C:\Users\Korisnik\Downloads\N5\N5\Blockchain\Blockchain\obj\Debug\Blockchain.csproj.CoreCompileInputs.cache
-C:\Users\Korisnik\Downloads\N5\N5\Blockchain\Blockchain\obj\Debug\Blockchain.csproj.Up2Date
-C:\Users\Korisnik\Downloads\N5\N5\Blockchain\Blockchain\obj\Debug\Blockchain.exe
-C:\Users\Korisnik\Downloads\N5\N5\Blockchain\Blockchain\obj\Debug\Blockchain.pdb
-C:\Users\Korisnik\Desktop\Leaflink\Blockchain\Blockchain\obj\Debug\Blockchain.csproj.AssemblyReference.cache
+C:\Users\Angel\Documents\V Semestar\PiPR\N3_23\Blockchain-master\Blockchain-master\Blockchain\bin\Debug\Blockchain.exe.config
+C:\Users\Angel\Documents\V Semestar\PiPR\N3_23\Blockchain-master\Blockchain-master\Blockchain\bin\Debug\Blockchain.exe
+C:\Users\Angel\Documents\V Semestar\PiPR\N3_23\Blockchain-master\Blockchain-master\Blockchain\bin\Debug\Blockchain.pdb
+C:\Users\Angel\Documents\V Semestar\PiPR\N3_23\Blockchain-master\Blockchain-master\Blockchain\bin\Debug\MPI.dll
+C:\Users\Angel\Documents\V Semestar\PiPR\N3_23\Blockchain-master\Blockchain-master\Blockchain\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Angel\Documents\V Semestar\PiPR\N3_23\Blockchain-master\Blockchain-master\Blockchain\bin\Debug\Newtonsoft.Json.xml
+C:\Users\Angel\Documents\V Semestar\PiPR\N3_23\Blockchain-master\Blockchain-master\Blockchain\obj\Debug\Blockchain.csproj.AssemblyReference.cache
+C:\Users\Angel\Documents\V Semestar\PiPR\N3_23\Blockchain-master\Blockchain-master\Blockchain\obj\Debug\Blockchain.Form1.resources
+C:\Users\Angel\Documents\V Semestar\PiPR\N3_23\Blockchain-master\Blockchain-master\Blockchain\obj\Debug\Blockchain.Properties.Resources.resources
+C:\Users\Angel\Documents\V Semestar\PiPR\N3_23\Blockchain-master\Blockchain-master\Blockchain\obj\Debug\Blockchain.csproj.GenerateResource.cache
+C:\Users\Angel\Documents\V Semestar\PiPR\N3_23\Blockchain-master\Blockchain-master\Blockchain\obj\Debug\Blockchain.csproj.CoreCompileInputs.cache
+C:\Users\Angel\Documents\V Semestar\PiPR\N3_23\Blockchain-master\Blockchain-master\Blockchain\obj\Debug\Blockchain.csproj.CopyComplete
+C:\Users\Angel\Documents\V Semestar\PiPR\N3_23\Blockchain-master\Blockchain-master\Blockchain\obj\Debug\Blockchain.exe
+C:\Users\Angel\Documents\V Semestar\PiPR\N3_23\Blockchain-master\Blockchain-master\Blockchain\obj\Debug\Blockchain.pdb
+C:\Temp\BlockchainMPI\BlockchainMPI\Blockchain\bin\Debug\Blockchain.exe.config
+C:\Temp\BlockchainMPI\BlockchainMPI\Blockchain\bin\Debug\Blockchain.exe
+C:\Temp\BlockchainMPI\BlockchainMPI\Blockchain\bin\Debug\Blockchain.pdb
+C:\Temp\BlockchainMPI\BlockchainMPI\Blockchain\bin\Debug\MPI.dll
+C:\Temp\BlockchainMPI\BlockchainMPI\Blockchain\bin\Debug\Newtonsoft.Json.dll
+C:\Temp\BlockchainMPI\BlockchainMPI\Blockchain\bin\Debug\Newtonsoft.Json.xml
+C:\Temp\BlockchainMPI\BlockchainMPI\Blockchain\obj\Debug\Blockchain.csproj.AssemblyReference.cache
+C:\Temp\BlockchainMPI\BlockchainMPI\Blockchain\obj\Debug\Blockchain.Form1.resources
+C:\Temp\BlockchainMPI\BlockchainMPI\Blockchain\obj\Debug\Blockchain.Properties.Resources.resources
+C:\Temp\BlockchainMPI\BlockchainMPI\Blockchain\obj\Debug\Blockchain.csproj.GenerateResource.cache
+C:\Temp\BlockchainMPI\BlockchainMPI\Blockchain\obj\Debug\Blockchain.csproj.CoreCompileInputs.cache
+C:\Temp\BlockchainMPI\BlockchainMPI\Blockchain\obj\Debug\Blockchain.csproj.CopyComplete
+C:\Temp\BlockchainMPI\BlockchainMPI\Blockchain\obj\Debug\Blockchain.exe
+C:\Temp\BlockchainMPI\BlockchainMPI\Blockchain\obj\Debug\Blockchain.pdb
+C:\Users\Korisnik\Desktop\Leaflink\LeafLink\Blockchain\Blockchain\bin\Debug\Blockchain.exe.config
+C:\Users\Korisnik\Desktop\Leaflink\LeafLink\Blockchain\Blockchain\bin\Debug\Blockchain.exe
+C:\Users\Korisnik\Desktop\Leaflink\LeafLink\Blockchain\Blockchain\bin\Debug\Blockchain.pdb
+C:\Users\Korisnik\Desktop\Leaflink\LeafLink\Blockchain\Blockchain\bin\Debug\MPI.dll
+C:\Users\Korisnik\Desktop\Leaflink\LeafLink\Blockchain\Blockchain\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Korisnik\Desktop\Leaflink\LeafLink\Blockchain\Blockchain\bin\Debug\Newtonsoft.Json.xml
+C:\Users\Korisnik\Desktop\Leaflink\LeafLink\Blockchain\Blockchain\obj\Debug\Blockchain.csproj.AssemblyReference.cache
+C:\Users\Korisnik\Desktop\Leaflink\LeafLink\Blockchain\Blockchain\obj\Debug\Blockchain.Form1.resources
+C:\Users\Korisnik\Desktop\Leaflink\LeafLink\Blockchain\Blockchain\obj\Debug\Blockchain.Properties.Resources.resources
+C:\Users\Korisnik\Desktop\Leaflink\LeafLink\Blockchain\Blockchain\obj\Debug\Blockchain.csproj.GenerateResource.cache
+C:\Users\Korisnik\Desktop\Leaflink\LeafLink\Blockchain\Blockchain\obj\Debug\Blockchain.csproj.CoreCompileInputs.cache
+C:\Users\Korisnik\Desktop\Leaflink\LeafLink\Blockchain\Blockchain\obj\Debug\Blockchain.csproj.Up2Date
+C:\Users\Korisnik\Desktop\Leaflink\LeafLink\Blockchain\Blockchain\obj\Debug\Blockchain.exe
+C:\Users\Korisnik\Desktop\Leaflink\LeafLink\Blockchain\Blockchain\obj\Debug\Blockchain.pdb
