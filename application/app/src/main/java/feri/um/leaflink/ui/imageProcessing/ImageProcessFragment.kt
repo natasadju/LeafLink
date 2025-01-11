@@ -13,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -24,6 +25,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
+import feri.um.leaflink.MainActivity
 import feri.um.leaflink.R
 import feri.um.leaflink.databinding.FragmentImageProcessBinding
 import feri.um.leaflink.ui.RetrofitClient
@@ -128,6 +130,7 @@ class ImageProcessFragment : Fragment() {
             outputOptions,
             ContextCompat.getMainExecutor(requireContext()),
             object : ImageCapture.OnImageSavedCallback {
+                @RequiresApi(Build.VERSION_CODES.TIRAMISU)
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     val savedUri = photoFile.toURI()
                     Log.d("CameraFragment", "Photo saved: $savedUri")
@@ -144,15 +147,18 @@ class ImageProcessFragment : Fragment() {
         )
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun uploadImage(file: File) {
         val requestFile = file.asRequestBody("image/jpeg".toMediaType())
         val multipartBody = MultipartBody.Part.createFormData("file", file.name, requestFile)
 
         // Send an initial notification about the upload status using activity context
-        sendNotification(
+        (activity as? MainActivity)?.sendNotification(
             title = "Uploading Image",
             message = "The picture is being uploaded..."
         )
+
+        Toast.makeText(requireContext(), "Uploading image...", Toast.LENGTH_SHORT).show()
 
         RetrofitClient.instance.uploadImage(multipartBody).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
@@ -160,12 +166,12 @@ class ImageProcessFragment : Fragment() {
                     val result = response.body()?.string()
 
                     // Send success notification using activity context
-                    sendNotification(
+                    (activity as? MainActivity)?.sendNotification(
                         title = getString(R.string.notification_upload_success_title),
                         message = result ?: "Upload successful"
                     )
                 } else {
-                    sendNotification(
+                    (activity as? MainActivity)?.sendNotification(
                         title = getString(R.string.notification_upload_fail_title),
                         message = "Upload failed: ${response.message()}"
                     )
@@ -173,12 +179,13 @@ class ImageProcessFragment : Fragment() {
             }
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                sendNotification(
+                (activity as? MainActivity)?.sendNotification(
                     title = getString(R.string.notification_upload_error_title),
                     message = "Error: ${t.message}"
                 )
             }
         })
+        requireActivity().onBackPressedDispatcher.onBackPressed()
     }
 
 
@@ -202,37 +209,4 @@ class ImageProcessFragment : Fragment() {
         }
     }
 
-    private fun sendNotification(title: String, message: String) {
-        // Use activity context to send notification
-        val context = activity?.applicationContext ?: return // Ensure the activity is not null
-
-        val builder = NotificationCompat.Builder(context, notificationChannelId)
-            .setSmallIcon(R.drawable.ic_menu_camera) // Replace with your app's notification icon
-            .setContentTitle(title)
-            .setContentText(message)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setAutoCancel(true)
-
-        with(NotificationManagerCompat.from(context)) {
-            // Check if notification permission is granted
-            if (ActivityCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                requestNotificationPermission()
-                return
-            }
-            notify(System.currentTimeMillis().toInt(), builder.build())
-        }
-    }
-
-
-    private fun requestNotificationPermission() {
-        val permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (!isGranted) {
-            }
-        }
-        permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-    }
 }

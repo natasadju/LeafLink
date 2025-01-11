@@ -2,8 +2,12 @@ package feri.um.leaflink
 
 import android.app.Activity
 import android.content.Context
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
@@ -14,6 +18,10 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
@@ -37,13 +45,17 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
+import android.Manifest
+import androidx.annotation.RequiresApi
 
 class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     private lateinit var currentPhotoPath: String
     private lateinit var galleryLauncher: ActivityResultLauncher<Intent>
+    private val notificationChannelId = "leaflink_notifications"
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         val sharedPreferences =
             getSharedPreferences(SettingsFragment.PREFS_NAME, Context.MODE_PRIVATE)
@@ -59,8 +71,9 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
         setSupportActionBar(binding.appBarMain.toolbar)
+
+        createNotificationChannel()
 
         val navController = findNavController(R.id.nav_host_fragment_content_main)
 
@@ -130,6 +143,7 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun handleSelectedImage(uri: Uri) {
         val inputStream = contentResolver.openInputStream(uri)
         val file = File(cacheDir, "selected_image.jpg")
@@ -198,12 +212,12 @@ class MainActivity : AppCompatActivity() {
         builder.show()
     }
 
-
     private fun selectImageFromGallery() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         galleryLauncher.launch(intent)
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -223,9 +237,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun uploadImage(file: File) {
         val requestFile = file.asRequestBody("image/jpeg".toMediaType())
         val multipartBody = MultipartBody.Part.createFormData("file", file.name, requestFile)
+
+        sendNotification(
+            title = "Uploading Image",
+            message = "The picture is being uploaded..."
+        )
 
         RetrofitClient.instance.uploadImage(multipartBody).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
@@ -235,6 +255,11 @@ class MainActivity : AppCompatActivity() {
                         try {
                             val jsonObject = responseBody?.let { JSONObject(it) }
                             val result = jsonObject?.getString("result")
+                            sendNotification(
+                                title = getString(R.string.notification_upload_success_title),
+                                message = result ?: "Upload successful"
+                            )
+                            Toast.makeText(this@MainActivity, "Response: $result", Toast.LENGTH_LONG).show()
                             Toast.makeText(
                                 this@MainActivity,
                                 "Response: $result",
@@ -248,6 +273,11 @@ class MainActivity : AppCompatActivity() {
                             ).show()
                         }
                     } else {
+                            sendNotification(
+                            title = getString(R.string.notification_upload_fail_title),
+                            message = "Upload failed: ${response.message()}"
+                        )
+                        Toast.makeText(this@MainActivity, "Upload failed: ${response.message()}", Toast.LENGTH_SHORT).show()
                         Toast.makeText(
                             this@MainActivity,
                             "Upload failed: ${response.message()}",
@@ -266,6 +296,53 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    fun sendNotification(title: String, message: String) {
+        val context = applicationContext // Use the application context to send the notification
+        val builder = NotificationCompat.Builder(context, notificationChannelId)
+            .setSmallIcon(R.drawable.ic_menu_camera) // Replace with your app's notification icon
+            .setContentTitle(title)
+            .setContentText(message)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
+
+        with(NotificationManagerCompat.from(context)) {
+            // Check if notification permission is granted
+            if (ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestNotificationPermission()
+                return
+            }
+            notify(System.currentTimeMillis().toInt(), builder.build())
+        }
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = getString(R.string.notification_channel_name)
+            val descriptionText = getString(R.string.notification_channel_description)
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(notificationChannelId, name, importance).apply {
+                description = descriptionText
+            }
+            val notificationManager: NotificationManager =
+                applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private fun requestNotificationPermission() {
+        val permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (!isGranted) {
+                Toast.makeText(this, "Notification permission denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+        permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+    }
 
     private fun getRealPathFromURI(contentUri: Uri): String {
         val cursor = contentResolver.query(contentUri, null, null, null, null)
