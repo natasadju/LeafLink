@@ -14,6 +14,7 @@ using System.Windows.Forms;
 using System.Security.Cryptography;
 using MPI;
 using System.Diagnostics;
+using System.Net.NetworkInformation;
 
 
 namespace Blockchain
@@ -42,6 +43,8 @@ namespace Blockchain
         static List<Block> blockChain = new List<Block>();
 
         string[] argsGlobal;
+
+
 
         static string randomString()
         {
@@ -187,7 +190,7 @@ namespace Blockchain
                 richTextBox_validation.AppendText("Recived new chain!\n Length: " + newBlockChain.Count + "\n");
 
                 //If valid
-                if (Validate(newBlockChain))
+                if (Validate(newBlockChain) && CompareChain(newBlockChain))
                 {
                     richTextBox_validation.SelectionColor = Color.Green;
                     richTextBox_validation.AppendText("Chain valid\n");
@@ -198,6 +201,58 @@ namespace Blockchain
                     richTextBox_validation.AppendText("Chain not valid\n");
                 }
             }));
+        }
+
+        private bool CompareChain(List<Block> newBlockChain)
+        {
+            //cumulative difficulty block of new block
+            double cumulative_difficulty_newBlockChain = 0;
+            foreach (Block block in newBlockChain)
+            {
+                cumulative_difficulty_newBlockChain += Math.Pow(2, block.difficulty);
+            }
+
+            //cumulative difficulty blockChain from block.index
+            double cumulative_difficulty_blockChain = 0;
+            foreach (Block block in blockChain)
+            {
+                cumulative_difficulty_blockChain += Math.Pow(2, block.difficulty);
+            }
+
+            if (cumulative_difficulty_newBlockChain > cumulative_difficulty_blockChain)
+            {
+                int numNewBlocks = newBlockChain.Count - blockChain.Count;
+                int numBlocks = blockChain.Count;
+                blockChain = JsonConvert.DeserializeObject<List<Block>>(JsonConvert.SerializeObject(newBlockChain)); ;
+
+                //For time testing
+                if (numBlocks >= 49)
+                {
+                    double time = (DateTime.Now - blockChain[0].timeStamp).TotalSeconds;
+                    MessageBox.Show("Time for Blockchain to generate 50 blocks: " + time + "s");
+                }
+
+                for (int i = 1; i <= numNewBlocks; i++)
+                {
+                    if ((numBlocks + i) % diffAdjustInterval == 0)
+                    {
+                        AdjustDifficulty();
+                        break;
+                    }
+                }
+
+                label_len.Invoke(new Action(() => {
+                    label_len.Text = blockChain.Count.ToString();
+                }));
+
+                Broadcast(newBlockChain);
+                UpdataChainTextBox();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private void btn_mine_Click(object sender, EventArgs e) //Mine
@@ -555,7 +610,7 @@ namespace Blockchain
 
         }
 
-     
+
 
         private void richTextBox_connected_to_TextChanged(object sender, EventArgs e)
         {
