@@ -54,7 +54,7 @@
             // 
             // textBox_port
             // 
-            this.textBox_port.Location = new System.Drawing.Point(91, 60);
+            this.textBox_port.Location = new System.Drawing.Point(91, 62);
             this.textBox_port.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.textBox_port.Name = "textBox_port";
             this.textBox_port.Size = new System.Drawing.Size(100, 22);
@@ -64,7 +64,7 @@
             // btn_connect
             // 
             this.btn_connect.Enabled = false;
-            this.btn_connect.Location = new System.Drawing.Point(197, 30);
+            this.btn_connect.Location = new System.Drawing.Point(197, 61);
             this.btn_connect.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btn_connect.Name = "btn_connect";
             this.btn_connect.Size = new System.Drawing.Size(75, 23);
@@ -76,7 +76,7 @@
             // btn_mine
             // 
             this.btn_mine.Enabled = false;
-            this.btn_mine.Location = new System.Drawing.Point(197, 59);
+            this.btn_mine.Location = new System.Drawing.Point(464, 254);
             this.btn_mine.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btn_mine.Name = "btn_mine";
             this.btn_mine.Size = new System.Drawing.Size(75, 23);
@@ -88,7 +88,7 @@
             // btn_connect_to
             // 
             this.btn_connect_to.Enabled = false;
-            this.btn_connect_to.Location = new System.Drawing.Point(713, 58);
+            this.btn_connect_to.Location = new System.Drawing.Point(504, 61);
             this.btn_connect_to.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btn_connect_to.Name = "btn_connect_to";
             this.btn_connect_to.Size = new System.Drawing.Size(75, 23);
@@ -100,7 +100,7 @@
             // textBox_connect_to
             // 
             this.textBox_connect_to.Enabled = false;
-            this.textBox_connect_to.Location = new System.Drawing.Point(607, 58);
+            this.textBox_connect_to.Location = new System.Drawing.Point(398, 61);
             this.textBox_connect_to.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.textBox_connect_to.Name = "textBox_connect_to";
             this.textBox_connect_to.Size = new System.Drawing.Size(100, 22);
@@ -128,7 +128,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(48, 63);
+            this.label2.Location = new System.Drawing.Point(51, 68);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(34, 16);
             this.label2.TabIndex = 7;
@@ -139,7 +139,7 @@
             this.richTextBox_chain.Cursor = System.Windows.Forms.Cursors.Arrow;
             this.richTextBox_chain.ForeColor = System.Drawing.Color.Green;
             this.richTextBox_chain.HideSelection = false;
-            this.richTextBox_chain.Location = new System.Drawing.Point(12, 275);
+            this.richTextBox_chain.Location = new System.Drawing.Point(8, 496);
             this.richTextBox_chain.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.richTextBox_chain.Name = "richTextBox_chain";
             this.richTextBox_chain.ReadOnly = true;
@@ -151,7 +151,7 @@
             // 
             this.richTextBox_blocks.Cursor = System.Windows.Forms.Cursors.Default;
             this.richTextBox_blocks.HideSelection = false;
-            this.richTextBox_blocks.Location = new System.Drawing.Point(411, 275);
+            this.richTextBox_blocks.Location = new System.Drawing.Point(10, 132);
             this.richTextBox_blocks.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.richTextBox_blocks.Name = "richTextBox_blocks";
             this.richTextBox_blocks.ReadOnly = true;
@@ -162,7 +162,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(525, 63);
+            this.label3.Location = new System.Drawing.Point(316, 66);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(73, 16);
             this.label3.TabIndex = 10;
@@ -171,7 +171,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(12, 201);
+            this.label4.Location = new System.Drawing.Point(8, 422);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(75, 16);
             this.label4.TabIndex = 11;
@@ -180,7 +180,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(411, 256);
+            this.label5.Location = new System.Drawing.Point(10, 113);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(89, 16);
             this.label5.TabIndex = 12;
@@ -190,7 +190,7 @@
             // 
             this.richTextBox_validation.Cursor = System.Windows.Forms.Cursors.Default;
             this.richTextBox_validation.HideSelection = false;
-            this.richTextBox_validation.Location = new System.Drawing.Point(12, 168);
+            this.richTextBox_validation.Location = new System.Drawing.Point(8, 389);
             this.richTextBox_validation.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.richTextBox_validation.Name = "richTextBox_validation";
             this.richTextBox_validation.ReadOnly = true;
@@ -202,7 +202,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(12, 146);
+            this.label6.Location = new System.Drawing.Point(8, 367);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(130, 16);
             this.label6.TabIndex = 15;
@@ -211,7 +211,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(411, 146);
+            this.label7.Location = new System.Drawing.Point(397, 110);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(81, 16);
             this.label7.TabIndex = 16;
@@ -222,11 +222,11 @@
             this.richTextBox_connected_to.Cursor = System.Windows.Forms.Cursors.Default;
             this.richTextBox_connected_to.ForeColor = System.Drawing.Color.Blue;
             this.richTextBox_connected_to.HideSelection = false;
-            this.richTextBox_connected_to.Location = new System.Drawing.Point(413, 168);
+            this.richTextBox_connected_to.Location = new System.Drawing.Point(399, 132);
             this.richTextBox_connected_to.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.richTextBox_connected_to.Name = "richTextBox_connected_to";
             this.richTextBox_connected_to.ReadOnly = true;
-            this.richTextBox_connected_to.Size = new System.Drawing.Size(375, 82);
+            this.richTextBox_connected_to.Size = new System.Drawing.Size(191, 49);
             this.richTextBox_connected_to.TabIndex = 17;
             this.richTextBox_connected_to.Text = "";
             this.richTextBox_connected_to.TextChanged += new System.EventHandler(this.richTextBox_connected_to_TextChanged);
@@ -234,7 +234,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(308, 33);
+            this.label9.Location = new System.Drawing.Point(437, 197);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(102, 16);
             this.label9.TabIndex = 19;
@@ -243,7 +243,7 @@
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(308, 63);
+            this.label10.Location = new System.Drawing.Point(437, 227);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(115, 16);
             this.label10.TabIndex = 20;
@@ -253,7 +253,7 @@
             // 
             this.label_diff.AutoSize = true;
             this.label_diff.ForeColor = System.Drawing.Color.Black;
-            this.label_diff.Location = new System.Drawing.Point(419, 33);
+            this.label_diff.Location = new System.Drawing.Point(548, 197);
             this.label_diff.Name = "label_diff";
             this.label_diff.Size = new System.Drawing.Size(14, 16);
             this.label_diff.TabIndex = 21;
@@ -264,7 +264,7 @@
             // 
             this.label_len.AutoSize = true;
             this.label_len.ForeColor = System.Drawing.Color.Blue;
-            this.label_len.Location = new System.Drawing.Point(429, 62);
+            this.label_len.Location = new System.Drawing.Point(558, 226);
             this.label_len.Name = "label_len";
             this.label_len.Size = new System.Drawing.Size(14, 16);
             this.label_len.TabIndex = 22;
@@ -273,7 +273,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(32, 101);
+            this.label8.Location = new System.Drawing.Point(316, 29);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(44, 16);
             this.label8.TabIndex = 23;
@@ -284,7 +284,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 509);
+            this.ClientSize = new System.Drawing.Size(606, 725);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.label_len);
             this.Controls.Add(this.label_diff);
