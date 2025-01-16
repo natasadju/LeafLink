@@ -35,6 +35,7 @@ import com.google.android.material.navigation.NavigationView
 import feri.um.leaflink.databinding.ActivityMainBinding
 import feri.um.leaflink.events.EventsAdapter
 import feri.um.leaflink.ui.RetrofitClient
+import feri.um.leaflink.ui.settings.SettingsFragment
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.MediaType.Companion.toMediaType
@@ -47,7 +48,20 @@ import java.io.File
 import android.Manifest
 import android.content.SharedPreferences
 import androidx.annotation.RequiresApi
-import feri.um.leaflink.ui.settings.SettingsFragment
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import feri.um.leaflink.helperClasses.DataType
+
+class MainActivityViewModel : ViewModel() {
+    private val _dataType = MutableLiveData<DataType>(DataType.EVENTS)
+    val dataType: LiveData<DataType> get() = _dataType
+
+    fun setDataType(newDataType: DataType) {
+        _dataType.value = newDataType
+    }
+}
 
 class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
@@ -55,6 +69,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var currentPhotoPath: String
     private lateinit var galleryLauncher: ActivityResultLauncher<Intent>
     private val notificationChannelId = "leaflink_notifications"
+    var dataType: DataType = DataType.EVENTS
+    var changed: Boolean = false
+    lateinit var viewModel: MainActivityViewModel
 
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var scraper: Scraper
@@ -84,6 +101,8 @@ class MainActivity : AppCompatActivity() {
         scraper = Scraper()
         scraperScheduler = ScraperScheduler(scraper, sharedPreferences)
         scraperScheduler.startScheduler()
+
+        viewModel = ViewModelProvider(this)[MainActivityViewModel::class.java]
 
         val navController = findNavController(R.id.nav_host_fragment_content_main)
 
@@ -122,6 +141,10 @@ class MainActivity : AppCompatActivity() {
             showImageSelectionDialog()
         }
 
+        binding.appBarMain.dataTypeSelectionBtn.setOnClickListener {
+            showDataSelectionDialog()
+        }
+
         binding.appBarMain.fab.setOnClickListener {
             RetrofitClient.instance.getEvents().enqueue(object : Callback<List<Event>> {
                 override fun onResponse(call: Call<List<Event>>, response: Response<List<Event>>) {
@@ -142,7 +165,7 @@ class MainActivity : AppCompatActivity() {
                 override fun onFailure(call: Call<List<Event>>, t: Throwable) {
                     Toast.makeText(
                         this@MainActivity,
-                        "Erroooooor: ${t.message}",
+                        "Error: ${t.message}",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -225,6 +248,34 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 1 -> selectImageFromGallery()
+            }
+        }
+        builder.show()
+    }
+
+    private fun showDataSelectionDialog() {
+        val options = arrayOf("Events", "Air Quality", "Pollen")
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Choose an option")
+        builder.setItems(options) { _, which ->
+            when (which) {
+                0 -> {
+//                    Toast.makeText(this, "Events selected", Toast.LENGTH_SHORT).show()
+                    viewModel.setDataType(DataType.EVENTS)
+                    Toast.makeText(this, "selected ${viewModel.dataType.value}", Toast.LENGTH_SHORT).show()
+                }
+
+                1 -> {
+//                    Toast.makeText(this, "AirQuality selected", Toast.LENGTH_SHORT).show()
+                    viewModel.setDataType(DataType.AIR_QUALITY)
+                    Toast.makeText(this, "selected: ${viewModel.dataType.value}", Toast.LENGTH_SHORT).show()
+                }
+
+                2 -> {
+//                    Toast.makeText(this, "Pollen selected", Toast.LENGTH_SHORT).show()
+                    viewModel.setDataType(DataType.POLLEN)
+                    Toast.makeText(this, "selected ${viewModel.dataType.value}", Toast.LENGTH_SHORT).show()
+                }
             }
         }
         builder.show()

@@ -10,10 +10,18 @@ import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.views.MapView
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import feri.um.leaflink.AirQuality
 import feri.um.leaflink.Event
+import feri.um.leaflink.LocationConstants
+import feri.um.leaflink.MainActivity
+import feri.um.leaflink.MainActivityViewModel
 import feri.um.leaflink.Park
+import feri.um.leaflink.Pollen
 import feri.um.leaflink.ui.RetrofitClient
 import org.osmdroid.util.GeoPoint
 import retrofit2.Call
@@ -22,12 +30,17 @@ import retrofit2.Response
 import org.osmdroid.views.overlay.Marker
 import java.text.SimpleDateFormat
 import java.util.*
+import feri.um.leaflink.helperClasses.DataType
 
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private lateinit var mapView: MapView
+    private val viewModel: MainActivityViewModel by activityViewModels()
+    private var airQualityList: List<AirQuality>? = null
+    private var eventsList: List<Event>? = null
+    private var pollenList: List<Pollen>? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,6 +55,19 @@ class HomeFragment : Fragment() {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
+        return root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+        fetchDataFromBackend(null)
+        // Observe dataType and update markers
+        viewModel.dataType.observe(viewLifecycleOwner) { dataType ->
+            Log.d("HomeFragment", "Observer triggered: $dataType")
+            Toast.makeText(requireContext(), "Data type: $dataType", Toast.LENGTH_SHORT).show()
+            updateMapMarkers(dataType)
+        }
+
         mapView = binding.mapView2
         mapView.setTileSource(TileSourceFactory.MAPNIK)
         mapView.setBuiltInZoomControls(true)
@@ -52,20 +78,27 @@ class HomeFragment : Fragment() {
         val startPoint = GeoPoint(46.5596, 15.6385)
         mapController.setCenter(startPoint)
 
-        fetchDataFromBackend()
-
         mapView.onResume()
-
-        return root
     }
 
-    private fun fetchDataFromBackend() {
+    private fun updateMapMarkers(dataType: DataType) {
+        Toast.makeText(requireContext(), "Updating markers for $dataType", Toast.LENGTH_SHORT).show()
+        mapView.overlays.clear()
+        fetchDataFromBackend(dataType)
+    }
+
+    private fun fetchDataFromBackend(dataType: DataType?) {
         RetrofitClient.instance.getEvents().enqueue(object : Callback<List<Event>> {
             override fun onResponse(call: Call<List<Event>>, response: Response<List<Event>>) {
                 if (response.isSuccessful) {
                     val events = response.body()
                     events?.forEach { event ->
-                        fetchParkDetails(event)
+                        when (dataType) {
+                            DataType.EVENTS -> fetchParkDetails(event)
+                            DataType.AIR_QUALITY -> fetchAirQualityDetails()
+                            DataType.POLLEN -> fetchParkDetails(event)
+                            null -> fetchParkDetails(event)
+                        }
                     }
                 } else {
                     Toast.makeText(requireContext(), "Failed to load events", Toast.LENGTH_SHORT).show()
@@ -98,6 +131,82 @@ class HomeFragment : Fragment() {
         })
     }
 
+    private fun fetchAirQualityDetails() {
+        RetrofitClient.instance.getAirQuality().enqueue(object : Callback<List<AirQuality>> {
+            override fun onResponse(call: Call<List<AirQuality>>, response: Response<List<AirQuality>>) {
+                if (response.isSuccessful) {
+                    val airQualityList = response.body()
+                    airQualityList?.forEach { airQuality ->
+                        handleAirQualityData(airQuality)
+                    }
+                } else {
+                    Toast.makeText(requireContext(), "Failed to load air quality details", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<List<AirQuality>>, t: Throwable) {
+                Toast.makeText(requireContext(), "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+//    private fun fetchPollenDetails() {
+//        RetrofitClient.instance.getPollens().enqueue(object : Callback<List<Pollen>> {
+//            override fun onResponse(call: Call<List<Pollen>>, response: Response<List<Pollen>>) {
+//                if (response.isSuccessful) {
+//                    val pollenList = response.body()
+//                    pollenList?.forEach { pollen ->
+//                        // Handle each pollen item, e.g., add markers or update UI
+//                        handlePollenData(pollen)
+//                    }
+//                } else {
+//                    Toast.makeText(requireContext(), "Failed to load pollen details", Toast.LENGTH_SHORT).show()
+//                }
+//            }
+//
+//            override fun onFailure(call: Call<List<Pollen>>, t: Throwable) {
+//                Toast.makeText(requireContext(), "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+//            }
+//        })
+//    }
+
+    private fun handleAirQualityData(airQuality: AirQuality) {
+        val geoPoint: GeoPoint = if (airQuality.station == "MB Titova") {
+            LocationConstants().MBTitova
+        } else {
+            LocationConstants().MBVrbanska
+        }
+        val marker = Marker(mapView)
+        marker.position = geoPoint
+        marker.title = "Air Quality: ${airQuality.station}"
+        marker.snippet = "PM2.5: ${airQuality.pm25}, PM10: ${airQuality.pm10}"
+
+        marker.setOnMarkerClickListener { _, _ ->
+            marker.showInfoWindow()
+            true
+        }
+
+        mapView.overlays.add(marker)
+        Toast.makeText(requireContext(), "Air Quality: ${airQuality.station}", Toast.LENGTH_SHORT).show()
+    }
+
+//    private fun handlePollenData(pollen: Pollen) {
+//        // Example: Add a marker to the map
+//        val geoPoint =
+//        val marker = Marker(mapView)
+//        marker.position = geoPoint
+//        marker.title = "Pollen Type: ${pollen.type}"
+//        marker.snippet = "Concentration: ${pollen.concentration}"
+//
+//        marker.setOnMarkerClickListener { _, _ ->
+//            marker.showInfoWindow()
+//            true
+//        }
+//
+//        mapView.overlays.add(marker)
+//    }
+
+
     private fun addEventMarker(event: Event, geoPoint: GeoPoint, park: Park) {
         val marker = Marker(mapView)
         marker.position = geoPoint
@@ -108,13 +217,13 @@ class HomeFragment : Fragment() {
         marker.setSubDescription("Location: ${park.name}")
 
         marker.setOnMarkerClickListener { _, _ ->
+            Toast.makeText(requireContext(), " ${viewModel.dataType.value}", Toast.LENGTH_SHORT).show()
             marker.showInfoWindow()
             true
         }
 
         mapView.overlays.add(marker)
     }
-
 
     private fun formatEventDate(date: String): String {
         val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
