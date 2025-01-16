@@ -35,7 +35,6 @@ import com.google.android.material.navigation.NavigationView
 import feri.um.leaflink.databinding.ActivityMainBinding
 import feri.um.leaflink.events.EventsAdapter
 import feri.um.leaflink.ui.RetrofitClient
-import feri.um.leaflink.ui.settings.SettingsFragment
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.MediaType.Companion.toMediaType
@@ -46,7 +45,9 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
 import android.Manifest
+import android.content.SharedPreferences
 import androidx.annotation.RequiresApi
+import feri.um.leaflink.ui.settings.SettingsFragment
 
 class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
@@ -55,9 +56,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var galleryLauncher: ActivityResultLauncher<Intent>
     private val notificationChannelId = "leaflink_notifications"
 
+    private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var scraper: Scraper
+    private lateinit var scraperScheduler: ScraperScheduler
+
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
-        val sharedPreferences =
+        sharedPreferences =
             getSharedPreferences(SettingsFragment.PREFS_NAME, Context.MODE_PRIVATE)
         val theme =
             sharedPreferences.getString(SettingsFragment.THEME_KEY, SettingsFragment.THEME_LIGHT)
@@ -67,6 +72,7 @@ class MainActivity : AppCompatActivity() {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         }
 
+
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -75,10 +81,22 @@ class MainActivity : AppCompatActivity() {
 
         createNotificationChannel()
 
+        scraper = Scraper()
+        scraperScheduler = ScraperScheduler(scraper, sharedPreferences)
+        scraperScheduler.startScheduler()
+
         val navController = findNavController(R.id.nav_host_fragment_content_main)
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
             if (destination.id == R.id.imageProcessingFragment) {
+                binding.appBarMain.fab.hide()
+                binding.appBarMain.fab2.hide()
+            } else {
+                binding.appBarMain.fab.show()
+                binding.appBarMain.fab2.show()
+            }
+
+            if (destination.id == R.id.settingsFragment) {
                 binding.appBarMain.fab.hide()
                 binding.appBarMain.fab2.hide()
             } else {

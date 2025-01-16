@@ -35,6 +35,13 @@ interface ApiService {
     @POST("events")
     fun addEvent(@Body event: EventNew): Call<Event>
 
+    @POST("pollen")
+    suspend fun addPollenData(@Body item: Pollen): retrofit2.Response<Void>
+
+    @POST("air")
+    suspend fun addAirQualityData(@Body item: AirQuality): retrofit2.Response<Void>
+
+
     @Multipart
     @POST("processImages/upload")
     fun uploadImage(

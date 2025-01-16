@@ -78,5 +78,5 @@ dependencies {
     implementation ("androidx.camera:camera-camera2:1.4.0-alpha01")
     implementation ("androidx.camera:camera-lifecycle:1.4.0-alpha01")
     implementation ("androidx.camera:camera-view:1.4.0-alpha01") // Optional, for the PreviewView widget
-
+    implementation("org.jsoup:jsoup:1.15.4")
 }

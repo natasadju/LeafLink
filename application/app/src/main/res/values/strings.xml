@@ -32,4 +32,10 @@
     <string name="co2">CO2</string>
     <string name="ozone">Ozone</string>
     <string name="benzene">Benzene</string>
+    <string name="frequency_textview">Scraping frequency:</string>
+    <string-array name="frequency_spinner">
+        <item>Never</item>
+        <item>Hourly</item>
+        <item>Daily</item>
+    </string-array>
 </resources>

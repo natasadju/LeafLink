@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import androidx.appcompat.app.AppCompatDelegate
 import feri.um.leaflink.R
@@ -17,12 +19,18 @@ class SettingsFragment : Fragment() {
 
     private lateinit var sharedPreferences: SharedPreferences
 
+
     companion object {
         const val PREFS_NAME = "settings_prefs"
         const val THEME_KEY = "theme"
         const val NOTIFICATION_KEY = "notifications"
         const val THEME_LIGHT = "light"
         const val THEME_DARK = "dark"
+        const val SCRAPE_FREQUENCY_KEY = "scrape_frequency"
+        const val FREQUENCY_HOURLY = "hourly"
+        const val FREQUENCY_DAILY = "daily"
+        const val FREQUENCY_NEVER = "never"
+
     }
 
     override fun onCreateView(
@@ -34,6 +42,7 @@ class SettingsFragment : Fragment() {
 
         loadSettings()
         setupThemeSelection()
+        setupScrapeFrequencyDropdown()
 
         return binding.root
     }
@@ -48,6 +57,58 @@ class SettingsFragment : Fragment() {
 
         val notificationsEnabled = sharedPreferences.getBoolean(NOTIFICATION_KEY, true)
         binding.notificationSwitch.isChecked = notificationsEnabled
+
+
+        val frequency = sharedPreferences.getString(SCRAPE_FREQUENCY_KEY, FREQUENCY_HOURLY)
+        val frequencyIndex = getFrequencyIndex(frequency)
+        binding.spinner2.setSelection(frequencyIndex)
+    }
+
+    private fun getFrequencyIndex(frequency: String?): Int {
+        return when (frequency) {
+            FREQUENCY_HOURLY -> 0
+            FREQUENCY_DAILY -> 1
+            FREQUENCY_NEVER -> 2
+            else -> 2
+        }
+    }
+
+    private fun setupScrapeFrequencyDropdown() {
+        val frequencyOptions = resources.getStringArray(R.array.frequency_spinner).toList()
+
+        val adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            frequencyOptions
+        )
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.spinner2.adapter = adapter
+
+        binding.spinner2.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                val selectedFrequency = when (position) {
+                    0 -> FREQUENCY_NEVER
+                    1 -> FREQUENCY_HOURLY
+                    2 -> FREQUENCY_DAILY
+                    else -> FREQUENCY_NEVER
+                }
+                saveScrapeFrequency(selectedFrequency)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Do nothing
+            }
+        }
+    }
+
+
+    private fun saveScrapeFrequency(frequency: String) {
+        sharedPreferences.edit().putString(SCRAPE_FREQUENCY_KEY, frequency).apply()
     }
 
     private fun setupThemeSelection() {

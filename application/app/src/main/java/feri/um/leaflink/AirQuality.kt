@@ -10,5 +10,7 @@ data class AirQuality(
     val ozon: Double?,
     val no2: Double?,
     val benzen: Double?,
-    val timestamp: String
+    val isFake: Boolean,
+    val timestamp: String,
+    val __v: Int
 )
