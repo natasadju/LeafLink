@@ -33,9 +33,19 @@
     <string name="ozone">Ozone</string>
     <string name="benzene">Benzene</string>
     <string name="frequency_textview">Scraping frequency:</string>
+    <string name="submit">Submit</string>
+    <string name="message_extreme">Enter message</string>
+    <string name="choose_category">Message category</string>
+    <string name="publish_message">Publish message</string>
     <string-array name="frequency_spinner">
         <item>Never</item>
         <item>Hourly</item>
         <item>Daily</item>
     </string-array>
+
+    <string-array name="categories">
+        <item>Air Quality</item>
+        <item>Pollen</item>
+    </string-array>
+
 </resources>

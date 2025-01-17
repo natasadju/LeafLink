@@ -16,5 +16,9 @@
             android:id="@+id/nav_pollen"
             android:icon="@drawable/pollen"
             android:title="@string/menu_slideshow" />
+        <item
+            android:id="@+id/PublishMessageFragment"
+            android:icon="@drawable/message"
+            android:title="@string/publish_message" />
     </group>
 </menu>

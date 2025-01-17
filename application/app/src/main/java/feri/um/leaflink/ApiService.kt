@@ -41,6 +41,11 @@ interface ApiService {
     @POST("air")
     suspend fun addAirQualityData(@Body item: AirQuality): retrofit2.Response<Void>
 
+    @POST("extreme")
+    suspend fun addExtremeEvent(@Body item: ExtremeEvent): retrofit2.Response<Void>
+
+    @GET("extreme")
+    fun getExtremeEvents(): Call<List<ExtremeEvent>>
 
     @Multipart
     @POST("processImages/upload")
