@@ -20,5 +20,9 @@
             android:id="@+id/PublishMessageFragment"
             android:icon="@drawable/message"
             android:title="@string/publish_message" />
+        <item
+            android:id="@+id/simulationFragment"
+            android:icon="@drawable/air_quality"
+            android:title="@string/simulate" />
     </group>
 </menu>

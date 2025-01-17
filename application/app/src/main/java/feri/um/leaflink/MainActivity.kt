@@ -21,7 +21,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
@@ -35,6 +34,7 @@ import com.google.android.material.navigation.NavigationView
 import feri.um.leaflink.databinding.ActivityMainBinding
 import feri.um.leaflink.events.EventsAdapter
 import feri.um.leaflink.ui.RetrofitClient
+import feri.um.leaflink.ui.settings.SettingsFragment
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.MediaType.Companion.toMediaType
@@ -47,18 +47,42 @@ import java.io.File
 import android.Manifest
 import android.content.SharedPreferences
 import androidx.annotation.RequiresApi
-import feri.um.leaflink.ui.settings.SettingsFragment
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import feri.um.leaflink.helperClasses.DataType
+
+class MainActivityViewModel : ViewModel() {
+    private val _dataType = MutableLiveData(DataType.EVENTS)
+    val dataType: LiveData<DataType> get() = _dataType
+
+    fun setDataType(newDataType: DataType) {
+        _dataType.value = newDataType
+    }
+}
+
+class MainActivityPhotoViewModel : ViewModel() {
+
+    private val _photoFile = MutableLiveData<File>()
+    val photoFile: LiveData<File> get() = _photoFile
+
+    fun setPhotoFile(file: File) {
+        _photoFile.value = file
+    }
+}
 
 class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
-    private lateinit var currentPhotoPath: String
-    private lateinit var galleryLauncher: ActivityResultLauncher<Intent>
     private val notificationChannelId = "leaflink_notifications"
+    private lateinit var viewModel: MainActivityViewModel
+    private lateinit var photoViewModel: MainActivityPhotoViewModel
 
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var scraper: Scraper
     private lateinit var scraperScheduler: ScraperScheduler
+    private lateinit var pickImageLauncher: ActivityResultLauncher<Intent>
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,6 +96,13 @@ class MainActivity : AppCompatActivity() {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         }
 
+        pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val imageUri = result.data?.data ?: return@registerForActivityResult
+                val file = File(getRealPathFromURI(imageUri))
+                uploadImage(file)
+            }
+        }
 
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -85,41 +116,50 @@ class MainActivity : AppCompatActivity() {
         scraperScheduler = ScraperScheduler(scraper, sharedPreferences)
         scraperScheduler.startScheduler()
 
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
+        viewModel = ViewModelProvider(this)[MainActivityViewModel::class.java]
 
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            if (destination.id == R.id.imageProcessingFragment) {
-                binding.appBarMain.fab.hide()
-                binding.appBarMain.fab2.hide()
-            } else {
-                binding.appBarMain.fab.show()
-                binding.appBarMain.fab2.show()
-            }
+        photoViewModel = ViewModelProvider(this)[MainActivityPhotoViewModel::class.java]
 
-            if (destination.id == R.id.settingsFragment) {
-                binding.appBarMain.fab.hide()
-                binding.appBarMain.fab2.hide()
-            } else {
-                binding.appBarMain.fab.show()
-                binding.appBarMain.fab2.show()
+        photoViewModel.photoFile.observe(this) { file ->
+            file?.let {
+                uploadImage(it)
             }
         }
 
-        galleryLauncher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                if (result.resultCode == Activity.RESULT_OK) {
-                    val data = result.data
-                    val imageUri = data?.data
-                    if (imageUri != null) {
-                        handleSelectedImage(imageUri)
-                    } else {
-                        Toast.makeText(this, "Failed to get image", Toast.LENGTH_SHORT).show()
-                    }
+        val navController = findNavController(R.id.nav_host_fragment_content_main)
+
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.imageProcessingFragment -> {
+                    binding.appBarMain.fab.hide()
+                    binding.appBarMain.fab2.hide()
+                    binding.appBarMain.dataTypeSelectionBtn.hide()
+
+                }
+                R.id.settingsFragment -> {
+                    binding.appBarMain.fab.hide()
+                    binding.appBarMain.fab2.hide()
+                    binding.appBarMain.dataTypeSelectionBtn.hide()
+                }
+                R.id.simulationFragment -> {
+                    binding.appBarMain.fab.hide()
+                    binding.appBarMain.fab2.hide()
+                    binding.appBarMain.dataTypeSelectionBtn.hide()
+                }
+                else -> {
+                    binding.appBarMain.fab.show()
+                    binding.appBarMain.fab2.show()
+                    binding.appBarMain.dataTypeSelectionBtn.show()
                 }
             }
+        }
 
         binding.appBarMain.fab2.setOnClickListener {
             showImageSelectionDialog()
+        }
+
+        binding.appBarMain.dataTypeSelectionBtn.setOnClickListener {
+            showDataSelectionDialog()
         }
 
         binding.appBarMain.fab.setOnClickListener {
@@ -142,7 +182,7 @@ class MainActivity : AppCompatActivity() {
                 override fun onFailure(call: Call<List<Event>>, t: Throwable) {
                     Toast.makeText(
                         this@MainActivity,
-                        "Erroooooor: ${t.message}",
+                        "Error: ${t.message}",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -154,22 +194,13 @@ class MainActivity : AppCompatActivity() {
 
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.nav_home, R.id.nav_addEvent, R.id.nav_pollen
+                R.id.nav_home, R.id.nav_addEvent, R.id.nav_pollen, R.id.simulationFragment
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    private fun handleSelectedImage(uri: Uri) {
-        val inputStream = contentResolver.openInputStream(uri)
-        val file = File(cacheDir, "selected_image.jpg")
-        file.outputStream().use {
-            inputStream?.copyTo(it)
-        }
-        uploadImage(file)
-    }
 
     private fun showEventsDialog(events: List<Event>) {
         Log.d("MainActivity", "showEventsDialog: Received ${events.size} events")
@@ -190,6 +221,11 @@ class MainActivity : AppCompatActivity() {
             .create()
 
         dialog.show()
+    }
+
+    private fun pickImage() {
+        val pickIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        pickImageLauncher.launch(pickIntent)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -224,39 +260,44 @@ class MainActivity : AppCompatActivity() {
                     navController.navigate(R.id.imageProcessingFragment)
                 }
 
-                1 -> selectImageFromGallery()
+                1 -> pickImage()
             }
         }
         builder.show()
     }
 
-    private fun selectImageFromGallery() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        galleryLauncher.launch(intent)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (resultCode == Activity.RESULT_OK) {
-            when (requestCode) {
-                REQUEST_IMAGE_CAPTURE -> {
-                    val file = File(currentPhotoPath)
-                    uploadImage(file)
+    private fun showDataSelectionDialog() {
+        val options = arrayOf("Events", "Air Quality", "Pollen")
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Choose an option")
+        builder.setItems(options) { _, which ->
+            when (which) {
+                0 -> {
+//                    Toast.makeText(this, "Events selected", Toast.LENGTH_SHORT).show()
+                    viewModel.setDataType(DataType.EVENTS)
+                    Toast.makeText(this, "selected ${viewModel.dataType.value}", Toast.LENGTH_SHORT).show()
                 }
 
-                REQUEST_IMAGE_PICK -> {
-                    val imageUri = data?.data ?: return
-                    val file = File(getRealPathFromURI(imageUri))
-                    uploadImage(file)
+                1 -> {
+//                    Toast.makeText(this, "AirQuality selected", Toast.LENGTH_SHORT).show()
+                    viewModel.setDataType(DataType.AIR_QUALITY)
+                    Toast.makeText(this, "selected: ${viewModel.dataType.value}", Toast.LENGTH_SHORT).show()
+                }
+
+                2 -> {
+//                    Toast.makeText(this, "Pollen selected", Toast.LENGTH_SHORT).show()
+                    viewModel.setDataType(DataType.POLLEN)
+                    Toast.makeText(this, "selected ${viewModel.dataType.value}", Toast.LENGTH_SHORT).show()
                 }
             }
         }
+        builder.show()
     }
+
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun uploadImage(file: File) {
+        Toast.makeText(this, "Uploading image...", Toast.LENGTH_SHORT).show()
         val requestFile = file.asRequestBody("image/jpeg".toMediaType())
         val multipartBody = MultipartBody.Part.createFormData("file", file.name, requestFile)
 
@@ -291,7 +332,7 @@ class MainActivity : AppCompatActivity() {
                             ).show()
                         }
                     } else {
-                            sendNotification(
+                        sendNotification(
                             title = getString(R.string.notification_upload_fail_title),
                             message = "Upload failed: ${response.message()}"
                         )
@@ -325,7 +366,6 @@ class MainActivity : AppCompatActivity() {
             .setAutoCancel(true)
 
         with(NotificationManagerCompat.from(context)) {
-            // Check if notification permission is granted
             if (ActivityCompat.checkSelfPermission(
                     context,
                     Manifest.permission.POST_NOTIFICATIONS
@@ -369,10 +409,5 @@ class MainActivity : AppCompatActivity() {
         val path = cursor?.getString(index ?: 0)
         cursor?.close()
         return path ?: ""
-    }
-
-    companion object {
-        private const val REQUEST_IMAGE_CAPTURE = 1
-        private const val REQUEST_IMAGE_PICK = 2
     }
 }

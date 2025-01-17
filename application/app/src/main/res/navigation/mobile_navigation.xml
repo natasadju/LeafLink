@@ -42,4 +42,10 @@
         android:name="feri.um.leaflink.ui.message.PublishMessageFragment"
         android:label="@string/publish_message"
         tools:layout="@layout/fragment_publish_message" />
+
+    <fragment
+        android:id="@+id/simulationFragment"
+        android:name="feri.um.leaflink.ui.simulation.SimulationFragment"
+        android:label="Simulation"
+        tools:layout="@layout/fragment_simulation" />
 </navigation>
