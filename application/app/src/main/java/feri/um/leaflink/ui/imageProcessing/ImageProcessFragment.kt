@@ -25,7 +25,9 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModelProvider
 import feri.um.leaflink.MainActivity
+import feri.um.leaflink.MainActivityPhotoViewModel
 import feri.um.leaflink.R
 import feri.um.leaflink.databinding.FragmentImageProcessBinding
 import feri.um.leaflink.ui.RetrofitClient
@@ -51,6 +53,8 @@ class ImageProcessFragment : Fragment() {
     private lateinit var imageCapture: ImageCapture
     private val notificationChannelId = "leaflink_notifications"
 
+    private lateinit var photoViewModel: MainActivityPhotoViewModel
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -63,6 +67,7 @@ class ImageProcessFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         requestCameraPermission()
         createNotificationChannel()
+        photoViewModel = ViewModelProvider(requireActivity())[MainActivityPhotoViewModel::class.java]
         cameraExecutor = Executors.newSingleThreadExecutor()
 
         binding.takePictureBtn.setOnClickListener {
@@ -97,7 +102,7 @@ class ImageProcessFragment : Fragment() {
             val cameraProvider = cameraProviderFuture.get()
 
             val preview = Preview.Builder().build().also {
-                it.setSurfaceProvider(binding.previewView.surfaceProvider)
+                it.surfaceProvider = binding.previewView.surfaceProvider
             }
 
             imageCapture = ImageCapture.Builder().build()
@@ -136,7 +141,7 @@ class ImageProcessFragment : Fragment() {
                     Log.d("CameraFragment", "Photo saved: $savedUri")
                     Toast.makeText(requireContext(), "Photo saved to $savedUri", Toast.LENGTH_SHORT).show()
 
-                    uploadImage(photoFile)
+                    photoViewModel.setPhotoFile(photoFile)
                 }
 
                 override fun onError(exception: ImageCaptureException) {
@@ -146,48 +151,6 @@ class ImageProcessFragment : Fragment() {
             }
         )
     }
-
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    private fun uploadImage(file: File) {
-        val requestFile = file.asRequestBody("image/jpeg".toMediaType())
-        val multipartBody = MultipartBody.Part.createFormData("file", file.name, requestFile)
-
-        // Send an initial notification about the upload status using activity context
-        (activity as? MainActivity)?.sendNotification(
-            title = "Uploading Image",
-            message = "The picture is being uploaded..."
-        )
-
-        Toast.makeText(requireContext(), "Uploading image...", Toast.LENGTH_SHORT).show()
-
-        RetrofitClient.instance.uploadImage(multipartBody).enqueue(object : Callback<ResponseBody> {
-            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                if (response.isSuccessful) {
-                    val result = response.body()?.string()
-
-                    // Send success notification using activity context
-                    (activity as? MainActivity)?.sendNotification(
-                        title = getString(R.string.notification_upload_success_title),
-                        message = result ?: "Upload successful"
-                    )
-                } else {
-                    (activity as? MainActivity)?.sendNotification(
-                        title = getString(R.string.notification_upload_fail_title),
-                        message = "Upload failed: ${response.message()}"
-                    )
-                }
-            }
-
-            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                (activity as? MainActivity)?.sendNotification(
-                    title = getString(R.string.notification_upload_error_title),
-                    message = "Error: ${t.message}"
-                )
-            }
-        })
-        requireActivity().onBackPressedDispatcher.onBackPressed()
-    }
-
 
     override fun onDestroyView() {
         super.onDestroyView()

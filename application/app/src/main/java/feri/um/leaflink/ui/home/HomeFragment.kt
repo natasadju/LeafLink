@@ -13,12 +13,9 @@ import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import feri.um.leaflink.AirQuality
 import feri.um.leaflink.Event
 import feri.um.leaflink.LocationConstants
-import feri.um.leaflink.MainActivity
 import feri.um.leaflink.MainActivityViewModel
 import feri.um.leaflink.Park
 import feri.um.leaflink.Pollen
@@ -38,9 +35,6 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var mapView: MapView
     private val viewModel: MainActivityViewModel by activityViewModels()
-    private var airQualityList: List<AirQuality>? = null
-    private var eventsList: List<Event>? = null
-    private var pollenList: List<Pollen>? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -61,10 +55,9 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         fetchDataFromBackend(null)
-        // Observe dataType and update markers
         viewModel.dataType.observe(viewLifecycleOwner) { dataType ->
             Log.d("HomeFragment", "Observer triggered: $dataType")
-            Toast.makeText(requireContext(), "Data type: $dataType", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(requireContext(), "Data type: $dataType", Toast.LENGTH_SHORT).show()
             updateMapMarkers(dataType)
         }
 
@@ -82,7 +75,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun updateMapMarkers(dataType: DataType) {
-        Toast.makeText(requireContext(), "Updating markers for $dataType", Toast.LENGTH_SHORT).show()
+//        Toast.makeText(requireContext(), "Updating markers for $dataType", Toast.LENGTH_SHORT).show()
         mapView.overlays.clear()
         fetchDataFromBackend(dataType)
     }
@@ -187,7 +180,7 @@ class HomeFragment : Fragment() {
         }
 
         mapView.overlays.add(marker)
-        Toast.makeText(requireContext(), "Air Quality: ${airQuality.station}", Toast.LENGTH_SHORT).show()
+//        Toast.makeText(requireContext(), "Air Quality: ${airQuality.station}", Toast.LENGTH_SHORT).show()
     }
 
 //    private fun handlePollenData(pollen: Pollen) {
@@ -214,10 +207,9 @@ class HomeFragment : Fragment() {
 
         val formattedDate = formatEventDate(event.date)
         marker.snippet = "Date: $formattedDate"
-        marker.setSubDescription("Location: ${park.name}")
+        marker.subDescription = "Location: ${park.name}"
 
         marker.setOnMarkerClickListener { _, _ ->
-            Toast.makeText(requireContext(), " ${viewModel.dataType.value}", Toast.LENGTH_SHORT).show()
             marker.showInfoWindow()
             true
         }
