@@ -44,12 +44,7 @@ import org.bson.types.ObjectId;
 
 import assets.AssetDescriptors;
 import assets.RegionNames;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import si.um.feri.leaf.Event;
 import si.um.feri.leaf.LeafLink;
-import si.um.feri.leaf.Park;
 import si.um.feri.leaf.utils.*;
 
 import java.io.FileNotFoundException;
@@ -74,10 +69,11 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     private SpriteBatch spriteBatch;
     private ZoomXY beginTile;
     private final Geolocation CENTER_GEOLOCATION = new Geolocation(46.5525, 15.7012);
-    private final Geolocation MARKER_GEOLOCATION = new Geolocation(46.559070, 15.638100);
     private List<Marker> markers = new ArrayList<>();
+    private List<AirMarker> airMarkers = new ArrayList<>();
     private boolean eventWindowVisible = false;
     private Marker selectedMarker = null;
+    private AirMarker selectedAirMarker = null;
     private BitmapFont font;
     private Stage stage;
     private Skin uiSkin;
@@ -237,25 +233,102 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         MongoDBHelper.connect();
         MongoCollection<Document> airQualityCollection = MongoDBHelper.getCollection("airqualities");
 
-        Document latestRecord = airQualityCollection.find(new Document("station", "MB Vrbanski"))
-            .sort(new Document("timestamp", -1))
-            .first();
+        String[] stations = {"MB Vrbanski", "MB Titova"};
+        double[][] coordinates = {
+            {46.568996, 15.630670}, // MB Vrbanski
+            {46.560192, 15.651521}  // MB Titova
+        };
 
-        if (latestRecord != null) {
-            Integer pm25 = latestRecord.getInteger("pm25");
-            Integer pm10 = latestRecord.getInteger("pm10");
-            Date timestamp = latestRecord.getDate("timestamp");
+        for (int i = 0; i < stations.length; i++) {
+            String station = stations[i];
+            double lat = coordinates[i][0];
+            double lon = coordinates[i][1];
 
-            System.out.println("Latest Air Quality Measurement for MB Vrbanski:");
-            System.out.println("PM2.5: " + pm25 + " mg/m³");
-            System.out.println("PM10: " + pm10 + " mg/m³");
-            System.out.println("Timestamp: " + timestamp);
+            Document latestRecord = airQualityCollection.find(new Document("station", station))
+                .sort(new Document("timestamp", -1))
+                .first();
 
+            if (latestRecord != null) {
+                Integer pm25 = latestRecord.getInteger("pm25");
+                Integer pm10 = latestRecord.getInteger("pm10");
+                Date timestamp = latestRecord.getDate("timestamp");
 
-        } else {
-            System.out.println("No air quality data available for station 'MB Vrbanski'.");
+                System.out.println("Latest Air Quality Measurement for " + station + ":");
+                System.out.println("PM2.5: " + pm25 + " µg/m³");
+                System.out.println("PM10: " + pm10 + " µg/m³");
+                System.out.println("Timestamp: " + timestamp);
+
+                String markerStyle = determineMarkerStyle(pm25, pm10);
+                placeMarker(lat, lon, station, markerStyle, timestamp, pm25,pm10);
+
+            } else {
+                System.out.println("No air quality data available for station '" + station + "'.");
+            }
         }
     }
+
+    private String determineMarkerStyle(Integer pm25, Integer pm10) {
+        if (pm25 == null || pm10 == null) return "defaultMarker";
+
+        if (pm25 <= 10 && pm10 <= 20) return "greenMarker"; // Good
+        if (pm25 <= 20 && pm10 <= 40) return "yellowMarker"; // Moderate
+        if (pm25 <= 25 && pm10 <= 50) return "orangeMarker"; // Unhealthy for sensitive groups
+        if (pm25 <= 50 && pm10 <= 100) return "redMarker"; // Unhealthy
+        if (pm25 <= 75 && pm10 <= 150) return "purpleMarker"; // Very unhealthy
+        return "brownMarker"; // Hazardous
+    }
+
+    private void placeMarker(double lat, double lon, String station, String markerStyle, Date timestamp, Integer pm25, Integer pm10) {
+        System.out.println("Placing " + markerStyle + " marker for station " + station + " at coordinates: (" + lat + ", " + lon + ")");
+        TextureRegion markerIcon = getMarkerIcon(markerStyle);
+
+        if (markerIcon == null) {
+            System.err.println("Failed to place marker: Texture not found for style " + markerStyle);
+            return;
+        }
+
+        // Place the marker on the map and add to the airMarkers list
+        airMarkers.add(new AirMarker(lat, lon, station, timestamp, markerStyle, pm25, pm10));
+
+    }
+
+    private TextureRegion getMarkerIcon(String markerStyle) {
+        TextureRegion region = null;
+
+        switch (markerStyle) {
+            case "greenMarker":
+                region = gameplayAtlas.findRegion(RegionNames.AIR_GREEN);
+                break;
+            case "yellowMarker":
+                region = gameplayAtlas.findRegion(RegionNames.AIR_YELLOW);
+                break;
+            case "orangeMarker":
+                region = gameplayAtlas.findRegion(RegionNames.AIR_ORAGNE);
+                break;
+            case "redMarker":
+                region = gameplayAtlas.findRegion(RegionNames.AIR_RED);
+                break;
+            case "purpleMarker":
+                region = gameplayAtlas.findRegion(RegionNames.AIR_PURPLE);
+                break;
+            case "brownMarker":
+                region = gameplayAtlas.findRegion(RegionNames.MARKER_RED);
+                break;
+            default:
+                region = gameplayAtlas.findRegion(RegionNames.MARKER_GREEN);
+                break;
+        }
+
+        if (region == null) {
+            System.err.println("Region not found for marker style: " + markerStyle);
+            return null;
+        }
+
+        return region;
+    }
+
+
+
 
     private void updateMarkers() {
         markers.clear();
@@ -311,6 +384,36 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         spriteBatch.end();
     }
 
+    private void drawAirMarkers() {
+        spriteBatch.setProjectionMatrix(camera.combined);
+        spriteBatch.begin();
+
+        // Draw air markers
+        for (AirMarker airMarker : airMarkers) {
+            Vector2 markerPosition = MapRasterTiles.getPixelPosition(
+                airMarker.lat,
+                airMarker.lng,
+                beginTile.x,
+                beginTile.y
+            );
+
+            float markerWidth = 50;
+            float markerHeight = 50;
+            float offsetY = markerHeight / 2;
+
+            TextureRegion markerTexture = getMarkerIcon(airMarker.getMarkerStyle());
+            if (markerTexture != null) {
+                spriteBatch.draw(markerTexture,
+                    markerPosition.x - markerWidth / 2,
+                    markerPosition.y - offsetY,
+                    markerWidth,
+                    markerHeight);
+            }
+        }
+
+        spriteBatch.end();
+    }
+
     private void drawEventSidebar() {
         // Sidebar dimensions
         float sidebarWidth = 300f;
@@ -337,16 +440,32 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
         SimpleDateFormat dateFormatter = new SimpleDateFormat("dd MMM yyyy, HH:mm");
 
-        if (showParks) {
-            if (selectedMarker != null) {
+        // Check if an AirMarker is selected first
+        if (selectedAirMarker != null) {
+            // Display air quality info if an AirMarker is selected
+            font.draw(spriteBatch, "Air Quality Info:", textX, textY);
+            textY -= 30;
+
+            String stationName = selectedAirMarker.getStation();
+            Integer pm25 = selectedAirMarker.getPm25();
+            Integer pm10 = selectedAirMarker.getPm10();
+            String formattedDate = selectedAirMarker.getDate() != null ? dateFormatter.format(selectedAirMarker.getDate()) : "Unknown date";
+
+            font.draw(spriteBatch, "Station: " + stationName, textX, textY);
+            textY -= 20;
+            font.draw(spriteBatch, "PM2.5: " + (pm25 != null ? pm25 + " µg/m3" : "No data"), textX, textY);
+            textY -= 20;
+            font.draw(spriteBatch, "PM10: " + (pm10 != null ? pm10 + " µg/m3" : "No data"), textX, textY);
+            textY -= 20;
+            font.draw(spriteBatch, "Last Updated: " + formattedDate, textX, textY);
+
+        } else if (selectedMarker != null) {
+            if (showParks) {
+                // Display park info if showParks is true
                 font.draw(spriteBatch, "Selected Park:", sidebarX + 20, sidebarHeight - 20);
                 font.draw(spriteBatch, "Park Name: " + selectedMarker.getEventName(), sidebarX + 20, sidebarHeight - 60);
             } else {
-                font.draw(spriteBatch, "No park selected.", sidebarX + 20, sidebarHeight - 20);
-            }
-        }else {
-
-            if (selectedMarker != null) {
+                // Display event details if not a park
                 font.draw(spriteBatch, "Event Details:", textX, textY);
                 textY -= 30;
                 font.draw(spriteBatch, "Name: " + selectedMarker.getEventName(), textX, textY);
@@ -357,12 +476,15 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
                 textY -= 20;
 
                 font.draw(spriteBatch, "Details: " + selectedMarker.getDescription(), textX, textY);
-            } else {
-                font.draw(spriteBatch, "No event selected.", textX, textY);
             }
+        } else {
+            // If no marker is selected, show a default message
+            font.draw(spriteBatch, "No event or air quality station selected.", textX, textY);
         }
+
         spriteBatch.end();
     }
+
 
 
     private void editData() {
@@ -420,6 +542,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
 
 
+
     private void saveMarkerToDatabase(Marker marker) {
         MongoCollection<Document> eventCollection = MongoDBHelper.getCollection("events");
 
@@ -446,13 +569,15 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         tiledMapRenderer.render();
 
         drawMarkers();
-        if (eventWindowVisible && selectedMarker != null) {
+        drawAirMarkers();
+        if (eventWindowVisible && (selectedMarker != null || selectedAirMarker != null)) {
             drawEventSidebar();
             editButton.setVisible(true);
-            if(showParks) editButton.setVisible(false);
+            if(showParks || selectedAirMarker != null) editButton.setVisible(false);
         } else {
             editButton.setVisible(false);
         }
+
 
         stage.act(delta);
         stage.draw();
@@ -518,6 +643,25 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
                 }
             }
         }
+
+        for (AirMarker airMarker : airMarkers) {
+            Vector2 markerPosition = MapRasterTiles.getPixelPosition(airMarker.lat, airMarker.lng, beginTile.x, beginTile.y);
+
+            float markerWidth = 35;
+            float markerHeight = 40;
+
+            // Check if the touch is within the marker's bounds
+            if (touchPosition.x > markerPosition.x - markerWidth / 2 &&
+                touchPosition.x < markerPosition.x + markerWidth / 2 &&
+                touchPosition.y > markerPosition.y - markerHeight / 2 &&
+                touchPosition.y < markerPosition.y + markerHeight / 2) {
+
+                selectedAirMarker= airMarker;
+                eventWindowVisible= true;
+                return true;
+            }
+        }
+
         return false;
     }
 
@@ -529,7 +673,6 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
         for (Marker marker : markers) {
             Vector2 markerPosition = MapRasterTiles.getPixelPosition(marker.lat, marker.lng, beginTile.x, beginTile.y);
-
             float markerWidth = 24;
             float markerHeight = 36;
 
@@ -538,25 +681,61 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
                 touchPosition.y > markerPosition.y - markerHeight / 2 &&
                 touchPosition.y < markerPosition.y + markerHeight / 2) {
 
+                selectedAirMarker = null; // Reset air marker selection
+
                 if (count == 1) {
                     selectedMarker = marker;
-                    eventWindowVisible = true;
+                    eventWindowVisible = true; // Open event window for regular marker
                 } else if (count == 2) {
-                    startGame(marker);
+                    startGame1(marker);
                 }
                 return true;
             }
         }
 
-        eventWindowVisible = false;
+        for (AirMarker airMarker : airMarkers) {
+            Vector2 markerPosition = MapRasterTiles.getPixelPosition(airMarker.lat, airMarker.lng, beginTile.x, beginTile.y);
+            float markerWidth = 35;
+            float markerHeight = 40;
+
+            if (touchPosition.x > markerPosition.x - markerWidth / 2 &&
+                touchPosition.x < markerPosition.x + markerWidth / 2 &&
+                touchPosition.y > markerPosition.y - markerHeight / 2 &&
+                touchPosition.y < markerPosition.y + markerHeight / 2) {
+
+                selectedMarker = null; // Reset regular marker selection
+
+                if (count == 1) {
+                    selectedAirMarker = airMarker;
+                    eventWindowVisible = true; // Open event window for air quality marker
+                }
+                else if (count == 2) {
+                    startGame2(airMarker);
+                }
+                return true;
+            }
+        }
+
+        eventWindowVisible = false; // Close event window if no marker selected
         return false;
     }
 
 
-    private void startGame(Marker marker) {
+
+
+    private void startGame1(Marker marker) {
         Gdx.app.log("MapScreen", "Starting game for event: " + marker.getEventName());
         try {
             game.setScreen(new GameScreen(game, marker));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void startGame2(AirMarker marker) {
+        Gdx.app.log("MapScreen", "Starting game for event: " + marker.getStation());
+        try {
+            game.setScreen(new NewGame(game, marker));
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }

@@ -4,6 +4,27 @@ size: 1024, 1024
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
+air_green
+  rotate: false
+  xy: 458, 274
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+air_orange
+  rotate: false
+  xy: 458, 172
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+air_purple
+  rotate: false
+  xy: 423, 70
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
 bird
   rotate: false
   xy: 221, 3
@@ -41,14 +62,14 @@ greenLeaf
   index: -1
 leaf-green
   rotate: false
-  xy: 458, 279
+  xy: 560, 279
   size: 38, 95
   orig: 38, 95
   offset: 0, 0
   index: -1
 leaf-red
   rotate: false
-  xy: 458, 182
+  xy: 560, 182
   size: 38, 95
   orig: 38, 95
   offset: 0, 0
@@ -69,10 +90,24 @@ tree
   index: -1
 
 gameplay2.png
-size: 256, 256
+size: 512, 256
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
+air_red
+  rotate: false
+  xy: 216, 54
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+air_yellow
+  rotate: false
+  xy: 318, 54
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
 garbage1
   rotate: false
   xy: 2, 2

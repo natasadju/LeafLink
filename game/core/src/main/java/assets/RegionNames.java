@@ -7,7 +7,11 @@ public class RegionNames {
     public static final String MARKER_RED = "leaf-red";
     public static final String PLAYER = "boy";
     public static final String MARKER_GREEN = "leaf-green";
-
+    public static final String AIR_GREEN = "air_green";
+    public static final String AIR_YELLOW = "air_yellow";
+    public static final String AIR_ORAGNE = "air_orange";
+    public static final String AIR_RED = "air_red";
+    public static final String AIR_PURPLE = "air_purple";
     public static final String BIRD = "bird";
     public static final String GARBAGE1 = "garbage1";
     public static final String GARBAGE2 = "garbage2";
