@@ -13,6 +13,8 @@ public class AssetDescriptors {
         new AssetDescriptor<TextureAtlas>(AssetPaths.GAMEPLAY, TextureAtlas.class);
     public static final AssetDescriptor<BitmapFont> FONT =
         new AssetDescriptor<BitmapFont>(AssetPaths.FONT, BitmapFont.class);
+    public static final AssetDescriptor<Skin> UI_SKIN =
+        new AssetDescriptor<Skin>(AssetPaths.UI_SKIN, Skin.class);
 
 
     private AssetDescriptors() {

@@ -43,6 +43,7 @@ public class IntroScreen extends ScreenAdapter {
 
         // Load assets asynchronously
         assetManager.load(AssetDescriptors.GAMEPLAY);
+        assetManager.load(AssetDescriptors.UI_SKIN);
         assetManager.finishLoading();
 
         gameplayAtlas = assetManager.get(AssetDescriptors.GAMEPLAY);
