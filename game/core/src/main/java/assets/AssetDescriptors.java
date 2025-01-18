@@ -14,6 +14,11 @@ public class AssetDescriptors {
     public static final AssetDescriptor<BitmapFont> FONT =
         new AssetDescriptor<BitmapFont>(AssetPaths.FONT, BitmapFont.class);
 
+    public static final AssetDescriptor<BitmapFont> TILED_FONT =
+        new AssetDescriptor<BitmapFont>(AssetPaths.TILED_FONT, BitmapFont.class);
+
+    public static final AssetDescriptor<TextureAtlas> TILED_ATLAS =
+        new AssetDescriptor<TextureAtlas>(AssetPaths.TILED_ATLAS, TextureAtlas.class);
 
     private AssetDescriptors() {
     }

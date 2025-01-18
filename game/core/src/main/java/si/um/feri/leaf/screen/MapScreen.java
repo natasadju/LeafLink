@@ -39,6 +39,8 @@ import retrofit2.Response;
 import si.um.feri.leaf.Event;
 import si.um.feri.leaf.LeafLink;
 import si.um.feri.leaf.Park;
+import si.um.feri.leaf.pollenGame.CharacterSelectionScreen;
+import si.um.feri.leaf.pollenGame.PollenGameScreen;
 import si.um.feri.leaf.utils.*;
 
 import java.io.FileNotFoundException;
@@ -69,6 +71,10 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     private Marker selectedMarker = null;
     private BitmapFont font;
 
+    private Texture buttonTexture;
+
+    private float buttonX, buttonY, buttonWidth, buttonHeight;
+
 
     public MapScreen(LeafLink game) {
         this.game = game;
@@ -80,13 +86,20 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         shapeRenderer = new ShapeRenderer();
         spriteBatch = new SpriteBatch();
         gameplayAtlas = assetManager.get(AssetDescriptors.GAMEPLAY);
-        font= new BitmapFont();
+        font = new BitmapFont();
 
         MongoDBHelper.connect();
         MongoCollection<Document> evenCollection = MongoDBHelper.getCollection("events");
         MongoCollection<Document> parkCollection = MongoDBHelper.getCollection("parks");
 
         fetchAndLogEvents(evenCollection, parkCollection);
+
+        buttonTexture = new Texture(Gdx.files.internal("assets/images/pollen_game.png"));
+
+        buttonWidth = 100f;
+        buttonHeight = 80f;
+        buttonX = 20f;
+        buttonY = Gdx.graphics.getHeight() - buttonHeight - 20f;
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Constants.MAP_WIDTH, Constants.MAP_HEIGHT);
@@ -166,8 +179,6 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         cursor.close();
     }
 
-
-
     private void drawMarkers() {
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
@@ -236,8 +247,6 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     }
 
 
-
-
     private void drawEventWindow() {
         // Define window dimensions
         float windowWidth = 300f;
@@ -288,7 +297,6 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     }
 
 
-
     @Override
     public void render(float delta) {
         ScreenUtils.clear(0, 0, 0, 1);
@@ -301,15 +309,51 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         tiledMapRenderer.render();
 
         drawMarkers();
+
+        drawStartButton();
+
+        checkButtonClick();
+
         if (eventWindowVisible && selectedMarker != null) {
 //            drawEventWindow();
             drawEventSidebar();
         }
     }
 
+    private void checkButtonClick() {
+        if (Gdx.input.justTouched()) {
+            float screenX = Gdx.input.getX();
+            float screenY = Gdx.input.getY();
+
+            float correctedY = Gdx.graphics.getHeight() - screenY;
+
+            boolean isInsideButton = screenX >= buttonX && screenX <= buttonX + buttonWidth
+                && correctedY >= buttonY && correctedY <= buttonY + buttonHeight;
+
+            if (isInsideButton) {
+                startPollenGame();
+            }
+        }
+    }
+
+    private void startPollenGame() {
+        Gdx.app.log("MapScreen", "Starting another game!");
+        game.setScreen(new CharacterSelectionScreen(game));
+    }
+
+    private void drawStartButton() {
+        spriteBatch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0,
+            Gdx.graphics.getWidth(),
+            Gdx.graphics.getHeight()));
+
+        spriteBatch.begin();
+        spriteBatch.draw(buttonTexture, buttonX, buttonY, buttonWidth, buttonHeight);
+        spriteBatch.end();
+    }
+
+
     @Override
     public void resize(int width, int height) {
-        // Resize logic if required
     }
 
     @Override
@@ -331,12 +375,16 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     public void dispose() {
         shapeRenderer.dispose();
         spriteBatch.dispose();
-        assetManager.dispose();
+//        assetManager.dispose();
         if (tiledMap != null) {
             tiledMap.dispose();
         }
         if (markerTexture != null) {
             markerTexture.dispose();
+        }
+
+        if (buttonTexture != null) {
+            buttonTexture.dispose();
         }
     }
 
@@ -373,7 +421,6 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
             }
         }
 
-        // Click outside markers
         eventWindowVisible = false;
         selectedMarker = null;
         return false;
@@ -382,7 +429,6 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
     private void startGame(Marker marker) {
         Gdx.app.log("MapScreen", "Starting game for event: " + marker.getEventName());
-        // Example: Switch to a new screen (replace with actual game logic)
         try {
             game.setScreen(new GameScreen(game, marker));
         } catch (FileNotFoundException e) {
