@@ -19,9 +19,8 @@ import si.um.feri.leaf.LeafLink;
 import si.um.feri.leaf.utils.Constants;
 
 public class IntroScreen extends ScreenAdapter {
-//    public static final float INTRO_DURATION_IN_SEC = 4.6f;
+    public static final float INTRO_DURATION_IN_SEC = 4.6f;
 
-    public static final float INTRO_DURATION_IN_SEC = 0.1f;
     private final LeafLink game;
     private final AssetManager assetManager;
 
@@ -44,6 +43,7 @@ public class IntroScreen extends ScreenAdapter {
 
         // Load assets asynchronously
         assetManager.load(AssetDescriptors.GAMEPLAY);
+        assetManager.load(AssetDescriptors.UI_SKIN);
         assetManager.finishLoading();
 
         gameplayAtlas = assetManager.get(AssetDescriptors.GAMEPLAY);

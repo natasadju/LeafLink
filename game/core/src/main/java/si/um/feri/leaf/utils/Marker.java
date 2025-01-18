@@ -1,11 +1,22 @@
 package si.um.feri.leaf.utils;
 
+import java.util.Date;
+
 public class Marker {
     public double lat;
     public double lng;
     public String eventName;
-    public String date;
+    public Date date;
     public String description;
+    public String _id;
+
+    public String getId() {
+        return _id;
+    }
+
+    public void setId(String _id) {
+        this._id = _id;
+    }
 
     public double getLat() {
         return lat;
@@ -31,11 +42,11 @@ public class Marker {
         this.eventName = eventName;
     }
 
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 
@@ -47,7 +58,7 @@ public class Marker {
         this.description = description;
     }
 
-    public Marker(double lat, double lng, String eventName, String date, String description) {
+    public Marker(double lat, double lng, String eventName, Date date, String description) {
         this.lat = lat;
         this.lng = lng;
         this.eventName= eventName;
