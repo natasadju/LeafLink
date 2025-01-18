@@ -24,17 +24,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 
@@ -49,6 +39,8 @@ import retrofit2.Response;
 import si.um.feri.leaf.Event;
 import si.um.feri.leaf.LeafLink;
 import si.um.feri.leaf.Park;
+import si.um.feri.leaf.pollenGame.CharacterSelectionScreen;
+import si.um.feri.leaf.pollenGame.PollenGameScreen;
 import si.um.feri.leaf.utils.*;
 
 import java.io.FileNotFoundException;
@@ -78,9 +70,10 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     private boolean eventWindowVisible = false;
     private Marker selectedMarker = null;
     private BitmapFont font;
-    private Stage stage;
-    private Skin uiSkin;
-    private TextButton editButton;
+
+    private Texture buttonTexture;
+
+    private float buttonX, buttonY, buttonWidth, buttonHeight;
 
 
     public MapScreen(LeafLink game) {
@@ -93,38 +86,20 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         shapeRenderer = new ShapeRenderer();
         spriteBatch = new SpriteBatch();
         gameplayAtlas = assetManager.get(AssetDescriptors.GAMEPLAY);
-        uiSkin= assetManager.get("ui/flat-earth-ui.json", Skin.class);
-        font= new BitmapFont();
-
-        stage = new Stage(new ScreenViewport());
-        editButton = new TextButton("Edit Data", uiSkin);
-        editButton.setSize(150, 50);
-        editButton.setPosition(Gdx.graphics.getWidth() - 280, 20);
-        editButton.setTouchable(Touchable.enabled);
-
-        GestureDetector gestureDetector = new GestureDetector(this);
-        InputMultiplexer inputMultiplexer = new InputMultiplexer();
-        inputMultiplexer.addProcessor(gestureDetector);
-        inputMultiplexer.addProcessor(stage);
-        Gdx.input.setInputProcessor(inputMultiplexer);
-
-        editButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                System.out.println("Edit Data button clicked!");
-                editData();
-            }
-        });
-
-        // Add the Button to the Stage
-        stage.addActor(editButton);
-
+        font = new BitmapFont();
 
         MongoDBHelper.connect();
         MongoCollection<Document> evenCollection = MongoDBHelper.getCollection("events");
         MongoCollection<Document> parkCollection = MongoDBHelper.getCollection("parks");
 
         fetchAndLogEvents(evenCollection, parkCollection);
+
+        buttonTexture = new Texture(Gdx.files.internal("assets/images/pollen_game.png"));
+
+        buttonWidth = 100f;
+        buttonHeight = 80f;
+        buttonX = 20f;
+        buttonY = Gdx.graphics.getHeight() - buttonHeight - 20f;
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Constants.MAP_WIDTH, Constants.MAP_HEIGHT);
@@ -136,6 +111,10 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
         touchPosition = new Vector3();
 
+        GestureDetector gestureDetector = new GestureDetector(this);
+        InputMultiplexer inputMultiplexer = new InputMultiplexer();
+        inputMultiplexer.addProcessor(gestureDetector);
+        Gdx.input.setInputProcessor(inputMultiplexer);
 
         try {
             ZoomXY centerTile = MapRasterTiles.getTileNumber(CENTER_GEOLOCATION.lat, CENTER_GEOLOCATION.lng, Constants.ZOOM);
@@ -161,12 +140,9 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
     }
 
-
-
     private void fetchAndLogEvents(MongoCollection<Document> eventCollection, MongoCollection<Document> parkCollection) {
         MongoCursor<Document> cursor = eventCollection.find().iterator();
         SimpleDateFormat dateFormatter = new SimpleDateFormat("dd MMM yyyy, HH:mm");
-        @SuppressWarnings("NewApi") SimpleDateFormat outputDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"); // ISO 8601 format
 
         while (cursor.hasNext()) {
             Document event = cursor.next();
@@ -174,28 +150,11 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
             String name = event.getString("name");
             ObjectId parkId = event.getObjectId("parkId");
             String description = event.getString("description");
-            Object dateObject = event.get("date");
+            Date date = event.getDate("date");
 
-            // Initialize the date variable
-            Date date = null;
-
-            // If the date is stored as a string, parse it
-            if (dateObject instanceof String) {
-                try {
-                    date = dateFormatter.parse((String) dateObject);  // Parse the date from String
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    date = null;  // Set to null if parsing fails
-                }
-            } else if (dateObject instanceof Date) {
-                date = (Date) dateObject;  // If it's already a Date object
-            }
-
-            // If the date is valid, format it, else set a default value
-            String formattedDate = date != null ? outputDateFormat.format(date) : "Unknown date";
-
-            // Retrieve park details
             Document park = parkCollection.find(new Document("_id", parkId)).first();
+            String formattedDate = date != null ? dateFormatter.format(date).toString() : "Unknown date";
+
             if (park != null) {
                 Double lat = park.getDouble("lat");
                 Double lng = park.getDouble("long");
@@ -208,8 +167,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
                     System.out.println("Park Latitude: " + lat);
                     System.out.println("Park Longitude: " + lng);
 
-                    // Assuming Marker constructor takes formattedDate as a string
-                    Marker marker = new Marker(lat, lng, name, date, description);
+                    Marker marker = new Marker(lat, lng, name, formattedDate, description);
                     markers.add(marker);
                 } else {
                     System.out.println("Park " + parkId + " does not have valid latitude/longitude data.");
@@ -219,11 +177,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
             }
         }
         cursor.close();
-
     }
-
-
-
 
     private void drawMarkers() {
         spriteBatch.setProjectionMatrix(camera.combined);
@@ -275,20 +229,14 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         float textX = sidebarX + 10; // Padding from the left edge of the sidebar
         float textY = Gdx.graphics.getHeight() - 20; // Start from the top, leaving space for padding
 
-        SimpleDateFormat dateFormatter = new SimpleDateFormat("dd MMM yyyy, HH:mm");
-
         if (selectedMarker != null) {
             // Display event information
             font.draw(spriteBatch, "Event Details:", textX, textY);
             textY -= 30; // Space between lines
             font.draw(spriteBatch, "Name: " + selectedMarker.getEventName(), textX, textY);
             textY -= 20;
-
-            // Format and display the date
-            String formattedDate = selectedMarker.getDate() != null ? dateFormatter.format(selectedMarker.getDate()) : "Unknown date";
-            font.draw(spriteBatch, "Date: " + formattedDate, textX, textY);
+            font.draw(spriteBatch, "Date: " + selectedMarker.getDate(), textX, textY);
             textY -= 20;
-
             font.draw(spriteBatch, "Details: " + selectedMarker.getDescription(), textX, textY);
         } else {
             // Default message if no marker is selected
@@ -299,80 +247,54 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     }
 
 
-    private void editData() {
-        if (selectedMarker == null) {
-            System.out.println("No event selected to edit.");
-            return;
-        }
+    private void drawEventWindow() {
+        // Define window dimensions
+        float windowWidth = 300f;
+        float windowHeight = 150f;
+        float margin = 10f; // Margin from the screen edges
 
-        // Create input fields
-        final TextField nameField = new TextField(selectedMarker.getEventName(), uiSkin);
-        final TextField dateField = new TextField(selectedMarker.getDate() != null ? new SimpleDateFormat("dd MMM yyyy, HH:mm").format(selectedMarker.getDate()) : "", uiSkin);
-        final TextArea descriptionField = new TextArea(selectedMarker.getDescription(), uiSkin);
+        // Calculate window position in the right top corner
+        float windowX = Gdx.graphics.getWidth() - windowWidth - margin;
+        float windowY = Gdx.graphics.getHeight() - windowHeight - margin;
 
-        // Create a dialog for editing
-        Dialog editDialog = new Dialog("Edit Event", uiSkin) {
-            @Override
-            protected void result(Object object) {
-                if (object.equals(true)) { // Save button
-                    String newName = nameField.getText();
-                    String newDate = dateField.getText();
-                    String newDescription = descriptionField.getText();
+        // Draw the window background (semi-transparent gray)
+        shapeRenderer.setProjectionMatrix(spriteBatch.getProjectionMatrix());
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(0.2f, 0.2f, 0.2f, 0.9f); // Semi-transparent gray color
+        shapeRenderer.rect(windowX, windowY, windowWidth, windowHeight);
+        shapeRenderer.end();
 
-                    // Convert the entered date to Date object
-                    SimpleDateFormat inputDateFormat = new SimpleDateFormat("dd MMM yyyy, HH:mm");
-                    try {
-                        Date date = inputDateFormat.parse(newDate);  // Parse the entered date string
-                        selectedMarker.setDate(date);  // Set the Date object
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        System.out.println("Error parsing the date.");
-                        return;  // Exit if date parsing fails
-                    }
+        // Draw the window border
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.WHITE); // White border
+        shapeRenderer.rect(windowX, windowY, windowWidth, windowHeight);
+        shapeRenderer.end();
 
-                    // Update the selected marker
-                    selectedMarker.setEventName(newName);
-                    selectedMarker.setDescription(newDescription);
+        // Draw the text inside the window
+        spriteBatch.setProjectionMatrix(spriteBatch.getProjectionMatrix());
+        spriteBatch.begin();
 
-                    saveMarkerToDatabase(selectedMarker);
+        // Set text color
+        font.setColor(Color.WHITE);
 
-                    System.out.println("Event updated successfully.");
-                } else {
-                    System.out.println("Edit cancelled.");
-                }
-            }
+        // Position text inside the window with padding
+        float textX = windowX + 10; // Padding from left edge of window
+        float textY = windowY + windowHeight - 10; // Start from near the top edge of the window
+
+        // Display event details line by line
+        String[] lines = {
+            "Event: " + selectedMarker.getEventName(),
+            "Date: " + selectedMarker.getDate(),
+            "Details: " + selectedMarker.getDescription()
         };
 
-        // Add fields to the dialog
-        editDialog.getContentTable().add("Name: ").left();
-        editDialog.getContentTable().add(nameField).width(300).row();
-        editDialog.getContentTable().add("Date: ").left();
-        editDialog.getContentTable().add(dateField).width(300).row();
-        editDialog.getContentTable().add("Description: ").left();
-        editDialog.getContentTable().add(descriptionField).width(300).row();
+        for (String line : lines) {
+            font.draw(spriteBatch, line, textX, textY);
+            textY -= 20; // Move down for each line
+        }
 
-        editDialog.button("Save", true);
-        editDialog.button("Cancel", false);
-
-        // Show the dialog
-        editDialog.show(stage);
+        spriteBatch.end();
     }
-
-
-
-    private void saveMarkerToDatabase(Marker marker) {
-        MongoCollection<Document> eventCollection = MongoDBHelper.getCollection("events");
-
-        // Update the event in the database
-        Document query = new Document("name", marker.getEventName());
-        Document updatedEvent = new Document()
-            .append("name", marker.getEventName())
-            .append("date", marker.getDate())
-            .append("description", marker.getDescription());
-
-        eventCollection.updateOne(query, new Document("$set", updatedEvent));
-    }
-
 
 
     @Override
@@ -387,20 +309,51 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         tiledMapRenderer.render();
 
         drawMarkers();
-        if (eventWindowVisible && selectedMarker != null) {
-            drawEventSidebar();
-            editButton.setVisible(true); // Show the button when the sidebar is visible
-        } else {
-            editButton.setVisible(false); // Hide the button when the sidebar is closed
-        }
 
-        stage.act(delta);
-        stage.draw();
+        drawStartButton();
+
+        checkButtonClick();
+
+        if (eventWindowVisible && selectedMarker != null) {
+//            drawEventWindow();
+            drawEventSidebar();
+        }
     }
+
+    private void checkButtonClick() {
+        if (Gdx.input.justTouched()) {
+            float screenX = Gdx.input.getX();
+            float screenY = Gdx.input.getY();
+
+            float correctedY = Gdx.graphics.getHeight() - screenY;
+
+            boolean isInsideButton = screenX >= buttonX && screenX <= buttonX + buttonWidth
+                && correctedY >= buttonY && correctedY <= buttonY + buttonHeight;
+
+            if (isInsideButton) {
+                startPollenGame();
+            }
+        }
+    }
+
+    private void startPollenGame() {
+        Gdx.app.log("MapScreen", "Starting another game!");
+        game.setScreen(new CharacterSelectionScreen(game));
+    }
+
+    private void drawStartButton() {
+        spriteBatch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0,
+            Gdx.graphics.getWidth(),
+            Gdx.graphics.getHeight()));
+
+        spriteBatch.begin();
+        spriteBatch.draw(buttonTexture, buttonX, buttonY, buttonWidth, buttonHeight);
+        spriteBatch.end();
+    }
+
 
     @Override
     public void resize(int width, int height) {
-        // Resize logic if required
     }
 
     @Override
@@ -422,47 +375,25 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     public void dispose() {
         shapeRenderer.dispose();
         spriteBatch.dispose();
-        assetManager.dispose();
+//        assetManager.dispose();
         if (tiledMap != null) {
             tiledMap.dispose();
         }
         if (markerTexture != null) {
             markerTexture.dispose();
         }
-        if (stage != null) {
-            stage.dispose();
+
+        if (buttonTexture != null) {
+            buttonTexture.dispose();
         }
     }
-
-
 
     @Override
     public boolean touchDown(float x, float y, int pointer, int button) {
-        if (button == Input.Buttons.LEFT) {
-            touchPosition.set(x, y, 0);
-            camera.unproject(touchPosition);
-
-            for (Marker marker : markers) {
-                Vector2 markerPosition = MapRasterTiles.getPixelPosition(marker.lat, marker.lng, beginTile.x, beginTile.y);
-
-                // Check if touch is within marker bounds
-                float markerWidth = 24;
-                float markerHeight = 36;
-                if (touchPosition.x >= markerPosition.x - markerWidth / 2 &&
-                    touchPosition.x <= markerPosition.x + markerWidth / 2 &&
-                    touchPosition.y >= markerPosition.y - markerHeight / 2 &&
-                    touchPosition.y <= markerPosition.y + markerHeight / 2) {
-
-                    // Marker clicked
-                    selectedMarker = marker;
-                    eventWindowVisible = true;
-                    return true; // Stop further processing
-                }
-            }
-        }
+        touchPosition.set(x, y, 0);
+        camera.unproject(touchPosition);
         return false;
     }
-
 
     @Override
     public boolean tap(float x, float y, int count, int button) {
@@ -490,15 +421,14 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
             }
         }
 
-        // Click outside markers
         eventWindowVisible = false;
+        selectedMarker = null;
         return false;
     }
 
 
     private void startGame(Marker marker) {
         Gdx.app.log("MapScreen", "Starting game for event: " + marker.getEventName());
-        // Example: Switch to a new screen (replace with actual game logic)
         try {
             game.setScreen(new GameScreen(game, marker));
         } catch (FileNotFoundException e) {
@@ -565,8 +495,6 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
             camera.translate(0, 3, 0);
         }
-
-
 
         camera.zoom = MathUtils.clamp(camera.zoom, 0.5f, 2f);
         float effectiveViewportWidth = camera.viewportWidth * camera.zoom;
