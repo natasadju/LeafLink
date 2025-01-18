@@ -33,14 +33,9 @@ import org.bson.types.ObjectId;
 
 import assets.AssetDescriptors;
 import assets.RegionNames;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import si.um.feri.leaf.Event;
 import si.um.feri.leaf.LeafLink;
-import si.um.feri.leaf.Park;
-import si.um.feri.leaf.pollenGame.CharacterSelectionScreen;
-import si.um.feri.leaf.pollenGame.PollenGameScreen;
+import si.um.feri.leaf.pollenGame.screen.CharacterSelectionScreen;
+import si.um.feri.leaf.pollenGame.screen.ModeSelectionScreen;
 import si.um.feri.leaf.utils.*;
 
 import java.io.FileNotFoundException;
@@ -338,7 +333,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
     private void startPollenGame() {
         Gdx.app.log("MapScreen", "Starting another game!");
-        game.setScreen(new CharacterSelectionScreen(game));
+        game.setScreen(new ModeSelectionScreen(game));
     }
 
     private void drawStartButton() {

@@ -2,7 +2,7 @@ package si.um.feri.leaf.pollenGame;
 
 import com.badlogic.gdx.math.Rectangle;
 
-class Cloud {
+public class Cloud {
     Rectangle bounds;
     String size; // "small", "medium", "big"
     float respawnTimer;

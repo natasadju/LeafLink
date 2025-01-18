@@ -1,6 +1,9 @@
 package si.um.feri.leaf.pollenGame;
 
 
+import static si.um.feri.leaf.pollenGame.config.GameConfig.COLLISION_DAMAGE_DELAY;
+
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -15,6 +18,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
+import java.util.ArrayList;
 public class Player {
     private Texture playerTilemap;
     private TextureRegion[][] frames;
@@ -25,27 +29,40 @@ public class Player {
     private Animation<TextureRegion> walkRightAnimation;
     private Sprite sprite;
 
-   /* private Sound pickupSound;
-    private Sound heartBeatsSound;
-*/
     private float stateTime;
     private float speed = 100f;
+
+    private float collisionTimer = 0;
+    private Cloud currentCollisionCloud = null;
     private int health = 100;
     private int score = 0;
+    private Sound coughSound;
+    private float soundTimer = 0;
+    private float soundDuration = 0;
 
+    // Control keys
+    private int keyUp;
+    private int keyDown;
+    private int keyLeft;
+    private int keyRight;
 
-    public Player(TextureAtlas atlas, String characterName, int tileWidth, int tileHeight) {
+    private int keyAction;
+    public Player(TextureAtlas atlas, String characterName, int tileWidth, int tileHeight, Sound coughSound) {
         System.out.println("Character name: " + characterName);
         TextureAtlas.AtlasRegion region = atlas.findRegion("characterSprites/" + characterName);
 
         if (region == null) {
             throw new IllegalArgumentException("Region not found: characterSprites/" + characterName);
         }
+
         TextureRegion[][] splitFrames = region.split(tileWidth, tileHeight);
 
         if (splitFrames.length < 4 || splitFrames[0].length < 4) {
             throw new IllegalArgumentException("Invalid sprite sheet: Not enough frames for animations");
         }
+
+        this.coughSound = coughSound;
+        this.soundDuration = 1.0f;
 
         walkDownAnimation = new Animation<>(0.2f, splitFrames[0][0], splitFrames[1][0], splitFrames[2][0], splitFrames[3][0]);
         walkUpAnimation = new Animation<>(0.2f, splitFrames[0][1], splitFrames[1][1], splitFrames[2][1], splitFrames[3][1]);
@@ -55,8 +72,16 @@ public class Player {
         currentAnimation = walkDownAnimation;
         sprite = new Sprite(splitFrames[0][0]);
         sprite.setOriginCenter();
+
     }
 
+    public void setControls(int keyUp, int keyDown, int keyLeft, int keyRight, int keyAction) {
+        this.keyUp = keyUp;
+        this.keyDown = keyDown;
+        this.keyLeft = keyLeft;
+        this.keyRight = keyRight;
+        this.keyAction = keyAction;
+    }
 
     public void setPosition(float x, float y) {
         sprite.setPosition(x, y);
@@ -78,57 +103,124 @@ public class Player {
         return score;
     }
 
-    public void update(float delta, MapObjects unwalkableObjects) {
+    public int getActionKey() {
+        return keyAction;
+    }
+
+
+    public void update(float delta, MapObjects unwalkableObjects, ArrayList<Cloud> clouds) {
         float oldX = sprite.getX();
         float oldY = sprite.getY();
 
         boolean moving = false;
 
-        // Movement logic with collision checks
-        if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-            sprite.translateY(speed * delta);
-            if (isColliding(unwalkableObjects)) {
-                sprite.setY(oldY); // Revert Y position if colliding
-            } else {
-                currentAnimation = walkUpAnimation;
-                moving = true;
-            }
-        } else if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-            sprite.translateY(-speed * delta);
-            if (isColliding(unwalkableObjects)) {
-                sprite.setY(oldY); // Revert Y position if colliding
-            } else {
-                currentAnimation = walkDownAnimation;
-                moving = true;
-            }
+        if (Gdx.input.isKeyPressed(keyUp)) {
+            moving = moveUp(delta, oldY, unwalkableObjects);
+        } else if (Gdx.input.isKeyPressed(keyDown)) {
+            moving = moveDown(delta, oldY, unwalkableObjects);
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            sprite.translateX(-speed * delta);
-            if (isColliding(unwalkableObjects)) {
-                sprite.setX(oldX); // Revert X position if colliding
-            } else {
-                currentAnimation = walkLeftAnimation;
-                moving = true;
-            }
-        } else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            sprite.translateX(speed * delta);
-            if (isColliding(unwalkableObjects)) {
-                sprite.setX(oldX);
-            } else {
-                currentAnimation = walkRightAnimation;
-                moving = true;
-            }
+        if (Gdx.input.isKeyPressed(keyLeft)) {
+            moving = moveLeft(delta, oldX, unwalkableObjects);
+        } else if (Gdx.input.isKeyPressed(keyRight)) {
+            moving = moveRight(delta, oldX, unwalkableObjects);
         }
 
         clampPosition();
 
+        // Update animation state
         if (moving) {
             stateTime += delta;
         } else {
             stateTime = 0;
         }
-
         sprite.setRegion(currentAnimation.getKeyFrame(stateTime, true));
+
+        // Handle sound timer
+        if (soundTimer > 0) {
+            soundTimer -= delta;
+        }
+
+        // Handle cloud collision
+        handleCloudCollision(delta, clouds);
+    }
+
+    public boolean moveUp(float delta, float oldY, MapObjects unwalkableObjects) {
+        sprite.translateY(speed * delta);
+        if (isColliding(unwalkableObjects)) {
+            sprite.setY(oldY);
+            return false;
+        }
+        currentAnimation = walkUpAnimation;
+        return true;
+    }
+
+    public boolean moveDown(float delta, float oldY, MapObjects unwalkableObjects) {
+        sprite.translateY(-speed * delta);
+        if (isColliding(unwalkableObjects)) {
+            sprite.setY(oldY);
+            return false;
+        }
+        currentAnimation = walkDownAnimation;
+        return true;
+    }
+
+    public boolean moveLeft(float delta, float oldX, MapObjects unwalkableObjects) {
+        sprite.translateX(-speed * delta);
+        if (isColliding(unwalkableObjects)) {
+            sprite.setX(oldX);
+            return false;
+        }
+        currentAnimation = walkLeftAnimation;
+        return true;
+    }
+
+    public boolean moveRight(float delta, float oldX, MapObjects unwalkableObjects) {
+        sprite.translateX(speed * delta);
+        if (isColliding(unwalkableObjects)) {
+            sprite.setX(oldX);
+            return false;
+        }
+        currentAnimation = walkRightAnimation;
+        return true;
+    }
+
+    private void handleCloudCollision(float delta, ArrayList<Cloud> clouds) {
+        boolean isCollidingWithCloud = false;
+
+        for (Cloud cloud : clouds) {
+            if (cloud.getSize() != null && sprite.getBoundingRectangle().overlaps(cloud.getBounds())) {
+                if (currentCollisionCloud == cloud) {
+                    collisionTimer += delta;
+                } else {
+                    currentCollisionCloud = cloud;
+                    collisionTimer = 0;
+                }
+
+                isCollidingWithCloud = true;
+
+                if (collisionTimer >= COLLISION_DAMAGE_DELAY) {
+                    takeDamage();
+                }
+                break;
+            }
+        }
+
+        if (!isCollidingWithCloud) {
+            collisionTimer = 0;
+            currentCollisionCloud = null;
+        }
+    }
+
+    private void takeDamage() {
+        health -= 1;
+        health = Math.max(0, health);
+
+        if (coughSound != null && soundTimer <= 0) {
+            coughSound.play();
+            soundTimer = soundDuration;
+        }
+
+        System.out.println("Player took damage! Health: " + health);
     }
 
     private void clampPosition() {
@@ -142,7 +234,6 @@ public class Player {
 
         sprite.setPosition(clampedX, clampedY);
     }
-
 
     private boolean isColliding(MapObjects collisionObjects) {
         if (collisionObjects == null) return false;
@@ -160,57 +251,30 @@ public class Player {
         return false;
     }
 
-
-    /*private void handleDamage(MapObjects damageObjects) {
-        if (damageObjects == null) return;
-
-        Rectangle playerRect = sprite.getBoundingRectangle();
-
-        for (MapObject object : damageObjects) {
-            if (object instanceof RectangleMapObject) {
-                Rectangle damageRect = ((RectangleMapObject) object).getRectangle();
-
-
-                if (playerRect.overlaps(damageRect)) {
-                    health -= 1;
-                    health = Math.max(0, health);
-                    System.out.println("Player took damage! Health: " + health);
-
-                  *//*  if (heartBeatsSound != null) {
-                        heartBeatsSound.play();
-                    }
-*//*
-                    break;
-                }
-            }
-        }
-    }*/
-
     public boolean isDead() {
         return health <= 0;
     }
 
     public void reset() {
-        sprite.setPosition(10,170);
+        sprite.setPosition(10, 170);
         health = 100;
         score = 0;
         stateTime = 0;
         currentAnimation = walkDownAnimation;
 
-
         System.out.println("Player respawned! Health: " + health + ", Score: " + score);
     }
+
+    //        if (Gdx.input.isKeyJustPressed(player.getActionKey())) {
+    //get action key
 
 
     public Rectangle getBounds() {
         return sprite.getBoundingRectangle();
     }
 
-
     public void render(Batch batch) {
-        batch.begin();
         sprite.draw(batch);
-        batch.end();
     }
 
     public void dispose() {

@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+
 import si.um.feri.leaf.screen.IntroScreen;
 import si.um.feri.leaf.utils.Constants;
 import assets.AssetDescriptors;
@@ -37,11 +38,16 @@ public class LeafLink extends Game {
         viewport = new FitViewport(Constants.MAP_WIDTH, Constants.MAP_HEIGHT, camera);
         hudViewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         renderer = new ShapeRenderer();
-        font= new BitmapFont();
+        font = new BitmapFont();
 
 
         assetManager = new AssetManager();
         assetManager.load(AssetDescriptors.TILED_ATLAS);
+        assetManager.load(AssetDescriptors.TILED_FONT);
+        assetManager.load(AssetDescriptors.MALE_COUGHING);
+        assetManager.load(AssetDescriptors.FEMALE_COUGHING);
+        assetManager.load(AssetDescriptors.CHOOSE_CHARACTER);
+        assetManager.load(AssetDescriptors.CHOOSE_SCREEN);
         assetManager.getLogger().setLevel(Logger.DEBUG);
         assetManager.finishLoading();
         setScreen(new IntroScreen(this));
