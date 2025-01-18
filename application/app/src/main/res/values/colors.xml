@@ -8,4 +8,9 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="green">#FF99CC00</color>
+    <color name="low_air_quality">#ADD8E6</color>
+    <color name="moderate_air_quality">#FFD700</color>
+    <color name="high_air_quality">#FF6347</color>
+    <color name="unhealthy_for_sensitive_groups">#57150D</color>
+    <color name="unhealthy_air_quality">#000000</color>
 </resources>

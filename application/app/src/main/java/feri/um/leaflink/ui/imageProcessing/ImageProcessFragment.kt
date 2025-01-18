@@ -26,6 +26,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import feri.um.leaflink.MainActivity
 import feri.um.leaflink.MainActivityPhotoViewModel
 import feri.um.leaflink.R
@@ -142,6 +143,8 @@ class ImageProcessFragment : Fragment() {
                     Toast.makeText(requireContext(), "Photo saved to $savedUri", Toast.LENGTH_SHORT).show()
 
                     photoViewModel.setPhotoFile(photoFile)
+//                    val navController = findNavController()
+//                    navController.popBackStack()
                 }
 
                 override fun onError(exception: ImageCaptureException) {

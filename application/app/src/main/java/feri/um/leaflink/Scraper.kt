@@ -53,7 +53,6 @@ class Scraper {
             table?.select("tr")?.drop(3)?.forEach { row ->
                 try {
                     val station = row.selectFirst(".onlineimena")?.text() ?: return@forEach
-                    if (station.contains("MB Vrbanski") || station.contains("MB Titova")) {
                         val cells = row.select(".onlinedesno")
                         if (cells.size >= 7) {
                             val airQuality = AirQuality(
@@ -72,7 +71,7 @@ class Scraper {
                             )
                             scrapedItems.add(airQuality)
                         }
-                    }
+
                 } catch (e: Exception) {
                     println("Error parsing air quality row: ${e.message}")
                 }
