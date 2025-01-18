@@ -2,6 +2,7 @@ package si.um.feri.leaf.pollenGame;
 
 
 import static si.um.feri.leaf.pollenGame.config.GameConfig.COLLISION_DAMAGE_DELAY;
+import static si.um.feri.leaf.pollenGame.config.GameConfig.DAMAGE_COOLDOWN;
 
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
@@ -34,6 +35,9 @@ public class Player {
 
     private float collisionTimer = 0;
     private Cloud currentCollisionCloud = null;
+
+    private float damageCooldownTimer = 0;
+
     private int health = 100;
     private int score = 0;
     private Sound coughSound;
@@ -127,7 +131,6 @@ public class Player {
 
         clampPosition();
 
-        // Update animation state
         if (moving) {
             stateTime += delta;
         } else {
@@ -135,12 +138,10 @@ public class Player {
         }
         sprite.setRegion(currentAnimation.getKeyFrame(stateTime, true));
 
-        // Handle sound timer
         if (soundTimer > 0) {
             soundTimer -= delta;
         }
 
-        // Handle cloud collision
         handleCloudCollision(delta, clouds);
     }
 
@@ -185,6 +186,10 @@ public class Player {
     }
 
     private void handleCloudCollision(float delta, ArrayList<Cloud> clouds) {
+        if (damageCooldownTimer > 0) {
+            damageCooldownTimer -= delta;
+        }
+
         boolean isCollidingWithCloud = false;
 
         for (Cloud cloud : clouds) {
@@ -198,8 +203,9 @@ public class Player {
 
                 isCollidingWithCloud = true;
 
-                if (collisionTimer >= COLLISION_DAMAGE_DELAY) {
+                if (damageCooldownTimer <= 0 && collisionTimer >= COLLISION_DAMAGE_DELAY) {
                     takeDamage();
+                    damageCooldownTimer = DAMAGE_COOLDOWN;
                 }
                 break;
             }
@@ -212,8 +218,9 @@ public class Player {
     }
 
     private void takeDamage() {
-        health -= 1;
+        health -= 5;
         health = Math.max(0, health);
+
 
         if (coughSound != null && soundTimer <= 0) {
             coughSound.play();

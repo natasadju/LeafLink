@@ -1,5 +1,9 @@
 package si.um.feri.leaf.pollenGame.screen;
 
+import static si.um.feri.leaf.pollenGame.config.GameConfig.HEART_HEIGHT;
+import static si.um.feri.leaf.pollenGame.config.GameConfig.HEART_WIDTH;
+import static si.um.feri.leaf.pollenGame.config.GameConfig.TILE_SIZE;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
@@ -29,8 +33,6 @@ import si.um.feri.leaf.pollenGame.Player;
 import si.um.feri.leaf.pollenGame.Cloud;
 
 public class PollenGameScreen extends ScreenAdapter {
-    private static final int TILE_SIZE = 16;
-
     private final LeafLink game;
     private final AssetManager assetManager;
     private final boolean isTwoPlayerMode;
@@ -42,6 +44,8 @@ public class PollenGameScreen extends ScreenAdapter {
     private OrthogonalTiledMapRenderer mapRenderer;
     private OrthographicCamera camera;
     private OrthographicCamera hudCamera;
+    private FitViewport gameViewport;
+    private FitViewport hudViewport;
     private ShapeRenderer hudShapeRenderer;
     private BitmapFont font;
 
@@ -49,6 +53,14 @@ public class PollenGameScreen extends ScreenAdapter {
     private TextureRegion smallCloudTexture;
     private TextureRegion mediumCloudTexture;
     private TextureRegion bigCloudTexture;
+
+    private TextureRegion heartHudTexture;
+
+    private TextureRegion fullHeart;
+    private TextureRegion halfHeart;
+    private TextureRegion emptyHeart;
+    private TextureRegion quarterHeart;
+    private TextureRegion threeQuarterHeart;
 
     private Sound maleCough;
     private Sound femaleCough;
@@ -67,6 +79,8 @@ public class PollenGameScreen extends ScreenAdapter {
         femaleCough = assetManager.get(AssetDescriptors.FEMALE_COUGHING);
 
         TextureAtlas tiledAtlas = assetManager.get(AssetDescriptors.TILED_ATLAS);
+
+        heartHudTexture = tiledAtlas.findRegion(RegionNames.HEART_HUD);
 
         boolean isMale1 = !player1Character.equals("character4");
         player1 = new Player(
@@ -106,14 +120,15 @@ public class PollenGameScreen extends ScreenAdapter {
         int mapHeight = map.getProperties().get("height", Integer.class);
         float mapPixelWidth = mapWidth * TILE_SIZE;
         float mapPixelHeight = mapHeight * TILE_SIZE;
-        FitViewport viewport = new FitViewport(mapPixelWidth, mapPixelHeight);
+
         camera = new OrthographicCamera();
-        viewport.setCamera(camera);
+        gameViewport = new FitViewport(mapPixelWidth, mapPixelHeight, camera);
         camera.position.set(mapPixelWidth / 2f, mapPixelHeight / 2f, 0);
         camera.update();
 
-        hudCamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        hudCamera.position.set(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f, 0);
+        hudCamera = new OrthographicCamera();
+        hudViewport = new FitViewport(800, 480, hudCamera);
+        hudCamera.position.set(400, 240, 0);
         hudCamera.update();
 
         player1.setPosition(50, 170);
@@ -123,7 +138,13 @@ public class PollenGameScreen extends ScreenAdapter {
 
         hudShapeRenderer = new ShapeRenderer();
         font = assetManager.get(AssetDescriptors.TILED_FONT);
-        hudScaleFactor = Gdx.graphics.getWidth() / 800f;
+        hudScaleFactor = hudViewport.getWorldWidth() / 800f;
+
+        emptyHeart = new TextureRegion(heartHudTexture, 0, 0, HEART_WIDTH, HEART_HEIGHT);
+        quarterHeart = new TextureRegion(heartHudTexture, HEART_WIDTH, 0, HEART_WIDTH, HEART_HEIGHT);
+        halfHeart = new TextureRegion(heartHudTexture, 2 * HEART_WIDTH, 0, HEART_WIDTH, HEART_HEIGHT);
+        threeQuarterHeart = new TextureRegion(heartHudTexture, 3 * HEART_WIDTH, 0, HEART_WIDTH, HEART_HEIGHT);
+        fullHeart = new TextureRegion(heartHudTexture, 4 * HEART_WIDTH, 0, HEART_WIDTH, HEART_HEIGHT);
 
         TextureAtlas atlas = assetManager.get(AssetDescriptors.TILED_ATLAS);
         smallCloudTexture = new TextureRegion(atlas.findRegion(RegionNames.SMALL_CLOUD));
@@ -153,6 +174,7 @@ public class PollenGameScreen extends ScreenAdapter {
         updateClouds(delta);
         updatePlayers(delta);
 
+        gameViewport.apply();
         mapRenderer.setView(camera);
         mapRenderer.render();
 
@@ -164,6 +186,7 @@ public class PollenGameScreen extends ScreenAdapter {
         renderClouds();
         mapRenderer.getBatch().end();
 
+        hudViewport.apply();
         renderHUD();
     }
 
@@ -205,7 +228,7 @@ public class PollenGameScreen extends ScreenAdapter {
                             break;
                         case "small":
                             cloud.setSize(null);
-                            cloud.setRespawnTimer(5);
+                            cloud.setRespawnTimer(8);
                             break;
                     }
                 }
@@ -227,10 +250,14 @@ public class PollenGameScreen extends ScreenAdapter {
     private String getRandomCloudSize() {
         int random = (int) (Math.random() * 3);
         switch (random) {
-            case 0: return "big";
-            case 1: return "medium";
-            case 2: return "small";
-            default: return null;
+            case 0:
+                return "big";
+            case 1:
+                return "medium";
+            case 2:
+                return "small";
+            default:
+                return null;
         }
     }
 
@@ -239,21 +266,44 @@ public class PollenGameScreen extends ScreenAdapter {
             if (cloud.getSize() != null) {
                 TextureRegion texture;
                 switch (cloud.getSize()) {
-                    case "big":    texture = bigCloudTexture;    break;
-                    case "medium": texture = mediumCloudTexture; break;
-                    case "small":  texture = smallCloudTexture;  break;
-                    default:       continue;
+                    case "big":
+                        texture = bigCloudTexture;
+                        break;
+                    case "medium":
+                        texture = mediumCloudTexture;
+                        break;
+                    case "small":
+                        texture = smallCloudTexture;
+                        break;
+                    default:
+                        continue;
                 }
+
+                float textureWidth = texture.getRegionWidth();
+                float textureHeight = texture.getRegionHeight();
+
+                float rectWidth = cloud.getBounds().width;
+                float rectHeight = cloud.getBounds().height;
+
+                float scaleX = rectWidth / textureWidth;
+                float scaleY = rectHeight / textureHeight;
+
+                float scale = Math.min(scaleX, scaleY);
+
+                float xOffset = (rectWidth - (textureWidth * scale)) / 2f;
+                float yOffset = (rectHeight - (textureHeight * scale)) / 2f;
+
                 mapRenderer.getBatch().draw(
                     texture,
-                    cloud.getBounds().x,
-                    cloud.getBounds().y,
-                    cloud.getBounds().width,
-                    cloud.getBounds().height
+                    cloud.getBounds().x + xOffset,
+                    cloud.getBounds().y + yOffset,
+                    textureWidth * scale,
+                    textureHeight * scale
                 );
             }
         }
     }
+
     private void renderGameOver() {
         mapRenderer.getBatch().begin();
 
@@ -295,61 +345,55 @@ public class PollenGameScreen extends ScreenAdapter {
         hudCamera.update();
         hudShapeRenderer.setProjectionMatrix(hudCamera.combined);
         mapRenderer.getBatch().setProjectionMatrix(hudCamera.combined);
-
-        hudShapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-
-        float p1BarX = 20 * hudScaleFactor;
-        float p1BarY = hudCamera.viewportHeight - (30 * hudScaleFactor);
-        drawHealthBar(hudShapeRenderer, player1, p1BarX, p1BarY);
-
-        if (isTwoPlayerMode && player2 != null) {
-            float p2BarX = 20 * hudScaleFactor;
-            float p2BarY = hudCamera.viewportHeight - (60 * hudScaleFactor);
-            drawHealthBar(hudShapeRenderer, player2, p2BarX, p2BarY);
-        }
-
-        hudShapeRenderer.end();
-
         mapRenderer.getBatch().begin();
-        font.setColor(Color.YELLOW);
-        font.getData().setScale(0.3f * hudScaleFactor);
 
-        String p1ScoreText = "P1 Score: " + player1.getScore();
-        font.draw(mapRenderer.getBatch(), p1ScoreText, 20 * hudScaleFactor,
-            hudCamera.viewportHeight - (80 * hudScaleFactor));
+        renderPlayerHearts(player1, 50, hudCamera.viewportHeight - HEART_HEIGHT - 10);
 
         if (isTwoPlayerMode && player2 != null) {
-            String p2ScoreText = "P2 Score: " + player2.getScore();
-            font.draw(mapRenderer.getBatch(), p2ScoreText, 20 * hudScaleFactor,
-                hudCamera.viewportHeight - (100 * hudScaleFactor));
+            renderPlayerHearts(player2, hudCamera.viewportWidth - (5 * (HEART_WIDTH + 5)) - 50, hudCamera.viewportHeight - HEART_HEIGHT - 10);
         }
+
         mapRenderer.getBatch().end();
     }
 
-    private void drawHealthBar(ShapeRenderer shapeRenderer, Player player, float x, float y) {
-        float barWidth = 100 * hudScaleFactor;
-        float barHeight = 10 * hudScaleFactor;
+    private void renderPlayerHearts(Player player, float startX, float startY) {
+        int maxHearts = 5;
+        int health = player.getHealth();
+        int healthPerHeart = 20;
 
-        shapeRenderer.setColor(0.5f, 0, 0, 1);
-        shapeRenderer.rect(x, y, barWidth + 4, barHeight + 4);
+        for (int i = 0; i < maxHearts; i++) {
+            TextureRegion heartRegion;
 
-        float healthPercent = (float) player.getHealth() / 100f;
-        float fillWidth = healthPercent * barWidth;
-        shapeRenderer.setColor(1, 0, 0, 1);
-        shapeRenderer.rect(x + 2, y + 2, fillWidth, barHeight);
+            int currentHeartHealth = health - (i * healthPerHeart);
+            if (currentHeartHealth >= healthPerHeart) {
+                heartRegion = fullHeart;
+            } else if (currentHeartHealth >= 15) {
+                heartRegion = threeQuarterHeart;
+            } else if (currentHeartHealth >= 10) {
+                heartRegion = halfHeart;
+            } else if (currentHeartHealth >= 5) {
+                heartRegion = quarterHeart;
+            } else {
+                heartRegion = emptyHeart;
+            }
+
+
+            mapRenderer.getBatch().draw(
+                heartRegion,
+                startX + i * (HEART_WIDTH + 5),
+                startY,
+                HEART_WIDTH,
+                HEART_HEIGHT
+            );
+        }
     }
 
     @Override
     public void resize(int width, int height) {
-        camera.viewportWidth = map.getProperties().get("width", Integer.class) * TILE_SIZE;
-        camera.viewportHeight = map.getProperties().get("height", Integer.class) * TILE_SIZE;
-        camera.update();
+        gameViewport.update(width, height);
+        hudViewport.update(width, height);
 
-        hudCamera.setToOrtho(false, width, height);
-        hudCamera.position.set(width / 2f, height / 2f, 0);
-        hudCamera.update();
-
-        hudScaleFactor = width / 800f;
+        hudScaleFactor = hudViewport.getWorldWidth() / 800f;
     }
 
     @Override

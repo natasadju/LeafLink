@@ -18,6 +18,8 @@ public class RegionNames {
 
     public static final String MEDIUM_CLOUD = "mediumCloud";
 
+    public static final String HEART_HUD = "heart";
+
 
     private RegionNames() {
     }
