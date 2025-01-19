@@ -32,6 +32,13 @@ mediumCloud
   orig: 516, 406
   offset: 0, 0
   index: -1
+powerup
+  rotate: false
+  xy: 520, 24
+  size: 408, 384
+  orig: 408, 384
+  offset: 0, 0
+  index: -1
 
 tiled2.png
 size: 1024, 256

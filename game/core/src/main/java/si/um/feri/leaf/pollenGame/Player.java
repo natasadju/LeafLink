@@ -17,21 +17,19 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 
 import java.util.ArrayList;
 public class Player {
-    private Texture playerTilemap;
-    private TextureRegion[][] frames;
+
     private Animation<TextureRegion> currentAnimation;
-    private Animation<TextureRegion> walkDownAnimation;
-    private Animation<TextureRegion> walkUpAnimation;
-    private Animation<TextureRegion> walkLeftAnimation;
-    private Animation<TextureRegion> walkRightAnimation;
-    private Sprite sprite;
+    private final Animation<TextureRegion> walkDownAnimation;
+    private final Animation<TextureRegion> walkUpAnimation;
+    private final Animation<TextureRegion> walkLeftAnimation;
+    private final Animation<TextureRegion> walkRightAnimation;
+    private final Sprite sprite;
 
     private float stateTime;
-    private float speed = 100f;
+    private final float speed = 100f;
 
     private float collisionTimer = 0;
     private Cloud currentCollisionCloud = null;
@@ -40,9 +38,9 @@ public class Player {
 
     private int health = 100;
     private int score = 0;
-    private Sound coughSound;
+    private final Sound coughSound;
     private float soundTimer = 0;
-    private float soundDuration = 0;
+    private final float soundDuration;
 
     // Control keys
     private int keyUp;
@@ -107,6 +105,9 @@ public class Player {
         return score;
     }
 
+    public void addScore(int score) {
+        this.score += score;
+    }
     public int getActionKey() {
         return keyAction;
     }
@@ -272,9 +273,6 @@ public class Player {
         System.out.println("Player respawned! Health: " + health + ", Score: " + score);
     }
 
-    //        if (Gdx.input.isKeyJustPressed(player.getActionKey())) {
-    //get action key
-
 
     public Rectangle getBounds() {
         return sprite.getBoundingRectangle();
@@ -285,6 +283,5 @@ public class Player {
     }
 
     public void dispose() {
-        playerTilemap.dispose();
     }
 }

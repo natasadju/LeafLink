@@ -20,6 +20,8 @@ public class RegionNames {
 
     public static final String HEART_HUD = "heart";
 
+    public static final String POWERUP = "powerup";
+
 
     private RegionNames() {
     }

@@ -2,18 +2,21 @@ package si.um.feri.leaf.pollenGame.screen;
 
 import static si.um.feri.leaf.pollenGame.config.GameConfig.HEART_HEIGHT;
 import static si.um.feri.leaf.pollenGame.config.GameConfig.HEART_WIDTH;
+import static si.um.feri.leaf.pollenGame.config.GameConfig.POWER_UP_RESPAWN_TIME;
 import static si.um.feri.leaf.pollenGame.config.GameConfig.TILE_SIZE;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapObjects;
@@ -22,6 +25,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
 import java.util.ArrayList;
@@ -31,6 +35,9 @@ import assets.RegionNames;
 import si.um.feri.leaf.LeafLink;
 import si.um.feri.leaf.pollenGame.Player;
 import si.um.feri.leaf.pollenGame.Cloud;
+import si.um.feri.leaf.pollenGame.PowerUp;
+import si.um.feri.leaf.pollenGame.Rain;
+
 
 public class PollenGameScreen extends ScreenAdapter {
     private final LeafLink game;
@@ -62,10 +69,21 @@ public class PollenGameScreen extends ScreenAdapter {
     private TextureRegion quarterHeart;
     private TextureRegion threeQuarterHeart;
 
+    private Rain rain;
+    private boolean isRaining = false;
+    private float rainTimer = 0f;
+    private Player playerWhoActivatedPowerUp;
+
     private Sound maleCough;
     private Sound femaleCough;
 
     private float hudScaleFactor;
+
+    private ArrayList<Rectangle> powerUpSpawnAreas;
+    private PowerUp powerUp;
+    private TextureRegion powerUpTexture;
+
+    private Music backgroundMusic;
 
     public PollenGameScreen(LeafLink game,
                             String player1Character,
@@ -84,29 +102,29 @@ public class PollenGameScreen extends ScreenAdapter {
 
         boolean isMale1 = !player1Character.equals("character4");
         player1 = new Player(
-            tiledAtlas,
-            player1Character,
-            TILE_SIZE,
-            TILE_SIZE,
-            isMale1 ? maleCough : femaleCough
+                tiledAtlas,
+                player1Character,
+                TILE_SIZE,
+                TILE_SIZE,
+                isMale1 ? maleCough : femaleCough
         );
         player1.setControls(Input.Keys.W, Input.Keys.S, Input.Keys.A, Input.Keys.D, Input.Keys.SPACE);
 
         if (isTwoPlayerMode && player2Character != null) {
             boolean isMale2 = !player2Character.equals("character4");
             player2 = new Player(
-                tiledAtlas,
-                player2Character,
-                TILE_SIZE,
-                TILE_SIZE,
-                isMale2 ? maleCough : femaleCough
+                    tiledAtlas,
+                    player2Character,
+                    TILE_SIZE,
+                    TILE_SIZE,
+                    isMale2 ? maleCough : femaleCough
             );
             player2.setControls(
-                Input.Keys.UP,
-                Input.Keys.DOWN,
-                Input.Keys.LEFT,
-                Input.Keys.RIGHT,
-                Input.Keys.NUMPAD_0
+                    Input.Keys.UP,
+                    Input.Keys.DOWN,
+                    Input.Keys.LEFT,
+                    Input.Keys.RIGHT,
+                    Input.Keys.NUMPAD_0
             );
         }
     }
@@ -151,6 +169,9 @@ public class PollenGameScreen extends ScreenAdapter {
         mediumCloudTexture = new TextureRegion(atlas.findRegion(RegionNames.MEDIUM_CLOUD));
         bigCloudTexture = new TextureRegion(atlas.findRegion(RegionNames.BIG_CLOUD));
 
+
+        powerUpTexture = new TextureRegion(atlas.findRegion(RegionNames.POWERUP));
+
         clouds = new ArrayList<>();
         MapObjects cloudObjects = map.getLayers().get("CloudSpawn").getObjects();
         for (Object obj : cloudObjects) {
@@ -160,6 +181,28 @@ public class PollenGameScreen extends ScreenAdapter {
                 clouds.add(new Cloud(rectObject.getRectangle(), size));
             }
         }
+
+        powerUpSpawnAreas = new ArrayList<>();
+        MapObjects powerUpObjects = map.getLayers().get("PowerUpSpawn").getObjects();
+        for (Object obj : powerUpObjects) {
+            if (obj instanceof RectangleMapObject) {
+                RectangleMapObject rect = (RectangleMapObject) obj;
+                powerUpSpawnAreas.add(rect.getRectangle());
+            }
+        }
+
+        powerUp = new PowerUp(0, 0, 32, 32, powerUpTexture);
+        powerUp.setRespawnTimer(0);
+
+        rain = new Rain(
+                "assets/tiled/Rain.png",
+                8, 8,
+                200,
+                gameViewport.getWorldWidth() + 100,
+                gameViewport.getWorldHeight()
+        );
+        isRaining = false;
+        rainTimer = 0f;
     }
 
     @Override
@@ -173,26 +216,114 @@ public class PollenGameScreen extends ScreenAdapter {
 
         updateClouds(delta);
         updatePlayers(delta);
+        updatePowerUp(delta);
+        handleRainEffect(delta);
+        rain.update(delta);
 
         gameViewport.apply();
         mapRenderer.setView(camera);
         mapRenderer.render();
 
         mapRenderer.getBatch().begin();
+
         player1.render(mapRenderer.getBatch());
         if (isTwoPlayerMode && player2 != null) {
             player2.render(mapRenderer.getBatch());
         }
-        renderClouds();
-        mapRenderer.getBatch().end();
 
+        renderClouds();
+
+
+        powerUp.render(mapRenderer.getBatch());
+
+        mapRenderer.getBatch().end();
+        if (isRaining) {
+            rain.render(mapRenderer.getBatch());
+        }
         hudViewport.apply();
         renderHUD();
     }
 
+    private void updatePowerUp(float delta) {
+        powerUp.decreaseRespawnTimer(delta);
+
+        if (!powerUp.isActive() && powerUp.getRespawnTimer() <= 0) {
+            spawnPowerUp();
+        }
+
+        if (powerUp.isActive()) {
+            if (!player1.isDead() && player1.getBounds().overlaps(powerUp.getBounds())) {
+                activatePowerUp(player1);
+            } else if (isTwoPlayerMode && player2 != null && !player2.isDead()
+                    && player2.getBounds().overlaps(powerUp.getBounds())) {
+                activatePowerUp(player2);
+            }
+        }
+    }
+
+    private void spawnPowerUp() {
+        if (powerUpSpawnAreas.isEmpty()) return;
+
+        int index = (int) (Math.random() * powerUpSpawnAreas.size());
+        Rectangle spawnRect = powerUpSpawnAreas.get(index);
+
+        powerUp.getBounds().setPosition(
+                spawnRect.x + (spawnRect.width - powerUp.getBounds().width) / 2f,
+                spawnRect.y + (spawnRect.height - powerUp.getBounds().height) / 2f
+        );
+
+        powerUp.activate();
+    }
+
+    private void activatePowerUp(Player player) {
+        powerUp.deactivate();
+        powerUp.setRespawnTimer(POWER_UP_RESPAWN_TIME);
+
+        isRaining = true;
+        rainTimer = 1f;
+        playerWhoActivatedPowerUp = player;
+    }
+
+    private void handleRainEffect(float delta) {
+        if (isRaining) {
+            rainTimer -= delta;
+            if (rainTimer <= 0) {
+                clearAllCloudsForPlayer(playerWhoActivatedPowerUp);
+                isRaining = false;
+            }
+        }
+    }
+
+    private void clearAllCloudsForPlayer(Player player) {
+        if (player == null) return;
+
+        int totalPoints = 0;
+        for (Cloud cloud : clouds) {
+            if (cloud.getSize() != null) {
+                switch (cloud.getSize()) {
+                    case "big":
+                        totalPoints += 20;
+                        break;
+                    case "medium":
+                        totalPoints += 15;
+                        break;
+                    case "small":
+                        totalPoints += 10;
+                        break;
+                }
+
+                cloud.setSize(null);
+
+                float randomRespawnTime = 3f + (float) Math.random() * 5f;
+                cloud.setRespawnTimer(randomRespawnTime);
+            }
+        }
+
+        player.addScore(totalPoints);
+    }
 
     private boolean isGameOver() {
-        if (!isTwoPlayerMode) {
+        if (!isTwoPlayerMode || clouds.isEmpty()) {
             return player1.isDead();
         } else {
             if (player2 == null) {
@@ -203,7 +334,6 @@ public class PollenGameScreen extends ScreenAdapter {
     }
 
     private void updatePlayers(float delta) {
-        // Update player1 only if alive
         if (!player1.isDead()) {
             player1.update(delta, map.getLayers().get("Unwalkable").getObjects(), clouds);
             handlePlayerAction(player1);
@@ -219,18 +349,23 @@ public class PollenGameScreen extends ScreenAdapter {
         if (Gdx.input.isKeyJustPressed(player.getActionKey())) {
             for (Cloud cloud : clouds) {
                 if (cloud.getSize() != null && player.getBounds().overlaps(cloud.getBounds())) {
+                    int increaseScore = 0;
                     switch (cloud.getSize()) {
                         case "big":
                             cloud.setSize("medium");
+                            increaseScore = 5;
                             break;
                         case "medium":
                             cloud.setSize("small");
+                            increaseScore = 10;
                             break;
                         case "small":
                             cloud.setSize(null);
+                            increaseScore = 15;
                             cloud.setRespawnTimer(8);
                             break;
                     }
+                    player.addScore(increaseScore);
                 }
             }
         }
@@ -240,8 +375,12 @@ public class PollenGameScreen extends ScreenAdapter {
         for (Cloud cloud : clouds) {
             if (cloud.getSize() == null) {
                 cloud.decreaseRespawnTimer(delta);
+
                 if (cloud.getRespawnTimer() <= 0) {
                     cloud.setSize(getRandomCloudSize());
+
+                    float randomRespawnTime = 3f + (float) Math.random() * 5f;
+                    cloud.setRespawnTimer(randomRespawnTime);
                 }
             }
         }
@@ -294,11 +433,11 @@ public class PollenGameScreen extends ScreenAdapter {
                 float yOffset = (rectHeight - (textureHeight * scale)) / 2f;
 
                 mapRenderer.getBatch().draw(
-                    texture,
-                    cloud.getBounds().x + xOffset,
-                    cloud.getBounds().y + yOffset,
-                    textureWidth * scale,
-                    textureHeight * scale
+                        texture,
+                        cloud.getBounds().x + xOffset,
+                        cloud.getBounds().y + yOffset,
+                        textureWidth * scale,
+                        textureHeight * scale
                 );
             }
         }
@@ -339,6 +478,11 @@ public class PollenGameScreen extends ScreenAdapter {
             cloud.setSize(getRandomCloudSize());
             cloud.setRespawnTimer(0);
         }
+        powerUp.deactivate();
+        powerUp.setRespawnTimer(0);
+
+        isRaining = false;
+        rainTimer = 0f;
     }
 
     private void renderHUD() {
@@ -348,12 +492,23 @@ public class PollenGameScreen extends ScreenAdapter {
         mapRenderer.getBatch().begin();
 
         renderPlayerHearts(player1, 50, hudCamera.viewportHeight - HEART_HEIGHT - 10);
+        renderPlayerScore(player1, 50, hudCamera.viewportHeight - HEART_HEIGHT - 20);
 
         if (isTwoPlayerMode && player2 != null) {
-            renderPlayerHearts(player2, hudCamera.viewportWidth - (5 * (HEART_WIDTH + 5)) - 50, hudCamera.viewportHeight - HEART_HEIGHT - 10);
+            renderPlayerHearts(player2, hudCamera.viewportWidth - (5 * (HEART_WIDTH + 5)) - 100,
+                    hudCamera.viewportHeight - HEART_HEIGHT - 10);
+            renderPlayerScore(player2, hudCamera.viewportWidth - (5 * (HEART_WIDTH + 5)) - 100,
+                    hudCamera.viewportHeight - HEART_HEIGHT - 20);
         }
 
         mapRenderer.getBatch().end();
+    }
+
+    private void renderPlayerScore(Player player, float x, float y) {
+        font.setColor(Color.WHITE);
+        font.getData().setScale(0.3f);
+        String scoreText = "Score: " + player.getScore();
+        font.draw(mapRenderer.getBatch(), scoreText, x, y);
     }
 
     private void renderPlayerHearts(Player player, float startX, float startY) {
@@ -363,8 +518,8 @@ public class PollenGameScreen extends ScreenAdapter {
 
         for (int i = 0; i < maxHearts; i++) {
             TextureRegion heartRegion;
-
             int currentHeartHealth = health - (i * healthPerHeart);
+
             if (currentHeartHealth >= healthPerHeart) {
                 heartRegion = fullHeart;
             } else if (currentHeartHealth >= 15) {
@@ -377,13 +532,12 @@ public class PollenGameScreen extends ScreenAdapter {
                 heartRegion = emptyHeart;
             }
 
-
             mapRenderer.getBatch().draw(
-                heartRegion,
-                startX + i * (HEART_WIDTH + 5),
-                startY,
-                HEART_WIDTH,
-                HEART_HEIGHT
+                    heartRegion,
+                    startX + i * (HEART_WIDTH + 5),
+                    startY,
+                    HEART_WIDTH,
+                    HEART_HEIGHT
             );
         }
     }
@@ -392,7 +546,6 @@ public class PollenGameScreen extends ScreenAdapter {
     public void resize(int width, int height) {
         gameViewport.update(width, height);
         hudViewport.update(width, height);
-
         hudScaleFactor = hudViewport.getWorldWidth() / 800f;
     }
 
@@ -418,6 +571,9 @@ public class PollenGameScreen extends ScreenAdapter {
         }
         if (femaleCough != null) {
             femaleCough.dispose();
+        }
+        if (rain != null) {
+            rain.dispose();
         }
     }
 }
