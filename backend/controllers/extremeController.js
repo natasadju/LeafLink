@@ -1,10 +1,15 @@
 var ExtremeModel = require('../models/extremeModel.js');
+// const Block = require('../block');
+const {Block, Blockchain } = require('../blockchain');
 
 /**
  * extremeController.js
  *
  * @description :: Server-side logic for managing extreme events.
  */
+
+const environmentalBlockchain = new Blockchain();
+
 module.exports = {
 
     /**
@@ -65,6 +70,12 @@ module.exports = {
                     error: err
                 });
             }
+
+            const newBlock = new Block(environmentalBlockchain.chain.length, new Date().toISOString(), event);
+            environmentalBlockchain.addBlock(newBlock);
+
+            console.log('Blockchain valid?', environmentalBlockchain.isChainValid());
+            console.log(JSON.stringify(environmentalBlockchain, null, 4));
 
             return res.status(201).json(event);
         });

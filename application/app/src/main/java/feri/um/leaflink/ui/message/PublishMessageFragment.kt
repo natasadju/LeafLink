@@ -5,6 +5,7 @@ import android.R
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -143,6 +144,8 @@ class PublishMessageFragment : Fragment() {
             category = category,
             date = timestamp
         )
+
+        Log.d("ExtremeEvent", event.toString())
 
         CoroutineScope(Dispatchers.IO).launch {
             try {

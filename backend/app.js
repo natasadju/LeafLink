@@ -101,7 +101,6 @@ async function fetchDataFromOpenStreetMap(parkId) {
     }
 }
 
-// Start the server
 const start = async () => {
     try {
         await connectDB(process.env.MONGO_URI);
