@@ -151,7 +151,7 @@ class PublishMessageFragment : Fragment() {
                     requireActivity().runOnUiThread {
                         Toast.makeText(
                             requireContext(),
-                            "Event submitted successfully",
+                            "Extreme event submitted successfully",
                             Toast.LENGTH_SHORT
                         ).show()
                     }

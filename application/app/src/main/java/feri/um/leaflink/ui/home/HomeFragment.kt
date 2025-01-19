@@ -29,6 +29,7 @@ import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.*
 import feri.um.leaflink.helperClasses.TextOverlay
+import kotlin.math.cos
 
 class HomeFragment : Fragment() {
 
@@ -229,6 +230,7 @@ class HomeFragment : Fragment() {
 
 
     private fun handleAirQualityData(airQuality: AirQuality) {
+        Log.d("HandleAirQuality", "Handling air quality data for station: ${airQuality.station}")
         val locationConstants = LocationConstants()
 
         val geoPoint: GeoPoint = when (airQuality.station) {
@@ -262,41 +264,66 @@ class HomeFragment : Fragment() {
             }
         }
 
-//        val marker = Marker(mapView)
-//        val customIcon = ResourcesCompat.getDrawable(resources, R.drawable.air_quality, null) as BitmapDrawable
-//        val scaledBitmap = Bitmap.createScaledBitmap(customIcon.bitmap, 100, 100, true)
-//        marker.icon = BitmapDrawable(resources, scaledBitmap)
-//        marker.position = geoPoint
-//        marker.title = "Air Quality: ${airQuality.station}"
-//        marker.snippet = "PM2.5: ${airQuality.pm25}, PM10: ${airQuality.pm10}"
-//
-//        marker.setOnMarkerClickListener { _, _ ->
-//            marker.showInfoWindow()
-//            true
-//        }
-//
-//        mapView.overlays.add(marker)
-        // Create a marker for displaying the air quality value
         val marker = Marker(mapView)
         marker.position = geoPoint
         marker.title = "PM10: ${airQuality.pm10}"
+        marker.snippet = "PM2.5: ${airQuality.pm25}, PM10: ${airQuality.pm10}"
 
         val backgroundColor: Int
         if (airQuality.pm10 != null) {
-            addAirQualityCircle(geoPoint, airQuality.pm10)
             backgroundColor = getAirQualityColor(airQuality.pm10)
-        } else {
-            backgroundColor = Color.TRANSPARENT
-        }
 
-        val textOverlay = TextOverlay(airQuality.pm10.toString(), geoPoint, backgroundColor, R.color.teal_700)
+            val drawableResList = when {
+                airQuality.pm10 <= 50 -> listOf(R.drawable.sparkle1, R.drawable.sparkle2, R.drawable.sparkle3)
+                airQuality.pm10 <= 100 -> listOf(R.drawable.cloud3, R.drawable.cloud1, R.drawable.cloud2)
+                else -> listOf(R.drawable.cloud2, R.drawable.cloud3, R.drawable.cloud1)
+            }
+
+            val drawableRes = drawableResList.random()
+            val pointCount = if (airQuality.pm10 <= 50) 10 else if (airQuality.pm10 <= 100) 7 else 5
+            val randomPoints = generateRandomPoints(geoPoint, 500.0 * 80, pointCount)
+
+            val drawable = ResourcesCompat.getDrawable(resources, drawableRes, null)
+            if (drawable != null) {
+                val bitmap = (drawable as BitmapDrawable).bitmap
+                val aspectRatio = bitmap.width.toFloat() / bitmap.height.toFloat()
+                val desiredHeight = (100 / aspectRatio).toInt()
+                val scaledBitmap = Bitmap.createScaledBitmap(bitmap, 100, desiredHeight, true)
+
+                randomPoints.forEach { point ->
+                    val overlay = Marker(mapView)
+                    overlay.position = point
+                    overlay.icon = BitmapDrawable(resources, scaledBitmap)
+                    overlay.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                    mapView.overlays.add(overlay)
+
+                    val textOverlay = TextOverlay(airQuality.pm10.toString(), geoPoint, backgroundColor)
+                    mapView.overlays.add(textOverlay)
+                }
+            }
+        } else {
+            Log.d("HandleAirQuality", "No PM10 value for station: ${airQuality.station}")
+        }
 
         marker.setOnMarkerClickListener { _, _ ->
             marker.showInfoWindow()
             true
         }
+    }
 
-        mapView.overlays.add(textOverlay)
+
+    private fun generateRandomPoints(center: GeoPoint, radiusInMeters: Double, count: Int): List<GeoPoint> {
+        val randomPoints = mutableListOf<GeoPoint>()
+        for (i in 0 until count) {
+            val randomAngle = Math.random() * 2 * Math.PI
+            val randomRadius = Math.random() * radiusInMeters
+
+            val offsetLat = (randomRadius / 111000.0) * cos(randomAngle)
+            val offsetLon = (randomRadius / (111000.0 * cos(Math.toRadians(center.latitude)))) * Math.sin(randomAngle)
+
+            randomPoints.add(GeoPoint(center.latitude + offsetLat, center.longitude + offsetLon))
+        }
+        return randomPoints
     }
 
     private fun getAirQualityColor(pm10: Double): Int {

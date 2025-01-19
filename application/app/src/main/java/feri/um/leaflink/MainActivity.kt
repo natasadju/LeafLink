@@ -149,6 +149,11 @@ class MainActivity : AppCompatActivity() {
                     binding.appBarMain.fab2.hide()
                     binding.appBarMain.dataTypeSelectionBtn.hide()
                 }
+                R.id.PublishMessageFragment -> {
+                    binding.appBarMain.fab.hide()
+                    binding.appBarMain.fab2.hide()
+                    binding.appBarMain.dataTypeSelectionBtn.hide()
+                }
                 else -> {
                     binding.appBarMain.fab.show()
                     binding.appBarMain.fab2.show()
