@@ -19,7 +19,6 @@ class SettingsFragment : Fragment() {
 
     private lateinit var sharedPreferences: SharedPreferences
 
-
     companion object {
         const val PREFS_NAME = "settings_prefs"
         const val THEME_KEY = "theme"

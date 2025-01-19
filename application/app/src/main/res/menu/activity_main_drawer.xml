@@ -22,7 +22,7 @@
             android:title="@string/publish_message" />
         <item
             android:id="@+id/simulationFragment"
-            android:icon="@drawable/air_quality"
+            android:icon="@drawable/air_quality2"
             android:title="@string/simulate" />
     </group>
 </menu>

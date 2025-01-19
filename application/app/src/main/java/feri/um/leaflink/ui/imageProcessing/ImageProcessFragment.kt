@@ -140,7 +140,6 @@ class ImageProcessFragment : Fragment() {
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     val savedUri = photoFile.toURI()
                     Log.d("CameraFragment", "Photo saved: $savedUri")
-                    Toast.makeText(requireContext(), "Photo saved to $savedUri", Toast.LENGTH_SHORT).show()
 
                     photoViewModel.setPhotoFile(photoFile)
 //                    val navController = findNavController()

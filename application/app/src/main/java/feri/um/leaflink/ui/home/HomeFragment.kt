@@ -2,17 +2,18 @@ package feri.um.leaflink.ui.home
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import feri.um.leaflink.*
 import feri.um.leaflink.databinding.FragmentHomeBinding
 import feri.um.leaflink.helperClasses.DataType
@@ -22,14 +23,17 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
-import org.osmdroid.views.overlay.Polygon
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.*
 import feri.um.leaflink.helperClasses.TextOverlay
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import org.osmdroid.views.overlay.infowindow.InfoWindow
 import kotlin.math.cos
+import kotlin.math.sin
 
 class HomeFragment : Fragment() {
 
@@ -71,6 +75,10 @@ class HomeFragment : Fragment() {
         mapView.setTileSource(TileSourceFactory.MAPNIK)
         mapView.setBuiltInZoomControls(true)
         mapView.setMultiTouchControls(true)
+
+        mapView.setOnClickListener {
+            // Placeholder: If you want to handle clicks specifically
+        }
 
         val mapController = mapView.controller
         mapController.setZoom(15.0)
@@ -178,31 +186,6 @@ class HomeFragment : Fragment() {
         })
     }
 
-
-    private fun filterRecentAirQuality(): List<AirQuality> {
-        val today = Calendar.getInstance()
-        val yesterday = Calendar.getInstance().apply { add(Calendar.DATE, -1) }
-        Log.d("Filter", "Today: ${today.time}, Yesterday: ${yesterday.time}, AirQuality size: ${airQualityList.size}")
-
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.getDefault())
-
-        return airQualityList.filter { airQuality ->
-            val timestamp = airQuality.timestamp
-            try {
-                if (timestamp.isEmpty()) {
-                    Log.d("Filter", "Skipping null or empty timestamp")
-                    return@filter false
-                }
-
-                val date = dateFormat.parse(timestamp)
-                date != null && (isSameDay(date, today.time) || isSameDay(date, yesterday.time))
-            } catch (e: Exception) {
-                Log.d("Filter", "Error parsing timestamp: $timestamp, Exception: ${e.message}")
-                false
-            }
-        }
-    }
-
     private fun filterLatestAirQuality(): List<AirQuality> {
         val groupedByStation = airQualityList.groupBy { it.station }
 
@@ -220,14 +203,6 @@ class HomeFragment : Fragment() {
         Log.d("Filter", "Filtered latest AirQuality size: ${latestAirQualityList.size}")
         return latestAirQualityList
     }
-
-    private fun isSameDay(date1: Date, date2: Date): Boolean {
-        val cal1 = Calendar.getInstance().apply { time = date1 }
-        val cal2 = Calendar.getInstance().apply { time = date2 }
-        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
-                cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)
-    }
-
 
     private fun handleAirQualityData(airQuality: AirQuality) {
         Log.d("HandleAirQuality", "Handling air quality data for station: ${airQuality.station}")
@@ -280,8 +255,12 @@ class HomeFragment : Fragment() {
             }
 
             val drawableRes = drawableResList.random()
-            val pointCount = if (airQuality.pm10 <= 50) 10 else if (airQuality.pm10 <= 100) 7 else 5
-            val randomPoints = generateRandomPoints(geoPoint, 500.0 * 80, pointCount)
+            var radiusInMeters = 500.0 * 60
+            val pointCount = if (airQuality.pm10 <= 50) 7 else if (airQuality.pm10 <= 100) 7 else 20
+            if (airQuality.pm10 > 100) {
+                radiusInMeters = 500.0 * 40
+            }
+            val randomPoints = generateRandomPoints(geoPoint, radiusInMeters, pointCount)
 
             val drawable = ResourcesCompat.getDrawable(resources, drawableRes, null)
             if (drawable != null) {
@@ -307,6 +286,12 @@ class HomeFragment : Fragment() {
 
         marker.setOnMarkerClickListener { _, _ ->
             marker.showInfoWindow()
+
+            lifecycleScope.launch {
+                delay(1000)
+                marker.closeInfoWindow()
+            }
+
             true
         }
     }
@@ -319,7 +304,7 @@ class HomeFragment : Fragment() {
             val randomRadius = Math.random() * radiusInMeters
 
             val offsetLat = (randomRadius / 111000.0) * cos(randomAngle)
-            val offsetLon = (randomRadius / (111000.0 * cos(Math.toRadians(center.latitude)))) * Math.sin(randomAngle)
+            val offsetLon = (randomRadius / (111000.0 * cos(Math.toRadians(center.latitude)))) * sin(randomAngle)
 
             randomPoints.add(GeoPoint(center.latitude + offsetLat, center.longitude + offsetLon))
         }
@@ -334,33 +319,6 @@ class HomeFragment : Fragment() {
             pm10 <= 200 -> ResourcesCompat.getColor(resources, R.color.unhealthy_for_sensitive_groups, null)
             else -> ResourcesCompat.getColor(resources, R.color.unhealthy_air_quality, null)
         }
-    }
-    private fun addAirQualityCircle(geoPoint: GeoPoint, pm10: Double) {
-        val radiusInMeters = 500.0 * 10
-
-        val points = mutableListOf<GeoPoint>()
-        val circlePointsCount = 30
-        for (i in 0 until circlePointsCount) {
-            val angle = Math.toRadians((i * 360.0) / circlePointsCount)
-            val x = geoPoint.latitude + (radiusInMeters / 100000.0) * Math.cos(angle)
-            val y = geoPoint.longitude + (radiusInMeters / 100000.0) * Math.sin(angle)
-            points.add(GeoPoint(x, y))
-        }
-
-        val polygon = Polygon()
-        polygon.points = points
-
-        val fillColor = when {
-            pm10 <= 50 -> Color.argb(50, 0, 255, 0)
-            pm10 <= 100 -> Color.argb(100, 255, 255, 0)
-            pm10 <= 150 -> Color.argb(150, 255, 165, 0)
-            pm10 <= 200 -> Color.argb(200, 255, 0, 0)
-            else -> Color.argb(255, 139, 0, 0)
-        }
-
-        polygon.fillColor = fillColor
-        polygon.strokeWidth = 2f
-        mapView.overlays.add(polygon)
     }
 
     private fun addEventMarker(event: Event, geoPoint: GeoPoint, park: Park) {

@@ -154,6 +154,16 @@ class MainActivity : AppCompatActivity() {
                     binding.appBarMain.fab2.hide()
                     binding.appBarMain.dataTypeSelectionBtn.hide()
                 }
+                R.id.nav_pollen -> {
+                    binding.appBarMain.fab.hide()
+                    binding.appBarMain.fab2.hide()
+                    binding.appBarMain.dataTypeSelectionBtn.hide()
+                }
+                R.id.nav_addEvent -> {
+                    binding.appBarMain.fab.hide()
+                    binding.appBarMain.fab2.hide()
+                    binding.appBarMain.dataTypeSelectionBtn.hide()
+                }
                 else -> {
                     binding.appBarMain.fab.show()
                     binding.appBarMain.fab2.show()
@@ -202,7 +212,7 @@ class MainActivity : AppCompatActivity() {
 
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.nav_home, R.id.nav_addEvent, R.id.nav_pollen, R.id.simulationFragment
+                R.id.nav_home, R.id.nav_addEvent, R.id.nav_pollen, R.id.simulationFragment, R.id.PublishMessageFragment
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
@@ -277,19 +287,17 @@ class MainActivity : AppCompatActivity() {
     private fun showDataSelectionDialog() {
         val options = arrayOf("Events", "Air Quality")
         val builder = AlertDialog.Builder(this)
-        builder.setTitle("Choose an option")
+        builder.setTitle("What should be shown on the map?")
         builder.setItems(options) { _, which ->
             when (which) {
                 0 -> {
-//                    Toast.makeText(this, "Events selected", Toast.LENGTH_SHORT).show()
                     viewModel.setDataType(DataType.EVENTS)
-                    Toast.makeText(this, "selected ${viewModel.dataType.value}", Toast.LENGTH_SHORT).show()
+                    binding.appBarMain.dataTypeSelectionBtn.setImageResource(R.drawable.event_marker)
                 }
 
                 1 -> {
-//                    Toast.makeText(this, "AirQuality selected", Toast.LENGTH_SHORT).show()
                     viewModel.setDataType(DataType.AIR_QUALITY)
-                    Toast.makeText(this, "selected: ${viewModel.dataType.value}", Toast.LENGTH_SHORT).show()
+                    binding.appBarMain.dataTypeSelectionBtn.setImageResource(R.drawable.air_quality)
                 }
             }
         }
@@ -316,14 +324,16 @@ class MainActivity : AppCompatActivity() {
                         try {
                             val jsonObject = responseBody?.let { JSONObject(it) }
                             val result = jsonObject?.getString("result")
+
+                            val extractedMessage = result?.substringAfter("[('")?.substringBefore("'") ?: "Unknown"
+
                             sendNotification(
                                 title = getString(R.string.notification_upload_success_title),
-                                message = result ?: "Upload successful"
+                                message = extractedMessage
                             )
-                            Toast.makeText(this@MainActivity, "Response: $result", Toast.LENGTH_LONG).show()
                             Toast.makeText(
                                 this@MainActivity,
-                                "Response: $result",
+                                "Found: $extractedMessage",
                                 Toast.LENGTH_LONG
                             ).show()
                         } catch (e: Exception) {
@@ -338,7 +348,6 @@ class MainActivity : AppCompatActivity() {
                             title = getString(R.string.notification_upload_fail_title),
                             message = "Upload failed: ${response.message()}"
                         )
-                        Toast.makeText(this@MainActivity, "Upload failed: ${response.message()}", Toast.LENGTH_SHORT).show()
                         Toast.makeText(
                             this@MainActivity,
                             "Upload failed: ${response.message()}",
@@ -350,18 +359,22 @@ class MainActivity : AppCompatActivity() {
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 runOnUiThread {
-                    Toast.makeText(this@MainActivity, "Error: ${t.message}", Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Request failed: ${t.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         })
+
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun sendNotification(title: String, message: String) {
-        val context = applicationContext // Use the application context to send the notification
+        val context = applicationContext
         val builder = NotificationCompat.Builder(context, notificationChannelId)
-            .setSmallIcon(R.drawable.ic_menu_camera) // Replace with your app's notification icon
+            .setSmallIcon(R.drawable.ic_menu_camera)
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
