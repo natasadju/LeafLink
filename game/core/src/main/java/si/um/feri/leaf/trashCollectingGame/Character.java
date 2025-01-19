@@ -1,6 +1,5 @@
-package si.um.feri.leaf;
+package si.um.feri.leaf.trashCollectingGame;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;

@@ -1,4 +1,4 @@
-package si.um.feri.leaf.screen;
+package si.um.feri.leaf.trashCollectingGame.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -12,12 +12,9 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -32,7 +29,8 @@ import java.util.Random;
 import assets.AssetDescriptors;
 import assets.RegionNames;
 import si.um.feri.leaf.LeafLink;
-import si.um.feri.leaf.Character;
+import si.um.feri.leaf.screen.MapScreen;
+import si.um.feri.leaf.trashCollectingGame.Character;
 import si.um.feri.leaf.utils.Marker;
 
 public class GameScreen extends ScreenAdapter {
@@ -430,7 +428,6 @@ public class GameScreen extends ScreenAdapter {
             videoPlayer.dispose();
         }
         spriteBatch.dispose();
-        assetManager.dispose();
         character.dispose();
     }
 }

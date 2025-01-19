@@ -45,6 +45,7 @@ public class AssetDescriptors {
     public static final AssetDescriptor<Music> MAIN_BACKGROUND_MUSIC =
         new AssetDescriptor<Music>(AssetPaths.MAIN_BACKGROUND_MUSIC, Music.class);
 
+
     private AssetDescriptors() {
     }
 }

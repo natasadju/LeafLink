@@ -45,8 +45,8 @@ import org.bson.types.ObjectId;
 import assets.AssetDescriptors;
 import assets.RegionNames;
 import si.um.feri.leaf.LeafLink;
-import si.um.feri.leaf.pollenGame.screen.CharacterSelectionScreen;
 import si.um.feri.leaf.pollenGame.screen.ModeSelectionScreen;
+import si.um.feri.leaf.trashCollectingGame.screen.GameScreen;
 import si.um.feri.leaf.utils.*;
 
 import java.io.FileNotFoundException;
@@ -605,6 +605,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     public void dispose() {
         shapeRenderer.dispose();
         spriteBatch.dispose();
+//        assetManager.dispose();
         if (tiledMap != null) {
             tiledMap.dispose();
         }
@@ -706,7 +707,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
                     eventWindowVisible = true;
                 }
                 else if (count == 2) {
-                    startGame2(airMarker);
+                    startPollenGame(airMarker);
                 }
                 return true;
             }
@@ -718,10 +719,8 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
 
 
-
     private void startGame1(Marker marker) {
         Gdx.app.log("MapScreen", "Starting game for event: " + marker.getEventName());
-        // Example: Switch to a new screen (replace with actual game logic)
         try {
             game.setScreen(new GameScreen(game, marker));
         } catch (FileNotFoundException e) {
@@ -729,13 +728,9 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         }
     }
 
-    private void startGame2(AirMarker marker) {
+    private void startPollenGame(AirMarker marker) {
         Gdx.app.log("MapScreen", "Starting game for event: " + marker.getStation());
-        try {
-            game.setScreen(new NewGame(game, marker));
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        game.setScreen(new ModeSelectionScreen(game));
     }
 
 

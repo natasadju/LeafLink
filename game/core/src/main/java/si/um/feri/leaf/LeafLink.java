@@ -13,18 +13,9 @@ import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-import org.bson.Document;
-import org.bson.types.ObjectId;
-
 import assets.AssetDescriptors;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import si.um.feri.leaf.screen.IntroScreen;
-import si.um.feri.leaf.screen.MapScreen;
-import si.um.feri.leaf.utils.ApiClient;
 import si.um.feri.leaf.utils.Constants;
-import assets.AssetDescriptors;
 
 
 public class LeafLink extends Game {

@@ -228,6 +228,8 @@ public class PollenGameScreen extends ScreenAdapter {
                 player1.isDead(),
                 player2 != null && player2.isDead()
             ));
+            Sound gameOverSound = assetManager.get(AssetDescriptors.SOUND_GAMEOVER);
+            gameOverSound.play();
             dispose();
             return;
         }
@@ -353,13 +355,13 @@ public class PollenGameScreen extends ScreenAdapter {
     }
 
     private boolean isGameOver() {
-        if (!isTwoPlayerMode || clouds.isEmpty()) {
+        if (!isTwoPlayerMode) {
             return player1.isDead();
         } else {
             if (player2 == null) {
                 return player1.isDead();
             }
-            return (player1.isDead() && player2.isDead());
+            return player1.isDead() || player2.isDead();
         }
     }
 
@@ -601,5 +603,6 @@ public class PollenGameScreen extends ScreenAdapter {
             backgroundMusic.stop();
             backgroundMusic.dispose();
         }
+
     }
 }

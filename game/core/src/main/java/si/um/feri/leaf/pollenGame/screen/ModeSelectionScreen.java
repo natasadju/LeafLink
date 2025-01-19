@@ -40,25 +40,42 @@ public class ModeSelectionScreen extends ScreenAdapter {
         batch.setProjectionMatrix(camera.combined);
 
         batch.begin();
-        font.getData().setScale(1f);
+
+        float viewportWidth = camera.viewportWidth;
+        float viewportHeight = camera.viewportHeight;
+
+        font.getData().setScale(1.3f);
+        font.setColor(Color.YELLOW);
+
+        String gameTitle = "Pollen Patrol";
+        GlyphLayout gameTitleLayout = new GlyphLayout(font, gameTitle);
+        float gameTitleX = (viewportWidth - gameTitleLayout.width) / 2;
+        float gameTitleY = viewportHeight * 0.9f;
+        font.draw(batch, gameTitleLayout, gameTitleX, gameTitleY);
+
+        font.getData().setScale(0.8f);
         font.setColor(Color.WHITE);
 
         String title = "Select Mode";
         GlyphLayout titleLayout = new GlyphLayout(font, title);
-        float titleX = (800 - titleLayout.width) / 2;
-        float titleY = 400;
+        float titleX = (viewportWidth - titleLayout.width) / 2;
+        float titleY = viewportHeight * 0.65f;
         font.draw(batch, titleLayout, titleX, titleY);
 
         String singlePlayerText = "1. Single Player";
         String twoPlayerText = "2. Two Players";
 
         GlyphLayout singleLayout = new GlyphLayout(font, singlePlayerText);
-        float singleX = (800 - singleLayout.width) / 2;
-        float singleY = 300;
-
         GlyphLayout twoLayout = new GlyphLayout(font, twoPlayerText);
-        float twoX = (800 - twoLayout.width) / 2;
-        float twoY = 250;
+
+        float optionBaseY = viewportHeight * 0.5f;
+        float optionSpacing = viewportHeight * 0.1f;
+
+        float singleX = (viewportWidth - singleLayout.width) / 2;
+        float singleY = optionBaseY;
+
+        float twoX = (viewportWidth - twoLayout.width) / 2;
+        float twoY = optionBaseY - optionSpacing;
 
         font.draw(batch, singleLayout, singleX, singleY);
         font.draw(batch, twoLayout, twoX, twoY);
