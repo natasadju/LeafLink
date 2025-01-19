@@ -95,6 +95,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         uiSkin= assetManager.get("ui/flat-earth-ui.json", Skin.class);
         font= new BitmapFont();
 
+
         stage = new Stage(new ScreenViewport());
         editButton = new TextButton("Edit Data", uiSkin);
         editButton.setSize(150, 50);
@@ -287,7 +288,6 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
             return;
         }
 
-        // Place the marker on the map and add to the airMarkers list
         airMarkers.add(new AirMarker(lat, lon, station, timestamp, markerStyle, pm25, pm10));
 
     }
@@ -440,9 +440,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
         SimpleDateFormat dateFormatter = new SimpleDateFormat("dd MMM yyyy, HH:mm");
 
-        // Check if an AirMarker is selected first
         if (selectedAirMarker != null) {
-            // Display air quality info if an AirMarker is selected
             font.draw(spriteBatch, "Air Quality Info:", textX, textY);
             textY -= 30;
 
@@ -461,11 +459,9 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
         } else if (selectedMarker != null) {
             if (showParks) {
-                // Display park info if showParks is true
                 font.draw(spriteBatch, "Selected Park:", sidebarX + 20, sidebarHeight - 20);
                 font.draw(spriteBatch, "Park Name: " + selectedMarker.getEventName(), sidebarX + 20, sidebarHeight - 60);
             } else {
-                // Display event details if not a park
                 font.draw(spriteBatch, "Event Details:", textX, textY);
                 textY -= 30;
                 font.draw(spriteBatch, "Name: " + selectedMarker.getEventName(), textX, textY);
@@ -478,7 +474,6 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
                 font.draw(spriteBatch, "Details: " + selectedMarker.getDescription(), textX, textY);
             }
         } else {
-            // If no marker is selected, show a default message
             font.draw(spriteBatch, "No event or air quality station selected.", textX, textY);
         }
 
@@ -607,7 +602,6 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     public void dispose() {
         shapeRenderer.dispose();
         spriteBatch.dispose();
-        assetManager.dispose();
         if (tiledMap != null) {
             tiledMap.dispose();
         }
@@ -650,7 +644,6 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
             float markerWidth = 35;
             float markerHeight = 40;
 
-            // Check if the touch is within the marker's bounds
             if (touchPosition.x > markerPosition.x - markerWidth / 2 &&
                 touchPosition.x < markerPosition.x + markerWidth / 2 &&
                 touchPosition.y > markerPosition.y - markerHeight / 2 &&
@@ -681,11 +674,11 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
                 touchPosition.y > markerPosition.y - markerHeight / 2 &&
                 touchPosition.y < markerPosition.y + markerHeight / 2) {
 
-                selectedAirMarker = null; // Reset air marker selection
+                selectedAirMarker = null;
 
                 if (count == 1) {
                     selectedMarker = marker;
-                    eventWindowVisible = true; // Open event window for regular marker
+                    eventWindowVisible = true;
                 } else if (count == 2) {
                     startGame1(marker);
                 }
@@ -703,11 +696,11 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
                 touchPosition.y > markerPosition.y - markerHeight / 2 &&
                 touchPosition.y < markerPosition.y + markerHeight / 2) {
 
-                selectedMarker = null; // Reset regular marker selection
+                selectedMarker = null;
 
                 if (count == 1) {
                     selectedAirMarker = airMarker;
-                    eventWindowVisible = true; // Open event window for air quality marker
+                    eventWindowVisible = true;
                 }
                 else if (count == 2) {
                     startGame2(airMarker);
@@ -716,7 +709,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
             }
         }
 
-        eventWindowVisible = false; // Close event window if no marker selected
+        eventWindowVisible = false;
         return false;
     }
 

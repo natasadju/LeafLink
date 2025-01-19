@@ -15,6 +15,14 @@ public class AssetDescriptors {
         new AssetDescriptor<BitmapFont>(AssetPaths.FONT, BitmapFont.class);
     public static final AssetDescriptor<Skin> UI_SKIN =
         new AssetDescriptor<Skin>(AssetPaths.UI_SKIN, Skin.class);
+    public static final AssetDescriptor<Sound> SOUND_CLICK =
+        new AssetDescriptor<Sound>(AssetPaths.SOUND_CLICK, Sound.class);
+
+    public static final AssetDescriptor<Sound> SOUND_GAMEOVER =
+        new AssetDescriptor<Sound>(AssetPaths.SOUND_GAMEOVER, Sound.class);
+
+    public static final AssetDescriptor<Sound> SOUND_BRID_COLLISION =
+        new AssetDescriptor<Sound>(AssetPaths.SOUND_BRID_COLLISION, Sound.class);
 
 
     private AssetDescriptors() {

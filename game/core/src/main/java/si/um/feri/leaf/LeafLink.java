@@ -34,10 +34,12 @@ import com.mongodb.client.MongoCursor;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
+import assets.AssetDescriptors;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import si.um.feri.leaf.screen.IntroScreen;
+import si.um.feri.leaf.screen.MapScreen;
 import si.um.feri.leaf.utils.ApiClient;
 import si.um.feri.leaf.utils.Constants;
 import si.um.feri.leaf.utils.Geolocation;
@@ -76,6 +78,13 @@ public class LeafLink extends Game {
 
         assetManager = new AssetManager();
         assetManager.getLogger().setLevel(Logger.DEBUG);
+        assetManager.load(AssetDescriptors.GAMEPLAY);
+        assetManager.load(AssetDescriptors.UI_SKIN);
+        assetManager.load(AssetDescriptors.SOUND_GAMEOVER);
+        assetManager.load(AssetDescriptors.SOUND_CLICK);
+        assetManager.load(AssetDescriptors.SOUND_BRID_COLLISION);
+        assetManager.load(AssetDescriptors.FONT);
+        assetManager.finishLoading();
         setScreen(new IntroScreen(this));
 
     }

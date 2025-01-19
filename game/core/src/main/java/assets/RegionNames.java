@@ -6,6 +6,9 @@ public class RegionNames {
     public static final String LEAF_GREEN = "greenLeaf";
     public static final String MARKER_RED = "leaf-red";
     public static final String PLAYER = "boy";
+    public static final String BROOM = "broom";
+    public static final String MAGNET = "magnet";
+    public static final String BOY_WITH_MAGNET = "boy_with_magnet";
     public static final String MARKER_GREEN = "leaf-green";
     public static final String AIR_GREEN = "air_green";
     public static final String AIR_YELLOW = "air_yellow";

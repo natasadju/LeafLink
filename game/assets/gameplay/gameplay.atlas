@@ -6,21 +6,14 @@ filter: Nearest, Nearest
 repeat: none
 air_green
   rotate: false
-  xy: 458, 274
+  xy: 458, 122
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 air_orange
   rotate: false
-  xy: 458, 172
-  size: 100, 100
-  orig: 100, 100
-  offset: 0, 0
-  index: -1
-air_purple
-  rotate: false
-  xy: 423, 70
+  xy: 423, 20
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
@@ -32,11 +25,11 @@ bird
   orig: 200, 169
   offset: 0, 0
   index: -1
-boy
+boy_squat
   rotate: false
   xy: 611, 2
-  size: 400, 400
-  orig: 400, 400
+  size: 402, 400
+  orig: 402, 400
   offset: 0, 0
   index: -1
 garbage2
@@ -62,16 +55,23 @@ greenLeaf
   index: -1
 leaf-green
   rotate: false
-  xy: 560, 279
+  xy: 560, 127
   size: 38, 95
   orig: 38, 95
   offset: 0, 0
   index: -1
 leaf-red
   rotate: false
-  xy: 560, 182
+  xy: 525, 25
   size: 38, 95
   orig: 38, 95
+  offset: 0, 0
+  index: -1
+magnet
+  rotate: false
+  xy: 458, 224
+  size: 150, 150
+  orig: 150, 150
   offset: 0, 0
   index: -1
 redLeaf
@@ -90,27 +90,55 @@ tree
   index: -1
 
 gameplay2.png
-size: 512, 256
+size: 512, 512
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
+air_purple
+  rotate: false
+  xy: 2, 2
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
 air_red
   rotate: false
-  xy: 216, 54
+  xy: 401, 404
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 air_yellow
   rotate: false
-  xy: 318, 54
+  xy: 285, 250
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
+boy
+  rotate: false
+  xy: 2, 104
+  size: 183, 400
+  orig: 183, 400
+  offset: 0, 0
+  index: -1
+boy_with_magnet
+  rotate: false
+  xy: 187, 150
+  size: 96, 200
+  orig: 96, 200
+  offset: 0, 0
+  index: -1
+broom
+  rotate: false
+  xy: 104, 24
+  size: 70, 78
+  orig: 70, 78
+  offset: 0, 0
+  index: -1
 garbage1
   rotate: false
-  xy: 2, 2
+  xy: 187, 352
   size: 212, 152
   orig: 212, 152
   offset: 0, 0
