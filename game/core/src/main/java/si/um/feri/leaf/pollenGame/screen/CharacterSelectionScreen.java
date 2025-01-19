@@ -30,7 +30,6 @@ public class CharacterSelectionScreen extends ScreenAdapter {
     private final BitmapFont font;
     private final AssetManager assetManager;
 
-    // Characters data
     private final Array<String> characterNames;
     private final Array<TextureRegion> previewRegions;
 
@@ -118,8 +117,7 @@ public class CharacterSelectionScreen extends ScreenAdapter {
                     return;
                 }
             }
-        }
-        else {
+        } else {
             if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
                 selectedIndexP2 = (selectedIndexP2 - 1 + previewRegions.size) % previewRegions.size;
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
@@ -152,29 +150,7 @@ public class CharacterSelectionScreen extends ScreenAdapter {
         float titleY = VIRTUAL_HEIGHT - 50;
         font.draw(batch, title, titleX, titleY);
 
-        font.getData().setScale(0.5f);
-        float instructionsY = titleY - 80;
-
-        if (!isTwoPlayerMode) {
-            font.draw(batch,
-                "Use A/D to highlight. Press ENTER to confirm for Single Player.",
-                30,
-                instructionsY);
-        } else {
-            if (!firstPlayerConfirmed) {
-                font.draw(batch,"PLAYER 1: ", 30, instructionsY);
-                font.draw(batch,
-                    "Use A/D to choose, press ENTER to confirm.",
-                    30,
-                    instructionsY - 30);
-            } else {
-                font.draw(batch,"PLAYER 2: ", 30, instructionsY);
-                font.draw(batch,
-                    "Use LEFT/RIGHT to choose, press ENTER to confirm.",
-                    30,
-                    instructionsY -30);
-            }
-        }
+        font.getData().setScale(0.3f);
 
         float iconWidth = 128;
         float iconHeight = 128;
@@ -183,6 +159,8 @@ public class CharacterSelectionScreen extends ScreenAdapter {
         float startX = (VIRTUAL_WIDTH - totalWidth) / 2f;
         float yPosition = (VIRTUAL_HEIGHT / 2f - 10f) - (iconHeight / 2f);
 
+        float instructionsY = yPosition - 50;
+
         for (int i = 0; i < previewRegions.size; i++) {
             float xPosition = startX + i * (iconWidth + gap);
 
@@ -190,14 +168,39 @@ public class CharacterSelectionScreen extends ScreenAdapter {
 
             if (!firstPlayerConfirmed && i == selectedIndexP1) {
                 batch.setColor(Color.YELLOW);
-            }
-            else if (firstPlayerConfirmed && i == selectedIndexP2) {
+            } else if (firstPlayerConfirmed && i == selectedIndexP2) {
                 batch.setColor(Color.GREEN);
             } else {
                 batch.setColor(Color.WHITE);
             }
 
             batch.draw(region, xPosition, yPosition, iconWidth, iconHeight);
+        }
+
+        font.setColor(Color.WHITE);
+        if (!isTwoPlayerMode) {
+            font.draw(batch,
+                "Use A/D to highlight.",
+                30,
+                instructionsY);
+            font.draw(batch,
+                "Press ENTER to confirm.",
+                30,
+                instructionsY - 30);
+        } else {
+            if (!firstPlayerConfirmed) {
+                font.draw(batch, "PLAYER 1: ", 30, instructionsY);
+                font.draw(batch,
+                    "Use A/D to choose, press ENTER to confirm.",
+                    30,
+                    instructionsY - 30);
+            } else {
+                font.draw(batch, "PLAYER 2: ", 30, instructionsY);
+                font.draw(batch,
+                    "Use LEFT/RIGHT to choose, press ENTER to confirm.",
+                    30,
+                    instructionsY - 30);
+            }
         }
 
         batch.end();

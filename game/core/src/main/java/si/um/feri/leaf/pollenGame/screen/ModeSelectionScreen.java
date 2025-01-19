@@ -40,7 +40,7 @@ public class ModeSelectionScreen extends ScreenAdapter {
         batch.setProjectionMatrix(camera.combined);
 
         batch.begin();
-        font.getData().setScale(1.2f);
+        font.getData().setScale(1f);
         font.setColor(Color.WHITE);
 
         String title = "Select Mode";

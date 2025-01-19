@@ -10,5 +10,8 @@ public class GameConfig {
     public static final float DAMAGE_COOLDOWN = 0.6f;
     public static final float POWER_UP_RESPAWN_TIME = 15f;
 
+    public static final int TARGET_SCORE = 1300;
+    public static final float MATCH_DURATION = 100f;
+
 
 }

@@ -14,7 +14,7 @@ public class AssetPaths {
 
     public static final String CHOOSE_SCREEN = "sounds/choose-screen.ogg";
 
-    public static final String MAIN_BACKGROUND_MUSIC = "sounds/backgroundmusic.mp3";
+    public static final String MAIN_BACKGROUND_MUSIC = "sounds/backgroundmusic.ogg";
 
 
     private AssetPaths() {

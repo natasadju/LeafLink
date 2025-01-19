@@ -48,6 +48,7 @@ public class LeafLink extends Game {
         assetManager.load(AssetDescriptors.FEMALE_COUGHING);
         assetManager.load(AssetDescriptors.CHOOSE_CHARACTER);
         assetManager.load(AssetDescriptors.CHOOSE_SCREEN);
+        assetManager.load(AssetDescriptors.MAIN_BACKGROUND_MUSIC);
         assetManager.getLogger().setLevel(Logger.DEBUG);
         assetManager.finishLoading();
         setScreen(new IntroScreen(this));

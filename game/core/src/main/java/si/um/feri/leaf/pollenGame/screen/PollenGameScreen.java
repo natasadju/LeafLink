@@ -3,7 +3,9 @@ package si.um.feri.leaf.pollenGame.screen;
 import static si.um.feri.leaf.pollenGame.config.GameConfig.HEART_HEIGHT;
 import static si.um.feri.leaf.pollenGame.config.GameConfig.HEART_WIDTH;
 import static si.um.feri.leaf.pollenGame.config.GameConfig.POWER_UP_RESPAWN_TIME;
+import static si.um.feri.leaf.pollenGame.config.GameConfig.TARGET_SCORE;
 import static si.um.feri.leaf.pollenGame.config.GameConfig.TILE_SIZE;
+import static si.um.feri.leaf.pollenGame.config.GameConfig.MATCH_DURATION;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -84,6 +86,8 @@ public class PollenGameScreen extends ScreenAdapter {
     private TextureRegion powerUpTexture;
 
     private Music backgroundMusic;
+    private float matchTimer;
+    private boolean isLevelComplete = false;
 
     public PollenGameScreen(LeafLink game,
                             String player1Character,
@@ -191,6 +195,9 @@ public class PollenGameScreen extends ScreenAdapter {
             }
         }
 
+        matchTimer = MATCH_DURATION;
+        isLevelComplete = false;
+
         powerUp = new PowerUp(0, 0, 32, 32, powerUpTexture);
         powerUp.setRespawnTimer(0);
 
@@ -203,13 +210,37 @@ public class PollenGameScreen extends ScreenAdapter {
         );
         isRaining = false;
         rainTimer = 0f;
+
+        backgroundMusic = assetManager.get(AssetDescriptors.MAIN_BACKGROUND_MUSIC);
+        backgroundMusic.setLooping(true);
+        backgroundMusic.setVolume(0.5f);
+        backgroundMusic.play();
     }
 
     @Override
     public void render(float delta) {
-        if (isGameOver()) {
-            renderGameOver();
+        if (isLevelComplete || isGameOver()) {
+            game.setScreen(new GameOverScreen(
+                game,
+                isTwoPlayerMode,
+                player1.getScore(),
+                player2 != null ? player2.getScore() : 0,
+                player1.isDead(),
+                player2 != null && player2.isDead()
+            ));
+            dispose();
             return;
+        }
+
+        if (isTwoPlayerMode) {
+            matchTimer -= delta;
+            if (matchTimer <= 0) {
+                isLevelComplete = true;
+            }
+        } else {
+            if (player1.getScore() >= TARGET_SCORE) {
+                isLevelComplete = true;
+            }
         }
 
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -232,7 +263,6 @@ public class PollenGameScreen extends ScreenAdapter {
         }
 
         renderClouds();
-
 
         powerUp.render(mapRenderer.getBatch());
 
@@ -443,28 +473,6 @@ public class PollenGameScreen extends ScreenAdapter {
         }
     }
 
-    private void renderGameOver() {
-        mapRenderer.getBatch().begin();
-
-        GlyphLayout gameOverLayout = new GlyphLayout(font, "GAME OVER");
-        GlyphLayout restartLayout = new GlyphLayout(font, "Press R to Restart");
-
-        float gameOverX = (hudCamera.viewportWidth - gameOverLayout.width) / 2f;
-        float gameOverY = (hudCamera.viewportHeight + gameOverLayout.height) / 2f;
-
-        float restartX = (hudCamera.viewportWidth - restartLayout.width) / 2f;
-        float restartY = gameOverY - 50;
-
-        font.draw(mapRenderer.getBatch(), gameOverLayout, gameOverX, gameOverY);
-        font.draw(mapRenderer.getBatch(), restartLayout, restartX, restartY);
-
-        mapRenderer.getBatch().end();
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
-            restartGame();
-        }
-    }
-
     private void restartGame() {
         player1.reset();
         player1.setPosition(50, 170);
@@ -478,12 +486,17 @@ public class PollenGameScreen extends ScreenAdapter {
             cloud.setSize(getRandomCloudSize());
             cloud.setRespawnTimer(0);
         }
+
         powerUp.deactivate();
         powerUp.setRespawnTimer(0);
 
         isRaining = false;
         rainTimer = 0f;
+
+        matchTimer = MATCH_DURATION;
+        isLevelComplete = false;
     }
+
 
     private void renderHUD() {
         hudCamera.update();
@@ -496,13 +509,22 @@ public class PollenGameScreen extends ScreenAdapter {
 
         if (isTwoPlayerMode && player2 != null) {
             renderPlayerHearts(player2, hudCamera.viewportWidth - (5 * (HEART_WIDTH + 5)) - 100,
-                    hudCamera.viewportHeight - HEART_HEIGHT - 10);
+                hudCamera.viewportHeight - HEART_HEIGHT - 10);
             renderPlayerScore(player2, hudCamera.viewportWidth - (5 * (HEART_WIDTH + 5)) - 100,
-                    hudCamera.viewportHeight - HEART_HEIGHT - 20);
+                hudCamera.viewportHeight - HEART_HEIGHT - 20);
+        }
+
+        if (isTwoPlayerMode) {
+            String timerText = "Time Left: " + (int) matchTimer + "s";
+            GlyphLayout layout = new GlyphLayout(font, timerText);
+            float x = (hudCamera.viewportWidth - layout.width) / 2;
+            float y = hudCamera.viewportHeight - 20;
+            font.draw(mapRenderer.getBatch(), layout, x, y);
         }
 
         mapRenderer.getBatch().end();
     }
+
 
     private void renderPlayerScore(Player player, float x, float y) {
         font.setColor(Color.WHITE);
@@ -574,6 +596,10 @@ public class PollenGameScreen extends ScreenAdapter {
         }
         if (rain != null) {
             rain.dispose();
+        }
+        if (backgroundMusic != null) {
+            backgroundMusic.stop();
+            backgroundMusic.dispose();
         }
     }
 }
