@@ -20,4 +20,4 @@ var extremeSchema = new Schema({
     }
 });
 
-module.exports = mongoose.model('extreme', friendshipSchema);
+module.exports = mongoose.model('extreme', extremeSchema);

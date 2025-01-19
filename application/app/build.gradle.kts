@@ -55,7 +55,7 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.play.services.maps)
-    implementation("org.osmdroid:osmdroid-android:6.1.14")
+    implementation(libs.osmdroid.android)
     implementation("org.osmdroid:osmdroid-geopackage:6.1.14")
     implementation("org.mongodb:mongodb-driver-kotlin-coroutine:5.2.1")
     implementation("org.mongodb:bson-kotlin:5.2.1")

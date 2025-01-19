@@ -2,6 +2,7 @@ package feri.um.leaflink.ui.home
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.util.Log
@@ -21,11 +22,13 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.Polygon
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.*
+import feri.um.leaflink.helperClasses.TextOverlay
 
 class HomeFragment : Fragment() {
 
@@ -203,12 +206,12 @@ class HomeFragment : Fragment() {
         val groupedByStation = airQualityList.groupBy { it.station }
 
         val latestAirQualityList = groupedByStation.map { entry ->
-            val validRecords = entry.value.filter { true }
+            val validRecords = entry.value.filter { it.timestamp != null }
             if (validRecords.isEmpty()) {
                 Log.d("Filter", "No valid timestamp for station: ${entry.key}")
             }
             val latestRecord = entry.value
-                .filter { true }
+                .filter { it.timestamp != null }
                 .maxByOrNull { it.timestamp }
             latestRecord
         }.filterNotNull()
@@ -259,22 +262,79 @@ class HomeFragment : Fragment() {
             }
         }
 
+//        val marker = Marker(mapView)
+//        val customIcon = ResourcesCompat.getDrawable(resources, R.drawable.air_quality, null) as BitmapDrawable
+//        val scaledBitmap = Bitmap.createScaledBitmap(customIcon.bitmap, 100, 100, true)
+//        marker.icon = BitmapDrawable(resources, scaledBitmap)
+//        marker.position = geoPoint
+//        marker.title = "Air Quality: ${airQuality.station}"
+//        marker.snippet = "PM2.5: ${airQuality.pm25}, PM10: ${airQuality.pm10}"
+//
+//        marker.setOnMarkerClickListener { _, _ ->
+//            marker.showInfoWindow()
+//            true
+//        }
+//
+//        mapView.overlays.add(marker)
+        // Create a marker for displaying the air quality value
         val marker = Marker(mapView)
-        val customIcon = ResourcesCompat.getDrawable(resources, R.drawable.air_quality, null) as BitmapDrawable
-        val scaledBitmap = Bitmap.createScaledBitmap(customIcon.bitmap, 100, 100, true)
-        marker.icon = BitmapDrawable(resources, scaledBitmap)
         marker.position = geoPoint
-        marker.title = "Air Quality: ${airQuality.station}"
-        marker.snippet = "PM2.5: ${airQuality.pm25}, PM10: ${airQuality.pm10}"
+        marker.title = "PM10: ${airQuality.pm10}"
+
+        val backgroundColor: Int
+        if (airQuality.pm10 != null) {
+            addAirQualityCircle(geoPoint, airQuality.pm10)
+            backgroundColor = getAirQualityColor(airQuality.pm10)
+        } else {
+            backgroundColor = Color.TRANSPARENT
+        }
+
+        val textOverlay = TextOverlay(airQuality.pm10.toString(), geoPoint, backgroundColor, R.color.teal_700)
 
         marker.setOnMarkerClickListener { _, _ ->
             marker.showInfoWindow()
             true
         }
 
-        mapView.overlays.add(marker)
+        mapView.overlays.add(textOverlay)
     }
 
+    private fun getAirQualityColor(pm10: Double): Int {
+        return when {
+            pm10 <= 50 -> ResourcesCompat.getColor(resources, R.color.good, null)
+            pm10 <= 100 -> ResourcesCompat.getColor(resources, R.color.moderate, null)
+            pm10 <= 150 -> ResourcesCompat.getColor(resources, R.color.unhealthy_for_sensitive, null)
+            pm10 <= 200 -> ResourcesCompat.getColor(resources, R.color.unhealthy_for_sensitive_groups, null)
+            else -> ResourcesCompat.getColor(resources, R.color.unhealthy_air_quality, null)
+        }
+    }
+    private fun addAirQualityCircle(geoPoint: GeoPoint, pm10: Double) {
+        val radiusInMeters = 500.0 * 10
+
+        val points = mutableListOf<GeoPoint>()
+        val circlePointsCount = 30
+        for (i in 0 until circlePointsCount) {
+            val angle = Math.toRadians((i * 360.0) / circlePointsCount)
+            val x = geoPoint.latitude + (radiusInMeters / 100000.0) * Math.cos(angle)
+            val y = geoPoint.longitude + (radiusInMeters / 100000.0) * Math.sin(angle)
+            points.add(GeoPoint(x, y))
+        }
+
+        val polygon = Polygon()
+        polygon.points = points
+
+        val fillColor = when {
+            pm10 <= 50 -> Color.argb(50, 0, 255, 0)
+            pm10 <= 100 -> Color.argb(100, 255, 255, 0)
+            pm10 <= 150 -> Color.argb(150, 255, 165, 0)
+            pm10 <= 200 -> Color.argb(200, 255, 0, 0)
+            else -> Color.argb(255, 139, 0, 0)
+        }
+
+        polygon.fillColor = fillColor
+        polygon.strokeWidth = 2f
+        mapView.overlays.add(polygon)
+    }
 
     private fun addEventMarker(event: Event, geoPoint: GeoPoint, park: Park) {
         val marker = Marker(mapView)

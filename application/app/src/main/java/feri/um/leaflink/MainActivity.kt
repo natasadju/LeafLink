@@ -62,76 +62,7 @@ class MainActivityViewModel : ViewModel() {
     fun setDataType(newDataType: DataType) {
         _dataType.value = newDataType
     }
-    private val _events = MutableLiveData<MutableList<Event>>()
-    val events: MutableLiveData<MutableList<Event>> get() = _events
 
-    private val _parks = MutableLiveData<MutableList<Park>>()
-    val parks: MutableLiveData<MutableList<Park>> get() = _parks
-
-    private val _airQuality = MutableLiveData<MutableList<AirQuality>>()
-    val airQuality: MutableLiveData<MutableList<AirQuality>> get() = _airQuality
-
-    val combinedData = MediatorLiveData<Pair<MutableList<Event>?, MutableList<Park>?>>().apply {
-        addSource(events) { eventList ->
-            value = Pair(eventList, parks.value)
-        }
-        addSource(parks) { parkList ->
-            value = Pair(events.value, parkList)
-        }
-    }
-
-    fun fetchData(context: Context) {
-        Log.d("MainActivityViewModel", "fetchData: Fetching data")
-        RetrofitClient.instance.getEvents().enqueue(object : Callback<List<Event>> {
-            override fun onResponse(call: Call<List<Event>>, response: Response<List<Event>>) {
-                if (response.isSuccessful) {
-                    _events.value = response.body() as MutableList<Event>
-                    response.body()?.forEach { event ->
-                        fetchParkDetails(event, context)
-                    }
-                } else {
-                    Toast.makeText(context, "Failed to load events", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            override fun onFailure(call: Call<List<Event>>, t: Throwable) {
-                Toast.makeText(context, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
-            }
-        })
-    }
-
-    private fun fetchParkDetails(event: Event, context: Context) {
-        RetrofitClient.instance.getParkDetails(event.parkId).enqueue(object : Callback<Park> {
-            override fun onResponse(call: Call<Park>, response: Response<Park>) {
-                if (response.isSuccessful) {
-                    val park = response.body()
-                    _parks.value = _parks.value?.plus(park ?: return) as MutableList<Park>?
-                    Log.d("MainActivityViewModel", "fetchParkDetails: Park details: $park")
-                } else {
-                    Toast.makeText(context, "Failed to load park details", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            override fun onFailure(call: Call<Park>, t: Throwable) {
-                Toast.makeText(context, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
-            }
-        })
-    }
-    private fun fetchAirQuality(context: Context) {
-        RetrofitClient.instance.getAirQuality().enqueue(object : Callback<List<AirQuality>> {
-            override fun onResponse(call: Call<List<AirQuality>>, response: Response<List<AirQuality>>) {
-                if (response.isSuccessful) {
-                    _airQuality.value = response.body() as MutableList<AirQuality>
-                } else {
-                    Toast.makeText(context, "Failed to load air quality data", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            override fun onFailure(call: Call<List<AirQuality>>, t: Throwable) {
-                Toast.makeText(context, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
-            }
-        })
-    }
 }
 
 class MainActivityPhotoViewModel : ViewModel() {

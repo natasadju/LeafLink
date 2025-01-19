@@ -1,4 +1,4 @@
-var ExtremeModel = require('../models/extreme');
+var ExtremeModel = require('../models/extremeModel.js');
 
 /**
  * extremeController.js
