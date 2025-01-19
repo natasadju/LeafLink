@@ -20,6 +20,16 @@ public class RegionNames {
     public static final String GARBAGE2 = "garbage2";
     public static final String GARBAGE3 = "garbage3";
 
+    public static final String SMALL_CLOUD = "smallCloud";
+    public static final String BIG_CLOUD = "bigCloud";
+
+    public static final String MEDIUM_CLOUD = "mediumCloud";
+
+    public static final String HEART_HUD = "heart";
+
+    public static final String POWERUP = "powerup";
+
+
     private RegionNames() {
     }
 

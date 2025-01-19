@@ -45,6 +45,8 @@ import org.bson.types.ObjectId;
 import assets.AssetDescriptors;
 import assets.RegionNames;
 import si.um.feri.leaf.LeafLink;
+import si.um.feri.leaf.pollenGame.screen.CharacterSelectionScreen;
+import si.um.feri.leaf.pollenGame.screen.ModeSelectionScreen;
 import si.um.feri.leaf.utils.*;
 
 import java.io.FileNotFoundException;
@@ -69,6 +71,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     private SpriteBatch spriteBatch;
     private ZoomXY beginTile;
     private final Geolocation CENTER_GEOLOCATION = new Geolocation(46.5525, 15.7012);
+    private final Geolocation MARKER_GEOLOCATION = new Geolocation(46.559070, 15.638100);
     private List<Marker> markers = new ArrayList<>();
     private List<AirMarker> airMarkers = new ArrayList<>();
     private boolean eventWindowVisible = false;
@@ -718,6 +721,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
     private void startGame1(Marker marker) {
         Gdx.app.log("MapScreen", "Starting game for event: " + marker.getEventName());
+        // Example: Switch to a new screen (replace with actual game logic)
         try {
             game.setScreen(new GameScreen(game, marker));
         } catch (FileNotFoundException e) {
