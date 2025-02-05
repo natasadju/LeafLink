@@ -1,0 +1,145 @@
+
+gameplay.png
+size: 1024, 1024
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+air_green
+  rotate: false
+  xy: 458, 122
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+air_orange
+  rotate: false
+  xy: 423, 20
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+bird
+  rotate: false
+  xy: 221, 3
+  size: 200, 169
+  orig: 200, 169
+  offset: 0, 0
+  index: -1
+boy_squat
+  rotate: false
+  xy: 611, 2
+  size: 402, 400
+  orig: 402, 400
+  offset: 0, 0
+  index: -1
+garbage2
+  rotate: false
+  xy: 2, 189
+  size: 252, 185
+  orig: 252, 185
+  offset: 0, 0
+  index: -1
+garbage3
+  rotate: false
+  xy: 2, 5
+  size: 217, 182
+  orig: 217, 182
+  offset: 0, 0
+  index: -1
+greenLeaf
+  rotate: false
+  xy: 256, 174
+  size: 200, 200
+  orig: 200, 200
+  offset: 0, 0
+  index: -1
+leaf-green
+  rotate: false
+  xy: 560, 127
+  size: 38, 95
+  orig: 38, 95
+  offset: 0, 0
+  index: -1
+leaf-red
+  rotate: false
+  xy: 525, 25
+  size: 38, 95
+  orig: 38, 95
+  offset: 0, 0
+  index: -1
+magnet
+  rotate: false
+  xy: 458, 224
+  size: 150, 150
+  orig: 150, 150
+  offset: 0, 0
+  index: -1
+redLeaf
+  rotate: false
+  xy: 611, 404
+  size: 408, 612
+  orig: 408, 612
+  offset: 0, 0
+  index: -1
+tree
+  rotate: false
+  xy: 2, 376
+  size: 607, 640
+  orig: 607, 640
+  offset: 0, 0
+  index: -1
+
+gameplay2.png
+size: 512, 512
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+air_purple
+  rotate: false
+  xy: 2, 2
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+air_red
+  rotate: false
+  xy: 401, 404
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+air_yellow
+  rotate: false
+  xy: 285, 250
+  size: 100, 100
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+boy
+  rotate: false
+  xy: 2, 104
+  size: 183, 400
+  orig: 183, 400
+  offset: 0, 0
+  index: -1
+boy_with_magnet
+  rotate: false
+  xy: 187, 150
+  size: 96, 200
+  orig: 96, 200
+  offset: 0, 0
+  index: -1
+broom
+  rotate: false
+  xy: 104, 24
+  size: 70, 78
+  orig: 70, 78
+  offset: 0, 0
+  index: -1
+garbage1
+  rotate: false
+  xy: 187, 352
+  size: 212, 152
+  orig: 212, 152
+  offset: 0, 0
+  index: -1
