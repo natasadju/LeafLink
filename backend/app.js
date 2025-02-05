@@ -16,7 +16,7 @@ const mainRouter = require("./routes/userRoutes");
 
 // Middleware to parse the request body
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.urlencoded({extended: true}))
 
 const allowedOrigins = [
     'http://localhost:5173',
@@ -45,6 +45,12 @@ app.use("/images", imageRouter);
 
 var eventRouter = require('./routes/eventRoutes');
 app.use('/events', eventRouter);
+
+const imageProcessRouter = require("./routes/scanImageRoutes");
+app.use('/processImages', imageProcessRouter);
+
+const extremeRouter = require('./routes/extremeRoutes');
+app.use('/extreme', extremeRouter);
 
 const port = process.env.PORT || 3000;
 
@@ -95,7 +101,6 @@ async function fetchDataFromOpenStreetMap(parkId) {
     }
 }
 
-// Start the server
 const start = async () => {
     try {
         await connectDB(process.env.MONGO_URI);

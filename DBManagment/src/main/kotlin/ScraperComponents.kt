@@ -97,10 +97,7 @@ fun scrapeAirQuality(): List<AirData> {
                         table.findAll("tr").drop(3).forEach { row ->
                             try {
                                 val stationCell = row.maybe { findFirst(".onlineimena") }
-                                if (stationCell != null &&
-                                    (stationCell.text.contains("MB Vrbanski") || stationCell.text.contains("MB Titova"))
-                                ) {
-                                    val station = stationCell.text
+                                    val station = stationCell?.text
                                     val cells = row.findAll(".onlinedesno")
                                     if (cells.size >= 7) {
                                         val pm10 = cells[0].text
@@ -114,7 +111,7 @@ fun scrapeAirQuality(): List<AirData> {
                                         scrapedItems.add(
                                             AirData(
                                                 _id = UUID.randomUUID().toString(),
-                                                station = station,
+                                                station = station?:"",
                                                 pm10 = pm10,
                                                 pm25 = pm25,
                                                 so2 = so2,
@@ -128,7 +125,6 @@ fun scrapeAirQuality(): List<AirData> {
                                             )
                                         )
                                     }
-                                }
                             } catch (e: Exception) {
                                 println("Error: ${e.message}")
                             }
